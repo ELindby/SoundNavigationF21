@@ -11,6 +11,10 @@
   * MAIN CLASS
   *******************************************************************************
   ******************************************************************************/
+//INCLUDE CLASSES
+#include "soundlocalization.h"
+
+
 #include <cmath>
 #include <ctime>
 #include <fstream>
