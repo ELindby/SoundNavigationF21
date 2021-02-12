@@ -1,3 +1,16 @@
+/*
+ * Description:     The main class of Environment navigation using limited sound and machine learning 
+ *                  
+ * Author:			Erik Lindby
+ *					University of Southern Denmark 
+ * Creation date:   01-02-2021
+ */
+
+ /*******************************************************************************
+  *******************************************************************************
+  * MAIN CLASS
+  *******************************************************************************
+  ******************************************************************************/
 #include <cmath>
 #include <ctime>
 #include <fstream>
