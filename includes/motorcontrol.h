@@ -11,6 +11,9 @@
 #include <matrix_hal/gpio_control.h>
 #include <matrix_hal/matrixio_bus.h>
 #include <iostream>
+#include <cmath>
+#include <ctime>
+#include <unistd.h>
 
  // GPIO via Matrix Voice
 #define  TB6612_RIGHT_MOTOR_PWMA        14 // (Orange)
@@ -57,6 +60,6 @@ public:
 	void setLeftMotorSpeedDirection(int speed, int dir);
 	void setRightMotorSpeedDirection(int speed, int dir);
 	void startupShowLEDRainbow();
-	void setMatrixVoiceLED(int ledn, int r, int g, int b, int w = 0);
+	void setMatrixVoiceLED(int ledn, int r, int g, int b);
 	void resetMatrixVoiceLEDs();
 };

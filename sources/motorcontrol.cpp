@@ -24,11 +24,11 @@ MotorControl::MotorControl(){
 	// Create Everloop object
 	everloop = new matrix_hal::Everloop;
 	// Set everloop to use MatrixIOBus bus
-	this.everloop.Setup(&bus);
+    everloop->Setup(&bus);
 	// Create GPIOControl object - General Purpose Input Output
 	gpio = new matrix_hal::GPIOControl;
 	// Set gpio to use MatrixIOBus bus
-	gpio.Setup(&bus);
+	gpio->Setup(&bus);
 
 	// Display rainbow animation
 	startupShowLEDRainbow(/*&everloop, &everloop_image*/);
@@ -149,7 +149,7 @@ void MotorControl::startupShowLEDRainbow(/*matrix_hal::Everloop* everloop, matri
 }
 
 // Set individual LEDs on the Matrix Voice
-void MotorControl::setMatrixVoiceLED(/*matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* everloop_image,*/ int ledn, int r, int g, int b, int w = 0)
+void MotorControl::setMatrixVoiceLED(/*matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* everloop_image,*/ int ledn, int r, int g, int b)
 {
 	for (int i = 0; i < 18; i++)
 	{
@@ -158,7 +158,7 @@ void MotorControl::setMatrixVoiceLED(/*matrix_hal::Everloop* everloop, matrix_ha
 			everloop_image->leds[ledn].red = r;
 			everloop_image->leds[ledn].green = g;
 			everloop_image->leds[ledn].blue = b;
-			everloop_image->leds[ledn].white = w;
+			everloop_image->leds[ledn].white = 0;
 		}
 	}
 	everloop->Write(everloop_image);
@@ -166,14 +166,14 @@ void MotorControl::setMatrixVoiceLED(/*matrix_hal::Everloop* everloop, matrix_ha
 
 //Turn off all matrix voice LEDS
 void MotorControl::resetMatrixVoiceLEDs(){
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_R_1, 0, 0, 0);
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_L_9, 0, 0, 0);
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_R_3, 0, 0, 0);
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_L_7, 0, 0, 0);
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_R_4, 0, 0, 0);
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_L_6, 0, 0, 0);
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_R_5, 0, 0, 0);
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_L_5, 0, 0, 0);
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_R_9, 0, 0, 0);
-	setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_L_1, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_R_1, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_R_3, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_L_7, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_R_4, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_L_6, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_R_5, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_L_5, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_R_9, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_L_1, 0, 0, 0);
 }
