@@ -59,8 +59,3 @@
 #define MATRIX_LED_L_7          15
 #define MATRIX_LED_L_8          16
 #define MATRIX_LED_L_9          17
-
-#define REFLEX_THRESHOLD	80
-#define AVOIDANCE_THRESHOLD	65
-
-#define VELOCITY_OFFSET		12
