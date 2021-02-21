@@ -1,4 +1,4 @@
-g++ main.cpp -o main.out \
+g++ main.cpp sources/motorcontrol.cpp -o main.out \
 -Wall \
 -pthread \
 -L/usr/local/lib \

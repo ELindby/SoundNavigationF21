@@ -1,4 +1,4 @@
-#include "pch.h"
+//#include "pch.h"
 #include "../includes/motorcontrol.h"
 
 //Constructor
@@ -19,7 +19,7 @@ MotorControl::MotorControl(){
 	// Holds the number of LEDs on MATRIX device
 	ledCount = bus.MatrixLeds();
 	// Create EverloopImage object, with size of ledCount
-	this.everloop_image = new matrix_hal::EverloopImage(ledCount);
+	this.everloop_image = matrix_hal::EverloopImage(ledCount);
 
 	// Create Everloop object
 	//matrix_hal::Everloop everloop;
