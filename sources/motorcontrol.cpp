@@ -19,14 +19,14 @@ MotorControl::MotorControl(){
 	// Holds the number of LEDs on MATRIX device
 	ledCount = bus.MatrixLeds();
 	// Create EverloopImage object, with size of ledCount
-	this.everloop_image = matrix_hal::EverloopImage(ledCount);
+	everloop_image = new matrix_hal::EverloopImage(ledCount);
 
 	// Create Everloop object
-	//matrix_hal::Everloop everloop;
+	everloop = new matrix_hal::Everloop;
 	// Set everloop to use MatrixIOBus bus
-	everloop.Setup(&bus);
+	this.everloop.Setup(&bus);
 	// Create GPIOControl object - General Purpose Input Output
-	//matrix_hal::GPIOControl gpio;
+	gpio = new matrix_hal::GPIOControl;
 	// Set gpio to use MatrixIOBus bus
 	gpio.Setup(&bus);
 
