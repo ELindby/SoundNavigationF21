@@ -12,15 +12,15 @@
   *******************************************************************************
   ******************************************************************************/
 //INCLUDE DEFINES
-#include "defines.h"
+#include "/includes/defines.h"
 
 
 //INCLUDE CLASSES
-#include "soundlocalization.h"
-#include "motorcontrol.h"
-#include "lidar.h"
-#include "icolearning.h"
-#include "navigation.h"
+#include "/includes/soundlocalization.h"
+#include "/includes/motorcontrol.h"
+#include "/includes/lidar.h"
+#include "/includes/icolearning.h"
+#include "/includes/navigation.h"
 
 
 
