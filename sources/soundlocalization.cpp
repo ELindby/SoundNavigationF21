@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "soundlocalization.h"
+#include "../includes/soundlocalization.h"
 
 
 SoundLocalization::SoundLocalization()

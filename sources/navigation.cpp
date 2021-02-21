@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "navigation.h"
+#include "../includes/navigation.h"
 
 
 Navigation::Navigation()

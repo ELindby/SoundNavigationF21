@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "motorcontrol.h"
+#include "../includes/motorcontrol.h"
 
 //Constructor
 MotorControl::MotorControl(){
