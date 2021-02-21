@@ -1,8 +1,8 @@
 /*
- * Description:     The main class of Environment navigation using limited sound and machine learning 
- *                  
+ * Description:     The main class of Environment navigation using limited sound and machine learning
+ *
  * Author:			Erik Lindby
- *					University of Southern Denmark 
+ *					University of Southern Denmark
  * Creation date:   01-02-2021
  */
 
@@ -12,15 +12,15 @@
   *******************************************************************************
   ******************************************************************************/
 //INCLUDE DEFINES
-#include "/includes/defines.h"
+#include "includes/defines.h"
 
 
 //INCLUDE CLASSES
-#include "/includes/soundlocalization.h"
-#include "/includes/motorcontrol.h"
-#include "/includes/lidar.h"
-#include "/includes/icolearning.h"
-#include "/includes/navigation.h"
+#include "includes/soundlocalization.h"
+#include "includes/motorcontrol.h"
+#include "includes/lidar.h"
+#include "includes/icolearning.h"
+#include "includes/navigation.h"
 
 
 
@@ -63,7 +63,7 @@ int main (int argc, char** argv)
 
 	MotorControl motor_control;
 
-/*********************************   DONE   *********************************/	
+/*********************************   DONE   *********************************/
 
 	int key_input;
 	// Wait 3 seconds for camera image to stabilise
@@ -118,12 +118,12 @@ int main (int argc, char** argv)
 				}
 			}
 		}
-		
-		
 
-		
-		
-				
+
+
+
+
+
 
 	} // End of while loop
 /*********************************   END OF CONTROLLER LOOP   *********************************/
@@ -133,7 +133,7 @@ int main (int argc, char** argv)
 	motor_control.setLeftMotorSpeedDirection(0,1);
 
 
-	
+
 
 	return 0;
 }
