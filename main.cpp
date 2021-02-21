@@ -117,15 +117,15 @@ int main (int argc, char** argv)
 //					motor_control.setLeftMotorSpeedDirection(0, 1);
 //				}
 //			}
-        break;
-		}
+        
+//		}
 
 
 
 
 
 
-
+		break;
 	} // End of while loop
 /*********************************   END OF CONTROLLER LOOP   *********************************/
 
