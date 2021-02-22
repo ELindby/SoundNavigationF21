@@ -43,6 +43,7 @@
 #define MATRIX_LED_L_7          15
 #define MATRIX_LED_L_8          16
 #define MATRIX_LED_L_9          17
+enum DIRECTIONS { NONE = 0, FORWARD = 1, BACKWARD = 2, LEFT = 3, RIGHT = 4};
 
 class MotorControl {
 private:

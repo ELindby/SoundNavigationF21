@@ -14,7 +14,7 @@ MotorControl::MotorControl(){
 		//return false;
 
 	//DEBUG: Confirm bus init
-	std::cout << "Bus Init successful" << std::endl;
+	std::cout << "Motor Control: Bus Init successful" << std::endl;
 
 	// Holds the number of LEDs on MATRIX device
 	ledCount = bus.MatrixLeds();
@@ -176,4 +176,32 @@ void MotorControl::resetMatrixVoiceLEDs(){
 	setMatrixVoiceLED(MATRIX_LED_L_5, 0, 0, 0);
 	setMatrixVoiceLED(MATRIX_LED_R_9, 0, 0, 0);
 	setMatrixVoiceLED(MATRIX_LED_L_1, 0, 0, 0);
+}
+
+void setMotorDirection(int direction){
+	switch (direction) {
+	case FORWARD:
+		motor_control.setRightMotorSpeedDirection(30, 1);
+		motor_control.setLeftMotorSpeedDirection(30, 1);
+		break;
+	case LEFT:
+		motor_control.setRightMotorSpeedDirection(25, 1);
+		motor_control.setLeftMotorSpeedDirection(25, 0);
+		break;
+	case BACKWARD:
+		motor_control.setRightMotorSpeedDirection(25, 0);
+		motor_control.setLeftMotorSpeedDirection(25, 0);
+		break;
+	case RIGHT:
+		motor_control.setRightMotorSpeedDirection(25, 0);
+		motor_control.setLeftMotorSpeedDirection(25, 1);
+		break;
+	case NONE:
+		motor_control.setRightMotorSpeedDirection(0, 1);
+		motor_control.setLeftMotorSpeedDirection(0, 1);
+		break;
+	default:
+		motor_control.setRightMotorSpeedDirection(0, 1);
+		motor_control.setLeftMotorSpeedDirection(0, 1);
+	}
 }
