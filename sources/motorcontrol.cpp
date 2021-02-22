@@ -178,30 +178,30 @@ void MotorControl::resetMatrixVoiceLEDs(){
 	setMatrixVoiceLED(MATRIX_LED_L_1, 0, 0, 0);
 }
 
-void setMotorDirection(int direction){
+void MotorControl::setMotorDirection(int direction){
 	switch (direction) {
 	case FORWARD:
-		motor_control.setRightMotorSpeedDirection(30, 1);
-		motor_control.setLeftMotorSpeedDirection(30, 1);
+        setRightMotorSpeedDirection(30, 1);
+		setLeftMotorSpeedDirection(30, 1);
 		break;
 	case LEFT:
-		motor_control.setRightMotorSpeedDirection(25, 1);
-		motor_control.setLeftMotorSpeedDirection(25, 0);
+		setRightMotorSpeedDirection(25, 1);
+		setLeftMotorSpeedDirection(25, 0);
 		break;
 	case BACKWARD:
-		motor_control.setRightMotorSpeedDirection(25, 0);
-		motor_control.setLeftMotorSpeedDirection(25, 0);
+		setRightMotorSpeedDirection(25, 0);
+		setLeftMotorSpeedDirection(25, 0);
 		break;
 	case RIGHT:
-		motor_control.setRightMotorSpeedDirection(25, 0);
-		motor_control.setLeftMotorSpeedDirection(25, 1);
+		setRightMotorSpeedDirection(25, 0);
+		setLeftMotorSpeedDirection(25, 1);
 		break;
 	case NONE:
-		motor_control.setRightMotorSpeedDirection(0, 1);
-		motor_control.setLeftMotorSpeedDirection(0, 1);
+		setRightMotorSpeedDirection(0, 1);
+		setLeftMotorSpeedDirection(0, 1);
 		break;
 	default:
-		motor_control.setRightMotorSpeedDirection(0, 1);
-		motor_control.setLeftMotorSpeedDirection(0, 1);
+		setRightMotorSpeedDirection(0, 1);
+		setLeftMotorSpeedDirection(0, 1);
 	}
 }

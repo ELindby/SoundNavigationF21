@@ -20,15 +20,15 @@ ODAS::ODAS(){
 	everloop->Setup(&bus);
 
 	// Clear all LEDs
-	for (matrix_hal::LedValue &led : image1d.leds) {
+	for (matrix_hal::LedValue &led : image1d->leds) {
 		led.red = 0;
 		led.green = 0;
 		led.blue = 0;
 		led.white = 0;
 	}
-	everloop->Write(&image1d);
+	everloop->Write(image1d);
 
-	
+
 
 	server_id = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -55,7 +55,7 @@ ODAS::ODAS(){
 
 	printf("Receiving data........... \n\n");
 
-	
+
 }
 
 ODAS::~ODAS(){}
@@ -86,7 +86,7 @@ void ODAS::updateODAS() {
 			image1d->leds[i].blue = color;
 			image1d->leds[i].white = 0;
 		}
-		everloop->Write(&image1d);
+		everloop->Write(image1d);
 	}
 }
 

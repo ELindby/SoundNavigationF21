@@ -8,7 +8,11 @@
  *					University of Southern Denmark
  * Creation date:   22-02-2021
  */
-#include <json.h>
+#include "json-c/json.h"
+//#include "json-c/json_tokener.h"
+//#include <json/json.h>
+//#include <json.h>
+//#include "jsoncpp/json/json.h"
 #include <math.h>
 #include <matrix_hal/everloop.h>
 #include <matrix_hal/everloop_image.h>
@@ -40,7 +44,7 @@ private:
 	matrix_hal::MatrixIOBus bus;				// Create MatrixIOBus object for hardware communication
 	matrix_hal::EverloopImage* image1d;			// Create EverloopImage object "image1d", with size of ledCount
 	matrix_hal::Everloop* everloop;				// Create Everloop object
-	
+
 	//Connection variables
 	char verbose = 0x00;
 	int server_id;
@@ -61,5 +65,5 @@ public:
 	ODAS();
 	~ODAS();
 
-	void ODAS::updateODAS();
+	void updateODAS();
 };

@@ -63,4 +63,5 @@ public:
 	void startupShowLEDRainbow();
 	void setMatrixVoiceLED(int ledn, int r, int g, int b);
 	void resetMatrixVoiceLEDs();
+	void setMotorDirection(int direction);
 };

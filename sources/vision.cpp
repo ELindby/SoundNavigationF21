@@ -21,34 +21,34 @@ Vision::Vision(){
 	Camera.setHorizontalFlip(true);
 
 	// Display current camera parameters
-	cout << "Format: " << Camera.getFormat() << endl;
-	cout << "Width: " << Camera.getWidth() << endl;
-	cout << "Height: " << Camera.getHeight() << endl;
-	cout << "Brightness: " << Camera.getBrightness() << endl;
-	cout << "Rotation: " << Camera.getRotation() << endl;
-	cout << "ISO: " << Camera.getISO() << endl;
-	cout << "Sharrpness: " << Camera.getSharpness() << endl;
-	cout << "Contrast: " << Camera.getContrast() << endl;
-	cout << "Saturation: " << Camera.getSaturation() << endl;
-	cout << "ShutterSpeed: " << Camera.getShutterSpeed() << endl;
-	cout << "Exopsure: " << Camera.getExposure() << endl;
-	cout << "AWB: " << Camera.getAWB() << endl;
-	cout << "Image effect: " << Camera.getImageEffect() << endl;
-	cout << "Metering: " << Camera.getMetering() << endl;
-	cout << "Format:" << Camera.getFormat() << endl;
-	cout << "Body: " << "Ready" << endl;
+	std::cout << "Format: " << Camera.getFormat() << std::endl;
+	std::cout << "Width: " << Camera.getWidth() << std::endl;
+	std::cout << "Height: " << Camera.getHeight() << std::endl;
+	std::cout << "Brightness: " << Camera.getBrightness() << std::endl;
+	std::cout << "Rotation: " << Camera.getRotation() << std::endl;
+	std::cout << "ISO: " << Camera.getISO() << std::endl;
+	std::cout << "Sharrpness: " << Camera.getSharpness() << std::endl;
+	std::cout << "Contrast: " << Camera.getContrast() << std::endl;
+	std::cout << "Saturation: " << Camera.getSaturation() << std::endl;
+	std::cout << "ShutterSpeed: " << Camera.getShutterSpeed() << std::endl;
+	std::cout << "Exopsure: " << Camera.getExposure() << std::endl;
+	std::cout << "AWB: " << Camera.getAWB() << std::endl;
+	std::cout << "Image effect: " << Camera.getImageEffect() << std::endl;
+	std::cout << "Metering: " << Camera.getMetering() << std::endl;
+	std::cout << "Format:" << Camera.getFormat() << std::endl;
+	std::cout << "Body: " << "Ready" << std::endl;
 
 	// Open camera
 	if (!Camera.open())
 	{
-		cerr << "Error opening camera." << endl;
-		return -1;
+		std::cerr << "Error opening camera." << std::endl;
+		throw("Error opening camera.");
 	}
 
 	// Wait 3 seconds for camera image to stabilise
-	cout << "Waiting for camera to stabilise...";
+	std::cout << "Waiting for camera to stabilise...";
 	usleep(3000000);
-	cout << "done." << endl;
+	std::cout << "done." << std::endl;
 
 
 	setupSimpleBlobDetector();
@@ -77,7 +77,7 @@ void Vision::setupSimpleBlobDetector()
 /*****************************************************************************
 *********************  SETUP SIMPLE BLOB DETECTOR   **************************
 *****************************************************************************/
-	// Create OpenCV SimpleBlobDetector parameter objects (One for white object detection (red), one for black object detection).
+	/*// Create OpenCV SimpleBlobDetector parameter objects (One for white object detection (red), one for black object detection).
 	//cv::SimpleBlobDetector::Params sbdPar_red, sbdPar_black;
 
 	// Set blob detection parameters
@@ -103,12 +103,12 @@ void Vision::setupSimpleBlobDetector()
 	// Create OpenCV SimpleBlobDetector object based on assigned parameters
 	sbd_red = cv::SimpleBlobDetector::create(sbdPar_red);
 	sbd_black = cv::SimpleBlobDetector::create(sbdPar_black);
-	vector<cv::KeyPoint> keypts_red, keypts_black;
+	vector<cv::KeyPoint> keypts_red, keypts_black;*/
 
 	/*****************************************************************************
 	************************   INITIALISE VISUALISATION   ************************
 	*****************************************************************************/
-	// Black threshold values
+	/*// Black threshold values
 	int iLowH_black = 0;
 	int iHighH_black = 179;
 
@@ -147,7 +147,7 @@ void Vision::setupSimpleBlobDetector()
 	//cv::namedWindow("Thresholded image - Black",cv::WINDOW_AUTOSIZE);
 	// Create window to display blob image
 	cv::namedWindow("Blobs - Red", cv::WINDOW_AUTOSIZE);
-	cv::namedWindow("Blobs - Black", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("Blobs - Black", cv::WINDOW_AUTOSIZE);*/
 	/*********************************   DONE   *********************************/
 }
 
@@ -164,12 +164,12 @@ void Vision::updateCamera(){
 	// Exit if there is no image data in OpenCV image Mat
 	if (!imageMat.data)
 	{
-		cout << "No data in Mat imageMat." << endl;
+		std::cout << "No data in Mat imageMat." << std::endl;
 
 		// Release Raspberry Pi camera resources
 		Camera.release();
 
-		return -1;
+		return;
 	}
 
 	// Display Image

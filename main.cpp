@@ -64,12 +64,12 @@ int main (int argc, char** argv)
 *****************************************************************************/
 
 	//MotorControl motor_control;
-	ODAS odas;
-	//Vision vision;
+	//ODAS odas;
+	Vision vision;
 
 /*********************************   DONE   *********************************/
 
-	
+
 	// Wait 3 seconds for camera image to stabilise
 	cout << "Waiting for camera to stabilise...";
 	usleep(3000000);
@@ -81,8 +81,8 @@ int main (int argc, char** argv)
 *****************************************************************************/
 	while(true)
 	{
-		odas.updateODAS();
-		//vision.updateCamera();
+		//odas.updateODAS();
+        vision.updateCamera();
 
 
 

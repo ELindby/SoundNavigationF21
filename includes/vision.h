@@ -24,15 +24,15 @@ private:
 	int img_buf_len;											// Create buffer of correct size to store image data
 	unsigned char *img_buf;										// Create buffer of correct size to store image data
 	cv::Mat imageMat;											// Initialise OpenCV image Mat
-	
+
 
 	//Blob Detector
 	cv::SimpleBlobDetector::Params sbdPar_red, sbdPar_black;	// Create OpenCV SimpleBlobDetector parameter objects (One for white object detection (red), one for black object detection).
 	cv::Ptr<cv::SimpleBlobDetector> sbd_red, sbd_black;			// Create OpenCV SimpleBlobDetector object based on assigned parameters
 	cv::Mat imageThreshold_red, imageThreshold_black;			// OpenCV image Mat that holds the thresholded image data
 	cv::Mat imageKeypoints_red, imageKeypoints_black;			// OpenCV image Mat to store image with detected blobs
-	vector<cv::KeyPoint> keypts_red, keypts_black;
-	vector<cv::Point2f> keyptXY_red, keyptXY_black;				// Vector storing [x,y] co-ordinates of detected blobs
+	std::vector<cv::KeyPoint> keypts_red, keypts_black;
+	std::vector<cv::Point2f> keyptXY_red, keyptXY_black;				// Vector storing [x,y] co-ordinates of detected blobs
 
 public:
 	Vision();
