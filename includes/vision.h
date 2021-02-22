@@ -4,7 +4,7 @@
  *
  * Author:			Erik Lindby
  *					University of Southern Denmark
- * Creation date:   12-02-2021
+ * Creation date:   21-02-2021
  */
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>

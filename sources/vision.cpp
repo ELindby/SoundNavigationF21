@@ -61,16 +61,10 @@ Vision::Vision(){
 	img_buf = new unsigned char[img_buf_len];
 
 	// Initialise OpenCV image Mat
-	cv::Mat imageMat = cv::Mat(Camera.getHeight(), Camera.getWidth(), CV_8UC3, img_buf);
+	imageMat = cv::Mat(Camera.getHeight(), Camera.getWidth(), CV_8UC3, img_buf);
 
-	// OpenCV image Mat that holds the thresholded image data
-	cv::Mat imageThreshold_red, imageThreshold_black;
-
-	// OpenCV image Mat to store image with detected blobs
-	cv::Mat imageKeypoints_red, imageKeypoints_black;
-
-	// Vector storing [x,y] co-ordinates of detected blobs
-	vector<cv::Point2f> keyptXY_red, keyptXY_black;
+	// Create window to display original image
+	cv::namedWindow("Image",cv::WINDOW_AUTOSIZE);
 }
 
 
@@ -177,4 +171,7 @@ void Vision::updateCamera(){
 
 		return -1;
 	}
+
+	// Display Image
+	cv::imshow("Image", imageMat);
 }

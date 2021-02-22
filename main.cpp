@@ -21,6 +21,8 @@
 #include "includes/lidar.h"
 #include "includes/icolearning.h"
 #include "includes/navigation.h"
+#include "includes/odas.h"
+#include "includes/vision.h"
 
 
 
@@ -61,11 +63,13 @@ int main (int argc, char** argv)
 ************************   INITIALISE MOTOR CONTROL   ************************
 *****************************************************************************/
 
-	MotorControl motor_control;
+	//MotorControl motor_control;
+	ODAS odas;
+	//Vision vision;
 
 /*********************************   DONE   *********************************/
 
-	int key_input;
+	
 	// Wait 3 seconds for camera image to stabilise
 	cout << "Waiting for camera to stabilise...";
 	usleep(3000000);
@@ -77,53 +81,8 @@ int main (int argc, char** argv)
 *****************************************************************************/
 	while(true)
 	{
-		// Wait 30ms for keypress and exit if ESC (ASCII code 27) is pressed
-		key_input = cv::waitKey(30);
-		if (key_input == 27)
-		{
-			motor_control.resetMatrixVoiceLEDs();
-			break;
-		}
-		else if (key_input == 'p')
-		{
-			cout << "PAUSE - manual steering enabled" << endl;
-			motor_control.setRightMotorSpeedDirection(0, 1);
-			motor_control.setLeftMotorSpeedDirection(0, 1);
-			while (true)
-			{
-				key_input = cv::waitKey(30);
-				switch (key_input) {
-				case 'w':
-					motor_control.setRightMotorSpeedDirection(30, 1);
-					motor_control.setLeftMotorSpeedDirection(30, 1);
-					break;
-				case 'a':
-					motor_control.setRightMotorSpeedDirection(25, 1);
-					motor_control.setLeftMotorSpeedDirection(25, 0);
-					break;
-				case 's':
-					motor_control.setRightMotorSpeedDirection(25, 0);
-					motor_control.setLeftMotorSpeedDirection(25, 0);
-					break;
-				case 'd':
-					motor_control.setRightMotorSpeedDirection(25, 0);
-					motor_control.setLeftMotorSpeedDirection(25, 1);
-					break;
-				case 'r':
-					cout << "RESUME" << endl;
-					break; break;
-				default:
-					motor_control.setRightMotorSpeedDirection(0, 1);
-					motor_control.setLeftMotorSpeedDirection(0, 1);
-				}
-			}
-		}
-		motor_control.setRightMotorSpeedDirection(30, 1);
-        motor_control.setLeftMotorSpeedDirection(30, 1);
-        usleep(3000000);
-        motor_control.setRightMotorSpeedDirection(30, 0);
-        motor_control.setLeftMotorSpeedDirection(30, 0);
-        usleep(3000000);
+		odas.updateODAS();
+		//vision.updateCamera();
 
 
 
@@ -131,8 +90,8 @@ int main (int argc, char** argv)
 /*********************************   END OF CONTROLLER LOOP   *********************************/
 
 	// Stop all motors
-	motor_control.setRightMotorSpeedDirection(0,1);
-	motor_control.setLeftMotorSpeedDirection(0,1);
+	//motor_control.setRightMotorSpeedDirection(0,1);
+	//motor_control.setLeftMotorSpeedDirection(0,1);
 
 
 

@@ -14,7 +14,7 @@ MotorControl::MotorControl(){
 		//return false;
 
 	//DEBUG: Confirm bus init
-	std::cout << "Bus Init successful" << std::endl;
+	std::cout << "Motor Control: Bus Init successful" << std::endl;
 
 	// Holds the number of LEDs on MATRIX device
 	ledCount = bus.MatrixLeds();
