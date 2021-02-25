@@ -85,8 +85,8 @@ void ODAS::updateODAS() {
 			color = (color < MIN_THRESHOLD) ? 0 : color;
 
 			image1d->leds[i].red = 0;
-			image1d->leds[i].green = 0;
-			image1d->leds[i].blue = color;
+			image1d->leds[i].green = 0;//0;
+			image1d->leds[i].blue = color;//color;
 			image1d->leds[i].white = 0;
 		}
 		everloop->Write(image1d);
@@ -97,7 +97,9 @@ void ODAS::increase_pots() {
 	// Convert x,y to angle. TODO: See why x axis from ODAS is inverted
 	double angle_xy = fmodf((atan2(y, x) * (180.0 / M_PI)) + 360, 360);
 	// Convert angle to index
-	int i_angle = angle_xy / 360 * ENERGY_COUNT;  // convert degrees to index
+	//double d_angle = (angle_xy / 360.0 * (double)ENERGY_COUNT);
+	//int i_angle = d_angle;
+	int i_angle = (angle_xy / 360 * ENERGY_COUNT);  // convert degrees to index
 	// Set energy for this angle
 	energy_array[i_angle] += INCREMENT * E;
 	// Set limit at MAX_VALUE
@@ -182,6 +184,8 @@ void ODAS::json_parse(json_object * jobj)
 		case json_type_array:
 			json_parse_array(jobj, key);
 			break;
+        case json_type_null: //This type wasnt supported in original odas implementation, fixed warning
+            break;
 		}
 	}
 }
