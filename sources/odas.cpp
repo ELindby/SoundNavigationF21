@@ -3,6 +3,7 @@
 
 
 ODAS::ODAS(){
+
 	// Everloop Initialization
 	// Initialize bus and exit program if error occurs
 	if (!bus.Init())
@@ -28,6 +29,9 @@ ODAS::ODAS(){
 	}
 	everloop->Write(image1d);
 
+	//Test values - 25/02 problems with not all matrix voice LEDs lighting up as expected
+    //printf("\nDefines: ENERGY_COUNT:%d - MAX_BRIGHTNESS:%d - MAX_VALUE%d - MIN_THRESHOLD:%d - INCREMENT:%d",ENERGY_COUNT, MAX_BRIGHTNESS, MAX_VALUE, MIN_THRESHOLD,INCREMENT);
+    printf("\nbus.MatrixLeds(): %d --------------\n",bus.MatrixLeds());
 
 
 	server_id = socket(AF_INET, SOCK_STREAM, 0);
@@ -55,7 +59,6 @@ ODAS::ODAS(){
 
 	printf("Receiving data........... \n\n");
 
-
 }
 
 ODAS::~ODAS(){}
@@ -70,10 +73,10 @@ void ODAS::updateODAS() {
 
 		for (int i = 0; i < bus.MatrixLeds(); i++) {
 			// led index to angle
-			/*int led_angle = bus.MatrixName() == matrix_hal::kMatrixCreator
+			int led_angle = bus.MatrixName() == matrix_hal::kMatrixCreator
 				? leds_angle_mcreator[i]
-				: led_angles_mvoice[i];*/
-			int led_angle = led_angles_mvoice[i];
+				: led_angles_mvoice[i];
+			//int led_angle = led_angles_mvoice[i];
 			// Convert from angle to pots index
 			int index_pots = led_angle * ENERGY_COUNT / 360;
 			// Mapping from pots values to color
@@ -110,7 +113,7 @@ void ODAS::decrease_pots() {
 
 void ODAS::json_parse_array(json_object *jobj, char *key) {
 	// Forward Declaration
-	void json_parse(json_object * jobj);
+	//void ODAS::json_parse(json_object * jobj);
 	enum json_type type;
 	json_object *jarray = jobj;
 	if (key) {

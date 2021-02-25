@@ -28,7 +28,7 @@
 #define MAX_VALUE 200		// MAX_VALUE : controls smoothness
 #define INCREMENT 20		// INCREMENT : controls sensitivity
 #define DECREMENT 1			// DECREMENT : controls delay in the dimming
-#define MIN_THRESHOLD 10	// MAX_BRIGHTNESS: Filters out low energy
+#define MIN_THRESHOLD 8//10	// MAX_BRIGHTNESS: Filters out low energy
 #define MAX_BRIGHTNESS 50	// MAX_BRIGHTNESS: 0 - 255
 
 class ODAS
@@ -39,6 +39,9 @@ private:
 	const double led_angles_mvoice[18] = { 170, 150, 130, 110, 90,  70,
 									  50,  30,  10,  350, 330, 310,
 									  290, 270, 250, 230, 210, 190 }; //LED angles for MATRIX Voice
+    const double leds_angle_mcreator[35] = {170, 159, 149, 139, 129, 118, 108, 98,  87,  77,  67,  57,
+                                            46,  36,  26,  15,  5,   355, 345, 334, 324, 314, 303, 293,
+                                            283, 273, 262, 252, 242, 231, 221, 211, 201, 190, 180};
 
 	int ledCount;
 	matrix_hal::MatrixIOBus bus;				// Create MatrixIOBus object for hardware communication
@@ -59,8 +62,8 @@ private:
 
 	void increase_pots();
 	void decrease_pots();
-	void json_parse_array(json_object *jobj, char *key);
 	void json_parse(json_object *jobj);
+	void json_parse_array(json_object *jobj, char *key);
 public:
 	ODAS();
 	~ODAS();

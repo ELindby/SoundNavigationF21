@@ -1,8 +1,7 @@
-g++ main.cpp sources/motorcontrol.cpp sources/vision.cpp -o main.out \
+g++ main.cpp sources/vision.cpp sources/odas.cpp -o main.out \
 -Wall \
 -pthread \
 -L/usr/local/lib \
--L/usr/include/json-c \
 -ljson-c \
 -I/usr/local/include/opencv4 \
 -lm \

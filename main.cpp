@@ -17,7 +17,7 @@
 
 //INCLUDE CLASSES
 #include "includes/soundlocalization.h"
-#include "includes/motorcontrol.h"
+//#include "includes/motorcontrol.h"
 #include "includes/lidar.h"
 #include "includes/icolearning.h"
 #include "includes/navigation.h"
@@ -64,34 +64,38 @@ int main (int argc, char** argv)
 *****************************************************************************/
 
 	//MotorControl motor_control;
-	//ODAS odas;
-	Vision vision;
+	ODAS odas;
+	//Vision vision;
 
 /*********************************   DONE   *********************************/
 
 
 	// Wait 3 seconds for camera image to stabilise
-	cout << "Waiting for camera to stabilise...";
-	usleep(3000000);
-	cout << "done." << endl;
+	//cout << "Waiting for camera to stabilise...";
+	//usleep(3000000);
+	//cout << "done." << endl;
 
 
 /*****************************************************************************
 ************************   CONTROLLER LOOP   *********************************
 *****************************************************************************/
-	while(true)
-	{
+    odas.updateODAS();
+	//while(true)
+	//{
 		//odas.updateODAS();
-        vision.updateCamera();
+        //vision.updateCamera();
 
 
 
-	} // End of while loop
+	//} // End of while loop
 /*********************************   END OF CONTROLLER LOOP   *********************************/
 
 	// Stop all motors
 	//motor_control.setRightMotorSpeedDirection(0,1);
 	//motor_control.setLeftMotorSpeedDirection(0,1);
+
+	//Test flag
+	cout << "End of main -------" << endl;
 
 
 
