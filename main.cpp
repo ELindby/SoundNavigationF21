@@ -116,6 +116,8 @@ int main (int argc, char** argv)
 *****************************************************************************/
 	double angle_current = 270.0;
 	double angle_prev = 0.0;
+	double w_A = 1.0; //weight
+	double v_learning = 0.0;
 
 
 /*****************************************************************************
@@ -125,7 +127,7 @@ int main (int argc, char** argv)
 	//vision.updateCamera();
 
 	//while(true)
-	for(int i = 0; i < 100;i++)
+	for(int i = 0; i < 15;i++)
 	{
 		//odas.updateODAS();
         //vision.updateCamera();
@@ -139,6 +141,8 @@ int main (int argc, char** argv)
 
 
 
+
+
 	} // End of while loop
 /*********************************   END OF CONTROLLER LOOP   *********************************/
 
@@ -146,6 +150,8 @@ int main (int argc, char** argv)
 	motor_control.setRightMotorSpeedDirection(0,1);
 	motor_control.setLeftMotorSpeedDirection(0,1);
 	motor_control.resetMatrixVoiceLEDs();
+    //Release camera resources
+    //vision.camera->release();
 
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
