@@ -58,12 +58,12 @@ using namespace std;
 
 double test_angle = 270;
  //odas.updateODAS(); &//dummy: getOdasAngle(); returns double angle
-double getODASangle() {
+double getODASAngle() {
 	double res = test_angle;
 	if (test_angle > 180) {
 		test_angle -= 10;
 	}
-	
+
 	return res;
 }
 
@@ -73,18 +73,18 @@ double activation(double input) {
 
 void braitenberg(double angle, MotorControl * motor_control) { //Braitenberg aggression vehicle
 	if (angle < 180) { //Object is on RIGHT side
-		motor_control->setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_R_1, 0, 255, 0);
+		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, 255, 0);
 	}
 	else { // angle >= 180 //object is on LEFT side
-		motor_control->setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_L_9, 0, 255, 0);
+		motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 255, 0);
 	}
 
 	// Update sensor signals
 	double angleL = (((360 - angle) - 180) / 180); // Normalize
 	double angleR = (angle-180) / 180; // Normalize
-	
-	motor_control->setRightMotorSpeedDirection(activation(angleR)) + VELOCITY_OFFSET, 1);
-	motor_control->setLeftMotorSpeedDirection((activation(angleL)) + VELOCITY_OFFSET, 1);
+
+	motor_control->setRightMotorSpeedDirection(activation(angleR) + VELOCITY_OFFSET, 1);
+	motor_control->setLeftMotorSpeedDirection(activation(angleL) + VELOCITY_OFFSET, 1);
 }
 
 
@@ -108,7 +108,7 @@ int main (int argc, char** argv)
 	//usleep(3000000);
 	//cout << "done." << endl;
 
-	
+
 /*****************************************************************************
 ************************   ICO LEARNING   *********************************
 *****************************************************************************/
@@ -121,7 +121,7 @@ int main (int argc, char** argv)
 *****************************************************************************/
     //odas.updateODAS(); &//dummy: getOdasAngle(); returns double angle
 	//vision.updateCamera();
-	
+
 	while(true)
 	{
 		//odas.updateODAS();
@@ -129,7 +129,7 @@ int main (int argc, char** argv)
 		angle_prev = angle_current;
 		angle_current = getODASAngle();
 
-		braitenberg(*motor_control, angle_current);
+		braitenberg(angle_current,&motor_control);
 		usleep(500000);
 
 
