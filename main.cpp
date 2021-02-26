@@ -17,7 +17,7 @@
 
 //INCLUDE CLASSES
 #include "includes/soundlocalization.h"
-//#include "includes/motorcontrol.h"
+#include "includes/motorcontrol.h"
 #include "includes/lidar.h"
 #include "includes/icolearning.h"
 #include "includes/navigation.h"
@@ -45,7 +45,10 @@
 #include <matrix_hal/gpio_control.h>
 #include <matrix_hal/matrixio_bus.h>
 
+#define REFLEX_THRESHOLD	80
+#define AVOIDANCE_THRESHOLD	65
 
+#define VELOCITY_OFFSET		12
 
 
 
@@ -53,6 +56,36 @@
 using namespace std;
 //using namespace cv;
 
+double test_angle = 270;
+ //odas.updateODAS(); &//dummy: getOdasAngle(); returns double angle
+double getODASangle() {
+	double res = test_angle;
+	if (test_angle > 180) {
+		test_angle -= 10;
+	}
+	
+	return res;
+}
+
+double activation(double input) {
+	return 50 / (1 + exp(-input));
+}
+
+void braitenberg(double angle, MotorControl * motor_control) { //Braitenberg aggression vehicle
+	if (angle < 180) { //Object is on RIGHT side
+		motor_control->setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_R_1, 0, 255, 0);
+	}
+	else { // angle >= 180 //object is on LEFT side
+		motor_control->setMatrixVoiceLED(&everloop, &everloop_image, MATRIX_LED_L_9, 0, 255, 0);
+	}
+
+	// Update sensor signals
+	double angleL = (((360 - angle) - 180) / 180); // Normalize
+	double angleR = (angle-180) / 180; // Normalize
+	
+	motor_control->setRightMotorSpeedDirection(activation(angleR)) + VELOCITY_OFFSET, 1);
+	motor_control->setLeftMotorSpeedDirection((activation(angleL)) + VELOCITY_OFFSET, 1);
+}
 
 
 
@@ -63,8 +96,8 @@ int main (int argc, char** argv)
 ************************   INITIALISE MOTOR CONTROL   ************************
 *****************************************************************************/
 
-	//MotorControl motor_control;
-	ODAS odas;
+	MotorControl motor_control;
+	//ODAS odas;
 	//Vision vision;
 
 /*********************************   DONE   *********************************/
@@ -75,19 +108,35 @@ int main (int argc, char** argv)
 	//usleep(3000000);
 	//cout << "done." << endl;
 
+	
+/*****************************************************************************
+************************   ICO LEARNING   *********************************
+*****************************************************************************/
+	double angle_current = 270.0;
+	double angle_prev = 0.0;
+
 
 /*****************************************************************************
 ************************   CONTROLLER LOOP   *********************************
 *****************************************************************************/
-    odas.updateODAS();
-	//while(true)
-	//{
+    //odas.updateODAS(); &//dummy: getOdasAngle(); returns double angle
+	//vision.updateCamera();
+	
+	while(true)
+	{
 		//odas.updateODAS();
         //vision.updateCamera();
+		angle_prev = angle_current;
+		angle_current = getODASAngle();
+
+		braitenberg(*motor_control, angle_current);
+		usleep(500000);
 
 
 
-	//} // End of while loop
+
+
+	} // End of while loop
 /*********************************   END OF CONTROLLER LOOP   *********************************/
 
 	// Stop all motors
@@ -95,7 +144,7 @@ int main (int argc, char** argv)
 	//motor_control.setLeftMotorSpeedDirection(0,1);
 
 	//Test flag
-	cout << "End of main -------" << endl;
+	std::cout << "End of main -------" << std::endl;
 
 
 
