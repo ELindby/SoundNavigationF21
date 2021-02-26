@@ -93,6 +93,7 @@ void ODAS::updateODAS() {
 	}
 }
 
+
 void ODAS::increase_pots() {
 	// Convert x,y to angle. TODO: See why x axis from ODAS is inverted
 	double angle_xy = fmodf((atan2(y, x) * (180.0 / M_PI)) + 360, 360);
@@ -188,4 +189,29 @@ void ODAS::json_parse(json_object * jobj)
             break;
 		}
 	}
+}
+
+std::vector<int> ODAS::getEnergyArray()
+{
+	std::vector<int> energy_vector(ENERGY_COUNT);
+	for (size_t i = 0; i < ENERGY_COUNT; i++)
+	{
+		energy_vector.push_back(energy_array[i]);
+	}
+	return energy_vector;
+}
+
+double ODAS::getSoundAngle() {
+	int largest_element_index;
+	int largest_element = -1;
+	for (size_t i = 0; i < ENERGY_COUNT; i++)
+	{
+		if (energy_array[i] > largest_element)
+		{
+			largest_element = energy_array[i];
+			largest_element_index = i;
+		}
+	}
+	return (largest_element_index * 360 / ENERGY_COUNT);
+	//int index_pots = led_angle * ENERGY_COUNT / 360;
 }

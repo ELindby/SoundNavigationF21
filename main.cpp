@@ -89,6 +89,24 @@ void braitenberg(double angle, MotorControl * motor_control) { //Braitenberg agg
 	std::cout << "Left speed: " << (activation(angleL) + VELOCITY_OFFSET) << " - Right speed: " << (activation(angleR) + VELOCITY_OFFSET) << std::endl;
 }
 
+void navigationICO(double angle, MotorControl * motor_control, double w_A) {
+	if (angle < 180) { //Object is on RIGHT side
+		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, 255, 0);
+	}
+	else { // angle >= 180 //object is on LEFT side
+		motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 255, 0);
+	}
+
+	// Update sensor signals
+	double angleL = (((360 - angle) - 180) / 180); // Normalize
+	double angleR = (angle - 180) / 180; // Normalize
+
+	motor_control->setRightMotorSpeedDirection(activation(angleR)*w_A + VELOCITY_OFFSET, 1);
+	motor_control->setLeftMotorSpeedDirection(activation(angleL)*w_A + VELOCITY_OFFSET, 1);
+	//TEST - Print motor values
+	std::cout << "Left speed: " << (activation(angleL) + VELOCITY_OFFSET) << " - Right speed: " << (activation(angleR) + VELOCITY_OFFSET) << std::endl;
+}
+
 
 
 
@@ -118,6 +136,7 @@ int main (int argc, char** argv)
 	double angle_prev = 0.0;
 	double w_A = 1.0; //weight
 	double v_learning = 0.0;
+	double S_L = 0.3;
 
 
 /*****************************************************************************
@@ -137,7 +156,7 @@ int main (int argc, char** argv)
 		braitenberg(angle_current,&motor_control);
 		usleep(500000);
 
-
+		w_A = (abs(angle_current - 180) - abs(angle_prev - 180))/180 * S_L + (1 - S_L) * w_A;
 
 
 

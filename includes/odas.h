@@ -22,6 +22,7 @@
 #include <sys/socket.h>
 #include <array>
 #include <iostream>
+#include <vector>
 
 
 #define ENERGY_COUNT 36		// ENERGY_COUNT : Number of sound energy slots to maintain.
@@ -69,4 +70,6 @@ public:
 	~ODAS();
 
 	void updateODAS();
+	std::vector<int> getEnergyArray();
+	double getSoundAngle();
 };
