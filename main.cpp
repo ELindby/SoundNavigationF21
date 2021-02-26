@@ -95,7 +95,7 @@ int main (int argc, char** argv)
 	//motor_control.setLeftMotorSpeedDirection(0,1);
 
 	//Test flag
-	cout << "End of main -------" << endl;
+	std::cout << "End of main -------" << std::endl;
 
 
 
