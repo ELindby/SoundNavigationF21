@@ -85,6 +85,8 @@ void braitenberg(double angle, MotorControl * motor_control) { //Braitenberg agg
 
 	motor_control->setRightMotorSpeedDirection(activation(angleR) + VELOCITY_OFFSET, 1);
 	motor_control->setLeftMotorSpeedDirection(activation(angleL) + VELOCITY_OFFSET, 1);
+	//TEST - Print motor values
+	std::cout << "Left speed: " << (activation(angleL) + VELOCITY_OFFSET) << " - Right speed: " << (activation(angleR) + VELOCITY_OFFSET) << std::endl;
 }
 
 
@@ -122,7 +124,8 @@ int main (int argc, char** argv)
     //odas.updateODAS(); &//dummy: getOdasAngle(); returns double angle
 	//vision.updateCamera();
 
-	while(true)
+	//while(true)
+	for(int i = 0; i < 100;i++)
 	{
 		//odas.updateODAS();
         //vision.updateCamera();
@@ -140,8 +143,9 @@ int main (int argc, char** argv)
 /*********************************   END OF CONTROLLER LOOP   *********************************/
 
 	// Stop all motors
-	//motor_control.setRightMotorSpeedDirection(0,1);
-	//motor_control.setLeftMotorSpeedDirection(0,1);
+	motor_control.setRightMotorSpeedDirection(0,1);
+	motor_control.setLeftMotorSpeedDirection(0,1);
+	motor_control.resetMatrixVoiceLEDs();
 
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
