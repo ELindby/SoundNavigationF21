@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 		led.blue = 0;
 		led.white = 0;
 	}
-	odas.everloop->Write(image1d);
+	odas.everloop->Write(odas.image1d);
 
 	//Test values - 25/02 problems with not all matrix voice LEDs lighting up as expected
 	//printf("\nDefines: ENERGY_COUNT:%d - MAX_BRIGHTNESS:%d - MAX_VALUE%d - MIN_THRESHOLD:%d - INCREMENT:%d",ENERGY_COUNT, MAX_BRIGHTNESS, MAX_VALUE, MIN_THRESHOLD,INCREMENT);
@@ -134,7 +134,7 @@ int main(int argc, char** argv)
 
 	printf("Waiting for connection in port %d ... ", odas.portNumber);
 	fflush(stdout);
-	connection_id = accept(odas.server_id, (struct sockaddr *)NULL, NULL);
+	odas.connection_id = accept(odas.server_id, (struct sockaddr *)NULL, NULL);
 	printf("[OK]\n");
 
 	odas.message = (char *)malloc(sizeof(char) * odas.nBytes);
