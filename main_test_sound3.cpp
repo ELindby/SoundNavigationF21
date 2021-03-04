@@ -26,6 +26,7 @@
 
 
 //Odas test includes
+#include "json-c/json.h"
 #include <netinet/in.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -88,7 +89,7 @@ int main(int argc, char** argv)
 	matrix_hal::Everloop everloop;				// Create Everloop object
 	everloop.Setup(&bus);
 
-	ODAS odas = ODAS(&bus, &everloop,&image1d);
+	ODAS odas = ODAS(&bus, &everloop, &image1d);
 	
 
 
