@@ -3,7 +3,7 @@
 
 
 ODAS::ODAS() : bus{} {
-
+	/*
 	// Everloop Initialization
 	// Initialize bus and exit program if error occurs
 	if (!bus.Init())
@@ -57,7 +57,7 @@ ODAS::ODAS() : bus{} {
 
 	message = (char *)malloc(sizeof(char) * nBytes);
 
-	printf("Receiving data........... \n\n");
+	printf("Receiving data........... \n\n");*/
 
 
 

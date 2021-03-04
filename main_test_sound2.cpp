@@ -86,21 +86,60 @@ int main(int argc, char** argv)
 
 	/*********************************   DONE   *********************************/
 
+	// Everloop Initialization
+	// Initialize bus and exit program if error occurs
+	if (!odas.bus.Init())
+		throw("Bus Init failed");
+	//return false;
 
-	// Wait 3 seconds for camera image to stabilise
-	//cout << "Waiting for camera to stabilise...";
-	//usleep(3000000);
-	//cout << "done." << endl;
+// Holds the number of LEDs on MATRIX device
+	odas.ledCount = odas.bus.MatrixLeds();
+	// Create EverloopImage object, with size of ledCount
+	odas.image1d = new matrix_hal::EverloopImage(odas.ledCount);
+
+	// Create Everloop object
+	odas.everloop = new matrix_hal::Everloop;
+	// Set everloop to use MatrixIOBus bus
+	odas.everloop->Setup(&odas.bus);
+
+	// Clear all LEDs
+	for (matrix_hal::LedValue &led : odas.image1d->leds) {
+		led.red = 0;
+		led.green = 0;
+		led.blue = 0;
+		led.white = 0;
+	}
+	odas.everloop->Write(image1d);
+
+	//Test values - 25/02 problems with not all matrix voice LEDs lighting up as expected
+	//printf("\nDefines: ENERGY_COUNT:%d - MAX_BRIGHTNESS:%d - MAX_VALUE%d - MIN_THRESHOLD:%d - INCREMENT:%d",ENERGY_COUNT, MAX_BRIGHTNESS, MAX_VALUE, MIN_THRESHOLD,INCREMENT);
+	//printf("\nbus.MatrixLeds(): %d --------------\n", odas.bus.MatrixLeds());
 
 
-	/*****************************************************************************
-	************************   ICO LEARNING   *********************************
-	*****************************************************************************/
-	/*double angle_current = 270.0;
-	double angle_prev = 0.0;
-	double w_A = 1.0; //weight
-	double v_learning = 0.0;
-	double S_L = 0.3;*/
+	odas.server_id = socket(AF_INET, SOCK_STREAM, 0);
+
+	odas.server_address.sin_family = AF_INET;
+	odas.server_address.sin_addr.s_addr = htonl(INADDR_ANY);
+	odas.server_address.sin_port = htons(odas.portNumber);
+
+	printf("Binding socket........... ");
+	fflush(stdout);
+	bind(odas.server_id, (struct sockaddr *)&odas.server_address, sizeof(odas.server_address));
+	printf("[OK]\n");
+
+	printf("Listening socket......... ");
+	fflush(stdout);
+	listen(odas.server_id, 1);
+	printf("[OK]\n");
+
+	printf("Waiting for connection in port %d ... ", odas.portNumber);
+	fflush(stdout);
+	connection_id = accept(odas.server_id, (struct sockaddr *)NULL, NULL);
+	printf("[OK]\n");
+
+	odas.message = (char *)malloc(sizeof(char) * odas.nBytes);
+
+	printf("Receiving data........... \n\n");
 
 
 	/*****************************************************************************
