@@ -2,7 +2,7 @@
 #include "../includes/odas.h"
 
 
-ODAS::ODAS(){
+ODAS::ODAS() : bus{} {
 
 	// Everloop Initialization
 	// Initialize bus and exit program if error occurs
@@ -59,13 +59,16 @@ ODAS::ODAS(){
 
 	printf("Receiving data........... \n\n");
 
+
+
 }
 
 ODAS::~ODAS(){}
 
 void ODAS::updateODAS() {
 	while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
-		message[messageSize] = 0x00;
+	//if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
+		//message[messageSize] = 0x00;
 
 		// printf("message: %s\n\n", message);
 		json_object *jobj = json_tokener_parse(message);
@@ -91,6 +94,7 @@ void ODAS::updateODAS() {
 		}
 		everloop->Write(image1d);
 	}
+
 }
 
 

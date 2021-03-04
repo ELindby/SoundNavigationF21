@@ -1,0 +1,1 @@
+./main.out & ./odaslive -vc matrix_voice.cfg

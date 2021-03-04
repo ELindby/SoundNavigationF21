@@ -9,6 +9,8 @@
 #include <array>
 #include <iostream>
 
+//#include <cmath>
+
 namespace hal = matrix_hal;
 
 //test
@@ -45,9 +47,19 @@ std::vector<int> getEnergyArray()
 	std::vector<int> energy_vector(ENERGY_COUNT);
 	for (size_t i = 0; i < ENERGY_COUNT; i++)
 	{
-		energy_vector.push_back(energy_array[i]);
+        int temp = energy_array[i];
+		energy_vector.push_back(temp);
 	}
 	return energy_vector;
+}
+
+void printEnergyArray(){
+    for(int i = 0; i < 36;i++){
+        if(energy_array[i] != 0){
+            printf("%*d",4,energy_array[i]);
+        }
+
+    }
 }
 
 double getSoundAngle() {
@@ -209,6 +221,9 @@ int main(int argc, char *argv[]) {
 
   printf("Receiving data........... \n\n");
 
+  //Testing:
+  std::vector<int> energy_array_temp;
+
   while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
     message[messageSize] = 0x00;
 
@@ -236,6 +251,12 @@ int main(int argc, char *argv[]) {
     everloop.Write(&image1d);
 
     //Testing
-    std::cout << "Angle: " <<  getSoundAngle() << std::endl;
+    //printEnergyArray();
+    //std::cout << "Angle: " <<  getSoundAngle() << std::endl;
+    /*energy_array_temp = getEnergyArray();
+		for(int i = 24; i < 36;i++){
+            printf("%*d",4,energy_array_temp[i]);
+		}
+		std::cout << std::endl;*/
   }
 }
