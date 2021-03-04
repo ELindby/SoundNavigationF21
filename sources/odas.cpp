@@ -68,7 +68,7 @@ ODAS::~ODAS(){}
 void ODAS::updateODAS() {
 	while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
 	//if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
-		//message[messageSize] = 0x00;
+		message[messageSize] = 0x00;
 
 		// printf("message: %s\n\n", message);
 		json_object *jobj = json_tokener_parse(message);
