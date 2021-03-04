@@ -72,6 +72,8 @@
 #define MIN_THRESHOLD 8//10	// MAX_BRIGHTNESS: Filters out low energy
 #define MAX_BRIGHTNESS 50	// MAX_BRIGHTNESS: 0 - 255
 
+#define ENERGY_THRESHOLD 30
+
 
 
 
@@ -272,19 +274,19 @@ void getSoundInformation(int & angle, int & energy) {
 		angle = (largest_element_index * 360 / ENERGY_COUNT);
 		energy = largest_element;
 	}
+	else
+	{
+		std::cout << "THIS IS A TEST: THIS WAS ACTUALLY REACHED, REFACTOR CODE" << std::endl;
+	}
 	return;
 	//int index_pots = led_angle * ENERGY_COUNT / 360;
 	//TODO: Add threshold
 }
 
 void updateODAS() {
-	//Variables for getSoundInformation()
-	int angle = -2;
-	int angle_prev = -2;
-	int energy = -2;
-
 	//Loop
-	while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
+	if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
+	//while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
 		message[messageSize] = 0x00;
 
 		// printf("message: %s\n\n", message);
@@ -311,15 +313,31 @@ void updateODAS() {
 		}
 		everloop->Write(image1d);
 
-		getSoundInformation(angle, energy);
-		if (angle != angle_prev)
-		{
-			std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
-			angle_prev = angle;
-		}
+		
 	}
 }
 
+double activation(double input) {
+	return 50 / (1 + exp(-input));
+}
+
+void braitenberg(double angle, MotorControl * motor_control) { //Braitenberg aggression vehicle
+	if (angle < 180) { //Object is on RIGHT side
+		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, 255, 0);
+	}
+	else { // angle >= 180 //object is on LEFT side
+		motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 255, 0);
+	}
+
+	// Update sensor signals
+	double angleL = (((360 - angle) - 180) / 180); // Normalize
+	double angleR = (angle - 180) / 180; // Normalize
+
+	motor_control->setRightMotorSpeedDirection(activation(angleR) + VELOCITY_OFFSET, 1);
+	motor_control->setLeftMotorSpeedDirection(activation(angleL) + VELOCITY_OFFSET, 1);
+	//TEST - Print motor values
+	std::cout << "Left speed: " << (activation(angleL) + VELOCITY_OFFSET) << " - Right speed: " << (activation(angleR) + VELOCITY_OFFSET) << std::endl;
+}
 
 
 
@@ -328,11 +346,12 @@ void updateODAS() {
 int main(int argc, char** argv)
 {
 	/*****************************************************************************
-	************************   INITIALISE MOTOR CONTROL   ************************
+	************************   INITIALISE CLASSES   ************************
 	*****************************************************************************/
 
-	//MotorControl motor_control;
+	MotorControl motor_control;
 	//ODAS odas;
+	setupOdas(); //(main.cpp) implementation of the ODAS class, this needs to be changed once odas class functions properly
 	//Vision vision;
 
 	
@@ -340,27 +359,41 @@ int main(int argc, char** argv)
 	/*********************************   DONE   *********************************/
 
 
-	// Wait 3 seconds for camera image to stabilise
-	//cout << "Waiting for camera to stabilise...";
-	//usleep(3000000);
-	//cout << "done." << endl;
+	
 
 
 	/*****************************************************************************
-	************************   ODAS TEST  *********************************
+	**************************  VARIABLES  *********************************
 	*****************************************************************************/
+	
 
-	setupOdas();
-	updateODAS();
+	//Variables for getSoundInformation()
+	int angle = -2;
+	int angle_prev = -2;
+	int energy = -2;
 	
 
 	/*****************************************************************************
 	************************   CONTROLLER LOOP   *********************************
 	*****************************************************************************/
 	
+	while (true){
+		updateODAS();
 
+		getSoundInformation(angle, energy);
+		if (angle != angle_prev){
+			std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
+			angle_prev = angle;
+		}
+
+		if (energy > ENERGY_THRESHOLD) {
+			braitenberg(angle, &motor_control);
+		} else {
+			motor_control.setMotorDirection(NONE); //STOPS ALL MOTORS
+		}
+	}// End of while loop
 	
-/*********************************   END OF CONTROLLER LOOP   *********************************/
+	/*********************************   END OF CONTROLLER LOOP   *********************************/
 
 	
 
