@@ -25,13 +25,19 @@
 #include "includes/vision.h"
 
 
+//Odas test includes
+#include <netinet/in.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <array>
+#include <vector>
 
-//#include <cmath>
+#include <cmath>
 #include <math.h>
 #include <ctime>
 #include <fstream>
 #include <iostream>
-#include <string>
+//#include <string>
 #include <unistd.h>
 #include <raspicam/raspicam.h>
 //#include <pigpio.h>
@@ -149,10 +155,11 @@ int main (int argc, char** argv)
 	//vision.updateCamera();
     //double soundAngle = 0;
     //std::vector<int> energy_array;
+    odas.updateODAS();
 	//while(true)
 	for(int i = 0; i < 15;i++)
 	{
-		odas.updateODAS();
+		//odas.updateODAS();
         //if(odas.getSoundAngle() != soundAngle){
         //    soundAngle = odas.getSoundAngle();
         //    std::cout << "Angle: " << soundAngle << std::endl;
