@@ -2,7 +2,7 @@
 #include "../includes/odas.h"
 
 
-ODAS::ODAS(matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d) /*: bus{}*/ {
+ODAS::ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matrix_hal::EverloopImage* image1d_) /*: bus{}*/ {
 	/*
 	// Everloop Initialization
 	// Initialize bus and exit program if error occurs
@@ -20,6 +20,11 @@ ODAS::ODAS(matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d) /
 	// Set everloop to use MatrixIOBus bus
 	everloop->Setup(&bus);
 	*/
+
+	bus = bus_;
+	everloop = everloop_;
+	image1d = image1d_;
+
 	// Clear all LEDs
 	for (matrix_hal::LedValue &led : image1d->leds) {
 		led.red = 0;
@@ -65,7 +70,7 @@ ODAS::ODAS(matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d) /
 
 ODAS::~ODAS(){}
 
-void ODAS::updateODAS(matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d) {
+void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*/) {
 	while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
 	//if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
 		message[messageSize] = 0x00;

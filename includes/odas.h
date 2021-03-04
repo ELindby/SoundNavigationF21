@@ -45,9 +45,9 @@ public:
                                             283, 273, 262, 252, 242, 231, 221, 211, 201, 190, 180};
 
 	int ledCount;
-	//matrix_hal::MatrixIOBus bus;				// Create MatrixIOBus object for hardware communication
-	//matrix_hal::EverloopImage* image1d;			// Create EverloopImage object "image1d", with size of ledCount
-	//matrix_hal::Everloop* everloop;				// Create Everloop object
+	matrix_hal::MatrixIOBus *bus;				// Create MatrixIOBus object for hardware communication
+	matrix_hal::EverloopImage* image1d;			// Create EverloopImage object "image1d", with size of ledCount
+	matrix_hal::Everloop* everloop;				// Create Everloop object
 
 	//Connection variables
 	char verbose = 0x00;
@@ -67,10 +67,10 @@ public:
 	void json_parse_array(json_object *jobj, char *key);
 	void json_parse(json_object *jobj);
 //public:
-	ODAS(matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d);
+	ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matrix_hal::EverloopImage* image1d_);
 	~ODAS();
 
-	void updateODAS(matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d);
+	void updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*/);
 	std::vector<int> getEnergyArray();
 	double getSoundAngle();
 };
