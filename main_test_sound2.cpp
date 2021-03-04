@@ -111,7 +111,7 @@ int main(int argc, char** argv)
 			odas.message[odas.messageSize] = 0x00;
 
 			// printf("message: %s\n\n", message);
-		json_object *jobj = json_tokener_parse(message);
+		json_object *jobj = json_tokener_parse(odas.message);
 		odas.json_parse(jobj);
 
 		for (int i = 0; i < odas.bus.MatrixLeds(); i++) {
