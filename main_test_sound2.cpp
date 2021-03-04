@@ -58,6 +58,11 @@
 
 #define VELOCITY_OFFSET		12
 
+#include "json-c/json.h"
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+
 
 
 
@@ -103,15 +108,15 @@ int main(int argc, char** argv)
 	*****************************************************************************/
 	while ((odas.messageSize = recv(odas.connection_id, odas.message, odas.nBytes, 0)) > 0) {
 		//if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
-			message[messageSize] = 0x00;
+			odas.message[odas.messageSize] = 0x00;
 
 			// printf("message: %s\n\n", message);
 		json_object *jobj = json_tokener_parse(message);
-		json_parse(jobj);
+		odas.json_parse(jobj);
 
-		for (int i = 0; i < bus.MatrixLeds(); i++) {
+		for (int i = 0; i < odas.bus.MatrixLeds(); i++) {
 			// led index to angle
-			int led_angle = bus.MatrixName() == matrix_hal::kMatrixCreator
+			int led_angle = odas.bus.MatrixName() == matrix_hal::kMatrixCreator
 				? odas.leds_angle_mcreator[i]
 				: odas.led_angles_mvoice[i];
 			//int led_angle = led_angles_mvoice[i];
@@ -127,7 +132,7 @@ int main(int argc, char** argv)
 			odas.image1d->leds[i].blue = color;//color;
 			odas.image1d->leds[i].white = 0;
 		}
-		odas.everloop->Write(image1d);
+		odas.everloop->Write(odas.image1d);
 	}
 	/*********************************   END OF CONTROLLER LOOP   *********************************/
 
