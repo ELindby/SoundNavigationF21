@@ -24,6 +24,19 @@
 #include "includes/odas.h"
 #include "includes/vision.h"
 
+//Test
+#include "json-c/json.h"
+//#include "json-c/json_tokener.h"
+//#include <json/json.h>
+//#include <json.h>
+//#include "jsoncpp/json/json.h"
+#include <math.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <array>
+#include <vector>
+
 
 
 #include <cmath>
@@ -50,17 +63,7 @@
 
 #define VELOCITY_OFFSET		12
 
-#include "json-c/json.h"
-//#include "json-c/json_tokener.h"
-//#include <json/json.h>
-//#include <json.h>
-//#include "jsoncpp/json/json.h"
-#include <math.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <sys/socket.h>
-#include <array>
-#include <vector>
+
 
 #define ENERGY_COUNT 36		// ENERGY_COUNT : Number of sound energy slots to maintain.
 #define MAX_VALUE 200		// MAX_VALUE : controls smoothness
