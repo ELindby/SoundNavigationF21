@@ -26,10 +26,12 @@
 
 
 
-#include <cmath>
+//#include <cmath>
+#include <math.h>
 #include <ctime>
 #include <fstream>
 #include <iostream>
+#include <string>
 #include <unistd.h>
 #include <raspicam/raspicam.h>
 //#include <pigpio.h>
@@ -55,6 +57,7 @@
 
 using namespace std;
 //using namespace cv;
+
 
 double test_angle = 270;
  //odas.updateODAS(); &//dummy: getOdasAngle(); returns double angle
@@ -116,8 +119,8 @@ int main (int argc, char** argv)
 ************************   INITIALISE MOTOR CONTROL   ************************
 *****************************************************************************/
 
-	MotorControl motor_control;
-	//ODAS odas;
+	//MotorControl motor_control;
+	ODAS odas = ODAS();
 	//Vision vision;
 
 /*********************************   DONE   *********************************/
@@ -132,11 +135,11 @@ int main (int argc, char** argv)
 /*****************************************************************************
 ************************   ICO LEARNING   *********************************
 *****************************************************************************/
-	double angle_current = 270.0;
+	/*double angle_current = 270.0;
 	double angle_prev = 0.0;
 	double w_A = 1.0; //weight
 	double v_learning = 0.0;
-	double S_L = 0.3;
+	double S_L = 0.3;*/
 
 
 /*****************************************************************************
@@ -144,20 +147,31 @@ int main (int argc, char** argv)
 *****************************************************************************/
     //odas.updateODAS(); &//dummy: getOdasAngle(); returns double angle
 	//vision.updateCamera();
-
+    //double soundAngle = 0;
+    //std::vector<int> energy_array;
 	//while(true)
 	for(int i = 0; i < 15;i++)
 	{
-		//odas.updateODAS();
+		odas.updateODAS();
+        //if(odas.getSoundAngle() != soundAngle){
+        //    soundAngle = odas.getSoundAngle();
+        //    std::cout << "Angle: " << soundAngle << std::endl;
+		//}
+		/*energy_array = odas.getEnergyArray();
+		for(int i = 0; i < 16;i++){
+            printf("%*d",4,energy_array[i]);
+		}
+		std::cout << std::endl;*/
+
         //vision.updateCamera();
-		angle_prev = angle_current;
+		/*angle_prev = angle_current;
 		angle_current = getODASAngle();
 
 		braitenberg(angle_current,&motor_control);
 		usleep(500000);
 
 		w_A = (abs(angle_current - 180) - abs(angle_prev - 180))/180 * S_L + (1 - S_L) * w_A;
-
+        */
 
 
 
@@ -166,9 +180,9 @@ int main (int argc, char** argv)
 /*********************************   END OF CONTROLLER LOOP   *********************************/
 
 	// Stop all motors
-	motor_control.setRightMotorSpeedDirection(0,1);
-	motor_control.setLeftMotorSpeedDirection(0,1);
-	motor_control.resetMatrixVoiceLEDs();
+	//motor_control.setRightMotorSpeedDirection(0,1);
+	//motor_control.setLeftMotorSpeedDirection(0,1);
+	//motor_control.resetMatrixVoiceLEDs();
     //Release camera resources
     //vision.camera->release();
 

@@ -24,7 +24,6 @@
 #include <iostream>
 #include <vector>
 
-
 #define ENERGY_COUNT 36		// ENERGY_COUNT : Number of sound energy slots to maintain.
 #define MAX_VALUE 200		// MAX_VALUE : controls smoothness
 #define INCREMENT 20		// INCREMENT : controls sensitivity
