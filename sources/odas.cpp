@@ -2,7 +2,7 @@
 #include "../includes/odas.h"
 
 
-ODAS::ODAS() : bus{} {
+ODAS::ODAS(matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d) /*: bus{}*/ {
 	/*
 	// Everloop Initialization
 	// Initialize bus and exit program if error occurs
@@ -19,7 +19,7 @@ ODAS::ODAS() : bus{} {
 	everloop = new matrix_hal::Everloop;
 	// Set everloop to use MatrixIOBus bus
 	everloop->Setup(&bus);
-
+	*/
 	// Clear all LEDs
 	for (matrix_hal::LedValue &led : image1d->leds) {
 		led.red = 0;
@@ -31,7 +31,7 @@ ODAS::ODAS() : bus{} {
 
 	//Test values - 25/02 problems with not all matrix voice LEDs lighting up as expected
     //printf("\nDefines: ENERGY_COUNT:%d - MAX_BRIGHTNESS:%d - MAX_VALUE%d - MIN_THRESHOLD:%d - INCREMENT:%d",ENERGY_COUNT, MAX_BRIGHTNESS, MAX_VALUE, MIN_THRESHOLD,INCREMENT);
-    printf("\nbus.MatrixLeds(): %d --------------\n",bus.MatrixLeds());
+    //printf("\nbus.MatrixLeds(): %d --------------\n",bus.MatrixLeds());
 
 
 	server_id = socket(AF_INET, SOCK_STREAM, 0);
@@ -59,13 +59,13 @@ ODAS::ODAS() : bus{} {
 
 	printf("Receiving data........... \n\n");
 
-	*/
+	
 
 }
 
 ODAS::~ODAS(){}
 
-void ODAS::updateODAS() {
+void ODAS::updateODAS(matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d) {
 	while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
 	//if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
 		message[messageSize] = 0x00;
@@ -74,9 +74,9 @@ void ODAS::updateODAS() {
 		json_object *jobj = json_tokener_parse(message);
 		json_parse(jobj);
 
-		for (int i = 0; i < bus.MatrixLeds(); i++) {
+		for (int i = 0; i < bus->MatrixLeds(); i++) {
 			// led index to angle
-			int led_angle = bus.MatrixName() == matrix_hal::kMatrixCreator
+			int led_angle = bus->MatrixName() == matrix_hal::kMatrixCreator
 				? leds_angle_mcreator[i]
 				: led_angles_mvoice[i];
 			//int led_angle = led_angles_mvoice[i];
