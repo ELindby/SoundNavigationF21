@@ -57,9 +57,9 @@ ODAS::ODAS() : bus{} {
 
 	message = (char *)malloc(sizeof(char) * nBytes);
 
-	printf("Receiving data........... \n\n");*/
+	printf("Receiving data........... \n\n");
 
-
+	*/
 
 }
 

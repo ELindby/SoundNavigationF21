@@ -145,7 +145,7 @@ int main(int argc, char** argv)
 	/*****************************************************************************
 	************************   CONTROLLER LOOP   *********************************
 	*****************************************************************************/
-	while ((odas.messageSize = recv(odas.connection_id, odas.message, odas.nBytes, 0)) > 0) {
+	/*while ((odas.messageSize = recv(odas.connection_id, odas.message, odas.nBytes, 0)) > 0) {
 		//if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
 			odas.message[odas.messageSize] = 0x00;
 
@@ -172,7 +172,7 @@ int main(int argc, char** argv)
 			odas.image1d->leds[i].white = 0;
 		}
 		odas.everloop->Write(odas.image1d);
-	}
+	}*/
 	/*********************************   END OF CONTROLLER LOOP   *********************************/
 
 	// Stop all motors
