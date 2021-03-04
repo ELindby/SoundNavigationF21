@@ -256,7 +256,34 @@ void setupOdas() {
 	printf("Receiving data........... \n\n");
 }
 
+void getSoundInformation(int & angle, int & energy) {
+	int largest_element_index;
+	int largest_element = -1;
+	for (size_t i = 0; i < ENERGY_COUNT; i++)
+	{
+		if (energy_array[i] > largest_element)
+		{
+			largest_element = energy_array[i];
+			largest_element_index = i;
+		}
+	}
+	if (largest_element != -1)
+	{
+		angle = (largest_element_index * 360 / ENERGY_COUNT);
+		energy = largest_element;
+	}
+	return;
+	//int index_pots = led_angle * ENERGY_COUNT / 360;
+	//TODO: Add threshold
+}
+
 void updateODAS() {
+	//Variables for getSoundInformation()
+	int angle = -2;
+	int angle_prev = -2;
+	int energy = -2;
+
+	//Loop
 	while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
 		message[messageSize] = 0x00;
 
@@ -283,8 +310,17 @@ void updateODAS() {
 			image1d->leds[i].white = 0;
 		}
 		everloop->Write(image1d);
+
+		getSoundInformation(angle, energy);
+		if (angle != angle_prev)
+		{
+			std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
+			angle_prev = angle;
+		}
 	}
 }
+
+
 
 
 
