@@ -1,4 +1,4 @@
-g++ main.cpp sources/motorcontrol.cpp sources/vision.cpp sources/odas.cpp -o main.out \
+g++ main_test_sound.cpp sources/motorcontrol.cpp sources/vision.cpp sources/odas.cpp -o main.out \
 -Wall \
 -pthread \
 -L/usr/local/lib \
