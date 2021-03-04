@@ -33,7 +33,8 @@
 
 class ODAS
 {
-private:
+public:
+//private:
 	double x, y, z, E;
 	int energy_array[ENERGY_COUNT];
 	const double led_angles_mvoice[18] = { 170, 150, 130, 110, 90,  70,
@@ -62,9 +63,10 @@ private:
 
 	void increase_pots();
 	void decrease_pots();
-	void json_parse(json_object *jobj);
+	
 	void json_parse_array(json_object *jobj, char *key);
-public:
+	void json_parse(json_object *jobj);
+//public:
 	ODAS();
 	~ODAS();
 
