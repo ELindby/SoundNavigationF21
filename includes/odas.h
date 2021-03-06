@@ -23,6 +23,7 @@
 #include <array>
 #include <iostream>
 #include <vector>
+#include <fstream>
 
 #define ENERGY_COUNT 36		// ENERGY_COUNT : Number of sound energy slots to maintain.
 #define MAX_VALUE 200		// MAX_VALUE : controls smoothness
@@ -60,10 +61,15 @@ private:
 	unsigned int portNumber = 9001;
 	const unsigned int nBytes = 10240;
 
+	//Test data
+	int angle = -2;
+	int angle_prev = -2;
+	int energy = -2;
+
 
 	void increase_pots();
 	void decrease_pots();
-	
+
 	void json_parse_array(json_object *jobj, char *key);
 	void json_parse(json_object *jobj);
 public:

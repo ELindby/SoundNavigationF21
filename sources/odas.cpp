@@ -64,7 +64,7 @@ ODAS::ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matri
 
 	printf("Receiving data........... \n\n");
 
-	
+
 
 }
 
@@ -89,7 +89,7 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 			int index_pots = led_angle * ENERGY_COUNT / 360;
 			// Mapping from pots values to color
 			int color = energy_array[index_pots] * MAX_BRIGHTNESS / MAX_VALUE;
-			
+
 			//Print test data to .csv file
 			output_stream << "led" << i << "," << led_angle << "," << index_pots << "," << color << ",";
 
@@ -105,7 +105,7 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 		everloop->Write(image1d);
 
 		//Get sound information
-		odas.getSoundInformation(/*angle, energy*/);
+		getSoundInformation(/*angle, energy*/);
 		if (angle != angle_prev) {
 			std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
 			angle_prev = angle;

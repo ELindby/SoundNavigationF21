@@ -126,8 +126,20 @@ int main (int argc, char** argv)
 *****************************************************************************/
 
 	//MotorControl motor_control;
-	ODAS odas = ODAS();
+	//ODAS odas = ODAS();
 	//Vision vision;
+
+	matrix_hal::MatrixIOBus bus;				// Create MatrixIOBus object for hardware communication
+	if (!bus.Init())
+		throw("Bus Init failed");
+	//return false;
+
+
+	matrix_hal::EverloopImage image1d(bus.MatrixLeds());			// Create EverloopImage object "image1d", with size of ledCount
+	matrix_hal::Everloop everloop;				// Create Everloop object
+	everloop.Setup(&bus);
+
+	ODAS odas = ODAS(&bus, &everloop, &image1d);
 
 /*****************************************************************************
 ************************   TEST IMPLEMENTATIONS   ****************************
@@ -165,7 +177,7 @@ int main (int argc, char** argv)
     //std::vector<int> energy_array;
     //odas.updateODAS();
 	//while(true)
-	
+
 
 	for(int i = 0; i < 1000;i++)
 	{
@@ -210,7 +222,7 @@ int main (int argc, char** argv)
 	//Test flag
 	output_stream.close();
 	std::cout << "End of main -------" << std::endl;
-	
+
 
 
 
