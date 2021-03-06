@@ -34,7 +34,7 @@
 class ODAS
 {
 public:
-//private:
+private:
 	double x, y, z, E;
 	int energy_array[ENERGY_COUNT];
 	const double led_angles_mvoice[18] = { 170, 150, 130, 110, 90,  70,
@@ -66,11 +66,12 @@ public:
 	
 	void json_parse_array(json_object *jobj, char *key);
 	void json_parse(json_object *jobj);
-//public:
+public:
 	ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matrix_hal::EverloopImage* image1d_);
 	~ODAS();
 
-	void updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*/);
+	void updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*/std::ofstream& output_stream);
+	void getSoundInformation(/*int & angle, int & energy*/);
 	std::vector<int> getEnergyArray();
 	double getSoundAngle();
 };

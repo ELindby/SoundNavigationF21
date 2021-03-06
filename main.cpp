@@ -129,13 +129,21 @@ int main (int argc, char** argv)
 	ODAS odas = ODAS();
 	//Vision vision;
 
-/*********************************   DONE   *********************************/
-
+/*****************************************************************************
+************************   TEST IMPLEMENTATIONS   ****************************
+*****************************************************************************/
 
 	// Wait 3 seconds for camera image to stabilise
 	//cout << "Waiting for camera to stabilise...";
 	//usleep(3000000);
 	//cout << "done." << endl;
+	std::ofstream output_stream;
+	output_stream.open("ODASbugTest1_class.csv");
+
+	int angle = -2;
+	int angle_prev = -2;
+	int energy = -2;
+
 
 
 /*****************************************************************************
@@ -155,11 +163,13 @@ int main (int argc, char** argv)
 	//vision.updateCamera();
     //double soundAngle = 0;
     //std::vector<int> energy_array;
-    odas.updateODAS();
+    //odas.updateODAS();
 	//while(true)
-	for(int i = 0; i < 15;i++)
+	
+
+	for(int i = 0; i < 1000;i++)
 	{
-		//odas.updateODAS();
+		odas.updateODAS(output_stream);
         //if(odas.getSoundAngle() != soundAngle){
         //    soundAngle = odas.getSoundAngle();
         //    std::cout << "Angle: " << soundAngle << std::endl;
@@ -182,7 +192,11 @@ int main (int argc, char** argv)
 
 
 
-
+		/*odas.getSoundInformation(angle, energy);
+		if (angle != angle_prev) {
+			std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
+			angle_prev = angle;
+		}*/
 	} // End of while loop
 /*********************************   END OF CONTROLLER LOOP   *********************************/
 
@@ -194,7 +208,9 @@ int main (int argc, char** argv)
     //vision.camera->release();
 
 	//Test flag
+	output_stream.close();
 	std::cout << "End of main -------" << std::endl;
+	
 
 
 

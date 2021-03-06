@@ -283,7 +283,7 @@ void getSoundInformation(int & angle, int & energy) {
 	//TODO: Add threshold
 }
 
-void updateODAS() {
+void updateODAS(std::ofstream& output_stream) {
 	//Loop
 	if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
 	//while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
@@ -303,6 +303,10 @@ void updateODAS() {
 			int index_pots = led_angle * ENERGY_COUNT / 360;
 			// Mapping from pots values to color
 			int color = energy_array[index_pots] * MAX_BRIGHTNESS / MAX_VALUE;
+
+			//Print test data to .csv file
+			output_stream << "led" << i << "," << led_angle << "," << index_pots << "," << color << ",";
+
 			// Removing colors below the threshold
 			color = (color < MIN_THRESHOLD) ? 0 : color;
 
@@ -371,14 +375,19 @@ int main(int argc, char** argv)
 	int angle = -2;
 	int angle_prev = -2;
 	int energy = -2;
+
+	std::ofstream output_stream;
+	output_stream.open("ODASbugTest1_main.csv");
 	
 
 	/*****************************************************************************
 	************************   CONTROLLER LOOP   *********************************
 	*****************************************************************************/
 	
-	while (true){
-		updateODAS();
+	//while (true){
+	for (size_t i = 0; i < 1000; i++)
+	{
+		updateODAS(output_stream);
 
 		getSoundInformation(angle, energy);
 		if (angle != angle_prev){
@@ -386,17 +395,22 @@ int main(int argc, char** argv)
 			angle_prev = angle;
 		}
 
-		if (energy > ENERGY_THRESHOLD) {
-			braitenberg(angle, &motor_control);
-		} else {
-			motor_control.setMotorDirection(NONE); //STOPS ALL MOTORS
-		}
+		//Print test data to .csv file
+		output_stream << angle << "," << energy << std::endl;
+
+		
+
+		//if (energy > ENERGY_THRESHOLD) {
+			//braitenberg(angle, &motor_control);
+		//} else {
+			//motor_control.setMotorDirection(NONE); //STOPS ALL MOTORS
+		//}
 	}// End of while loop
 	
 	/*********************************   END OF CONTROLLER LOOP   *********************************/
 
 	
-
+	output_stream.close();
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
 
