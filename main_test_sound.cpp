@@ -317,7 +317,7 @@ void updateODAS(std::ofstream& output_stream) {
 		}
 		everloop->Write(image1d);
 
-		
+
 	}
 }
 
@@ -358,18 +358,18 @@ int main(int argc, char** argv)
 	setupOdas(); //(main.cpp) implementation of the ODAS class, this needs to be changed once odas class functions properly
 	//Vision vision;
 
-	
+
 
 	/*********************************   DONE   *********************************/
 
 
-	
+
 
 
 	/*****************************************************************************
 	**************************  VARIABLES  *********************************
 	*****************************************************************************/
-	
+
 
 	//Variables for getSoundInformation()
 	int angle = -2;
@@ -377,13 +377,13 @@ int main(int argc, char** argv)
 	int energy = -2;
 
 	std::ofstream output_stream;
-	output_stream.open("../testdata/ODASbugTest2_main.csv");
-	
+	output_stream.open("./testdata/ODASbugTest2_main.csv");
+
 
 	/*****************************************************************************
 	************************   CONTROLLER LOOP   *********************************
 	*****************************************************************************/
-	
+
 	//while (true){
 	for (size_t i = 0; i < 1000; i++)
 	{
@@ -398,7 +398,7 @@ int main(int argc, char** argv)
 		//Print test data to .csv file
 		output_stream << angle << "," << energy << std::endl;
 
-		
+
 
 		//if (energy > ENERGY_THRESHOLD) {
 			//braitenberg(angle, &motor_control);
@@ -406,10 +406,10 @@ int main(int argc, char** argv)
 			//motor_control.setMotorDirection(NONE); //STOPS ALL MOTORS
 		//}
 	}// End of while loop
-	
+
 	/*********************************   END OF CONTROLLER LOOP   *********************************/
 
-	
+
 	output_stream.close();
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
