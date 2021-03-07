@@ -211,16 +211,6 @@ void ODAS::json_parse(json_object * jobj)
 	}
 }
 
-std::vector<int> ODAS::getEnergyArray()
-{
-	std::vector<int> energy_vector(ENERGY_COUNT);
-	for (size_t i = 0; i < ENERGY_COUNT; i++)
-	{
-		energy_vector.push_back(energy_array[i]);
-	}
-	return energy_vector;
-}
-
 void ODAS::updateSoundInformation(/*int & angle, int & energy*/) {
 	int largest_element_index;
 	int largest_element = -1;
@@ -263,6 +253,16 @@ void ODAS::updateSoundInformation(/*int & angle, int & energy*/) {
 //	}
 //	return (largest_element_index * 360 / ENERGY_COUNT);
 //	//int index_pots = led_angle * ENERGY_COUNT / 360;
+//}
+
+//std::vector<int> ODAS::getEnergyArray()
+//{
+//	std::vector<int> energy_vector(ENERGY_COUNT);
+//	for (size_t i = 0; i < ENERGY_COUNT; i++)
+//	{
+//		energy_vector.push_back(energy_array[i]);
+//	}
+//	return energy_vector;
 //}
 
 int ODAS::getSoundAngle() {
