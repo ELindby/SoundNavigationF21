@@ -377,7 +377,7 @@ int main(int argc, char** argv)
 	int energy = -2;
 
 	std::ofstream output_stream;
-	output_stream.open("./testdata/ODASbugTest2_main.csv");
+	output_stream.open("./testdata/ODASbugTest3_main.csv");
 
 
 	/*****************************************************************************
