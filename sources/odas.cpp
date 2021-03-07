@@ -91,7 +91,7 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 			int color = energy_array[index_pots] * MAX_BRIGHTNESS / MAX_VALUE;
 
 			//Print test data to .csv file
-			output_stream << "led" << i << "," << led_angle << "," << index_pots << "," << color << ",";
+			output_stream << "led" << i << "," << led_angle << "," << energy_array[index_pots] << "," << color << ",";
 
 			// Removing colors below the threshold
 			color = (color < MIN_THRESHOLD) ? 0 : color;

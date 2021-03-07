@@ -150,7 +150,7 @@ int main (int argc, char** argv)
 	//usleep(3000000);
 	//cout << "done." << endl;
 	std::ofstream output_stream;
-	output_stream.open("ODASbugTest1_class.csv");
+	output_stream.open("../testdata/ODASbugTest2_class.csv");
 
 	int angle = -2;
 	int angle_prev = -2;

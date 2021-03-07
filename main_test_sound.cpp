@@ -305,7 +305,7 @@ void updateODAS(std::ofstream& output_stream) {
 			int color = energy_array[index_pots] * MAX_BRIGHTNESS / MAX_VALUE;
 
 			//Print test data to .csv file
-			output_stream << "led" << i << "," << led_angle << "," << index_pots << "," << color << ",";
+			output_stream << "led" << i << "," << led_angle << "," << energy_array[index_pots] << "," << color << ",";
 
 			// Removing colors below the threshold
 			color = (color < MIN_THRESHOLD) ? 0 : color;
@@ -377,7 +377,7 @@ int main(int argc, char** argv)
 	int energy = -2;
 
 	std::ofstream output_stream;
-	output_stream.open("ODASbugTest1_main.csv");
+	output_stream.open("../testdata/ODASbugTest2_main.csv");
 	
 
 	/*****************************************************************************
