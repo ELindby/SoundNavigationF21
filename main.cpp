@@ -58,6 +58,8 @@
 
 #define VELOCITY_OFFSET		12
 
+#define ENERGY_THRESHOLD 30
+
 
 
 
@@ -122,24 +124,19 @@ void navigationICO(double angle, MotorControl * motor_control, double w_A) {
 int main (int argc, char** argv)
 {
 /*****************************************************************************
-************************   INITIALISE MOTOR CONTROL   ************************
+**********************   INITIALISE CONTROL OBJECTS   ************************
 *****************************************************************************/
-
-	//MotorControl motor_control;
-	//ODAS odas = ODAS();
-	//Vision vision;
-
-	matrix_hal::MatrixIOBus bus;				// Create MatrixIOBus object for hardware communication
+	matrix_hal::MatrixIOBus bus;									// Create MatrixIOBus object for hardware communication
 	if (!bus.Init())
 		throw("Bus Init failed");
-	//return false;
+	matrix_hal::EverloopImage everloop_image(bus.MatrixLeds());		// Create EverloopImage object "image1d", with size of ledCount
+	matrix_hal::Everloop everloop;									// Create Everloop object
+	everloop.Setup(&bus);											// Setup Everloop object with MatrixIOBus
 
-
-	matrix_hal::EverloopImage image1d(bus.MatrixLeds());			// Create EverloopImage object "image1d", with size of ledCount
-	matrix_hal::Everloop everloop;				// Create Everloop object
-	everloop.Setup(&bus);
-
-	ODAS odas = ODAS(&bus, &everloop, &image1d);
+	//Initialise control instances
+	ODAS odas = ODAS(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
+	//MotorControl motor_control = MotorControl();
+	//Vision vision;
 
 /*****************************************************************************
 ************************   TEST IMPLEMENTATIONS   ****************************
@@ -149,12 +146,10 @@ int main (int argc, char** argv)
 	//cout << "Waiting for camera to stabilise...";
 	//usleep(3000000);
 	//cout << "done." << endl;
-	std::ofstream output_stream;
-	output_stream.open("./testdata/ODASbugTest2_class.csv");
 
-	int angle = -2;
-	int angle_prev = -2;
-	int energy = -2;
+	//Create .csv output stream
+	//std::ofstream output_stream;
+	//output_stream.open("./testdata/ODASbugTest2_class.csv");
 
 
 
@@ -171,57 +166,35 @@ int main (int argc, char** argv)
 /*****************************************************************************
 ************************   CONTROLLER LOOP   *********************************
 *****************************************************************************/
-    //odas.updateODAS(); &//dummy: getOdasAngle(); returns double angle
-	//vision.updateCamera();
-    //double soundAngle = 0;
-    //std::vector<int> energy_array;
-    //odas.updateODAS();
-	//while(true)
-
-
-	for(int i = 0; i < 1000;i++)
-	{
-		odas.updateODAS(output_stream);
-        //if(odas.getSoundAngle() != soundAngle){
-        //    soundAngle = odas.getSoundAngle();
-        //    std::cout << "Angle: " << soundAngle << std::endl;
-		//}
-		/*energy_array = odas.getEnergyArray();
-		for(int i = 0; i < 16;i++){
-            printf("%*d",4,energy_array[i]);
-		}
-		std::cout << std::endl;*/
-
+    
+	//while(true){
+	for(int i = 0; i < 1000;i++){
+		odas.updateODAS(/*output_stream*/);
         //vision.updateCamera();
-		/*angle_prev = angle_current;
-		angle_current = getODASAngle();
 
-		braitenberg(angle_current,&motor_control);
-		usleep(500000);
+		/*if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
+			braitenberg(odas.getSoundAngle(), &motor_control);
+		} else {
+			motor_control.setMotorDirection(NONE); //STOPS ALL MOTORS
+		}*/
 
+		/*
 		w_A = (abs(angle_current - 180) - abs(angle_prev - 180))/180 * S_L + (1 - S_L) * w_A;
         */
 
-
-
-		/*odas.getSoundInformation(angle, energy);
-		if (angle != angle_prev) {
-			std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
-			angle_prev = angle;
-		}*/
 	} // End of while loop
-/*********************************   END OF CONTROLLER LOOP   *********************************/
+/***********************   END OF CONTROLLER LOOP   *************************/
 
-	// Stop all motors
-	//motor_control.setRightMotorSpeedDirection(0,1);
-	//motor_control.setLeftMotorSpeedDirection(0,1);
-	//motor_control.resetMatrixVoiceLEDs();
-    //Release camera resources
-    //vision.camera->release();
+	
+	//motor_control.setMotorDirection(NONE);	//STOP ALL MOTORS
+	//motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
+    //vision.camera->release();					//Release camera resources
 
 	//Test flag
-	output_stream.close();
 	std::cout << "End of main -------" << std::endl;
+
+	//Close outputstream
+	//output_stream.close();
 
 
 

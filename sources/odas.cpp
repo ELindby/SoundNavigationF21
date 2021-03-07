@@ -70,7 +70,7 @@ ODAS::ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matri
 
 ODAS::~ODAS(){}
 
-void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*/std::ofstream& output_stream) {
+void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*//*std::ofstream& output_stream*/) {
 	//while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
 	if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
 		message[messageSize] = 0x00;
@@ -90,29 +90,24 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 			// Mapping from pots values to color
 			int color = energy_array[index_pots] * MAX_BRIGHTNESS / MAX_VALUE;
 
-			//Print test data to .csv file
-			output_stream << "led" << i << "," << led_angle << "," << energy_array[index_pots] << "," << color << ",";
+			//Print test data to .csv file - Only for testing
+			//output_stream << "led" << i << "," << led_angle << "," << energy_array[index_pots] << "," << color << ",";
 
 			// Removing colors below the threshold
 			color = (color < MIN_THRESHOLD) ? 0 : color;
 
-
-			image1d->leds[i].red = 0;
-			image1d->leds[i].green = 0;//0;
+			//Set LED values depending on sound input
+			//image1d->leds[i].red = 0;
+			//image1d->leds[i].green = 0;
 			image1d->leds[i].blue = color;//color;
-			image1d->leds[i].white = 0;
+			//image1d->leds[i].white = 0;
 		}
 		everloop->Write(image1d);
-
-		//Get sound information
-		getSoundInformation(/*angle, energy*/);
-		if (angle != angle_prev) {
-			std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
-			angle_prev = angle;
-		}
-
-		//Print test data to .csv file
-		output_stream << angle << "," << energy << std::endl;
+		
+		updateSoundInformation(/*angle, energy*/);	//update sound information - Location(angle) and energy of largest energyarray sound
+		
+		//Print test data to .csv file - Only for testing
+		//output_stream << angle << "," << energy << std::endl;
 	}
 
 }
@@ -226,22 +221,7 @@ std::vector<int> ODAS::getEnergyArray()
 	return energy_vector;
 }
 
-double ODAS::getSoundAngle() {
-	int largest_element_index;
-	int largest_element = -1;
-	for (size_t i = 0; i < ENERGY_COUNT; i++)
-	{
-		if (energy_array[i] > largest_element)
-		{
-			largest_element = energy_array[i];
-			largest_element_index = i;
-		}
-	}
-	return (largest_element_index * 360 / ENERGY_COUNT);
-	//int index_pots = led_angle * ENERGY_COUNT / 360;
-}
-
-void ODAS::getSoundInformation(/*int & angle, int & energy*/) {
+void ODAS::updateSoundInformation(/*int & angle, int & energy*/) {
 	int largest_element_index;
 	int largest_element = -1;
 	for (size_t i = 0; i < ENERGY_COUNT; i++)
@@ -261,7 +241,34 @@ void ODAS::getSoundInformation(/*int & angle, int & energy*/) {
 	{
 		std::cout << "THIS IS A TEST: THIS WAS ACTUALLY REACHED, REFACTOR CODE" << std::endl;
 	}
+	if (angle != angle_prev) {
+		std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
+		angle_prev = angle;
+	}
 	return;
 	//int index_pots = led_angle * ENERGY_COUNT / 360;
 	//TODO: Add threshold
+}
+
+//double ODAS::getSoundAngle() {
+//	int largest_element_index;
+//	int largest_element = -1;
+//	for (size_t i = 0; i < ENERGY_COUNT; i++)
+//	{
+//		if (energy_array[i] > largest_element)
+//		{
+//			largest_element = energy_array[i];
+//			largest_element_index = i;
+//		}
+//	}
+//	return (largest_element_index * 360 / ENERGY_COUNT);
+//	//int index_pots = led_angle * ENERGY_COUNT / 360;
+//}
+
+int ODAS::getSoundAngle() {
+	return angle;
+}
+
+int ODAS::getSoundEnergy() {
+	return energy;
 }

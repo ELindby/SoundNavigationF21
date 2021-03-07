@@ -34,7 +34,6 @@
 
 class ODAS
 {
-public:
 private:
 	double x, y, z, E;
 	int energy_array[ENERGY_COUNT] = {0};
@@ -61,7 +60,7 @@ private:
 	unsigned int portNumber = 9001;
 	const unsigned int nBytes = 10240;
 
-	//Test data
+	//Sound information - loudest sound source angle and energy level
 	int angle = -2;
 	int angle_prev = -2;
 	int energy = -2;
@@ -76,8 +75,10 @@ public:
 	ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matrix_hal::EverloopImage* image1d_);
 	~ODAS();
 
-	void updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*/std::ofstream& output_stream);
-	void getSoundInformation(/*int & angle, int & energy*/);
-	std::vector<int> getEnergyArray();
-	double getSoundAngle();
+	void updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*//*std::ofstream& output_stream*/);
+	//void updateODAS(std::ofstream& output_stream); //Update odas, and print data to a csv file
+	void updateSoundInformation(); //Updates angle, angle_prev and energy
+	
+	int getSoundAngle();
+	int getSoundEnergy();
 };
