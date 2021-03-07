@@ -136,9 +136,9 @@ int main (int argc, char** argv)
 	gpio.Setup(&bus);												// Set gpio to use MatrixIOBus bus
 
 	//Initialise control class instances
-	ODAS odas = ODAS(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
-	MotorControl motor_control = MotorControl(&bus, &everloop, 
-		&everloop_image, &gpio);									//Initialise Motor Control
+	MotorControl motor_control = MotorControl(&bus, &everloop,
+		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
+    ODAS odas = ODAS(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
 	//Vision vision;
 
 /*****************************************************************************
@@ -169,7 +169,7 @@ int main (int argc, char** argv)
 /*****************************************************************************
 ************************   CONTROLLER LOOP   *********************************
 *****************************************************************************/
-    
+
 	//while(true){
 	for(int i = 0; i < 1000;i++){
 		odas.updateODAS(/*output_stream*/);
@@ -188,7 +188,7 @@ int main (int argc, char** argv)
 	} // End of while loop
 /***********************   END OF CONTROLLER LOOP   *************************/
 
-	
+
 	motor_control.setMotorDirection(NONE);		//STOP ALL MOTORS
 	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
     //vision.camera->release();					//Release camera resources
