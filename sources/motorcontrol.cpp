@@ -37,9 +37,6 @@ MotorControl::MotorControl(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* 
 	// Display rainbow animation
 	startupShowLEDRainbow(/*&everloop, &everloop_image*/);
 
-	/*****************************************************************************
-	************************   INITIALISE MOTOR CONTROL   ************************
-	*****************************************************************************/
 	// Initialise Matrix Voice GPIO pins
 	initGPIOPins(/*&gpio*/);
 }
@@ -55,13 +52,13 @@ MotorControl::~MotorControl()
 void MotorControl::initGPIOPins(/*matrix_hal::GPIOControl* gpio*/)
 {
 
-	gpio->SetMode(TB6612_RIGHT_MOTOR_PWMA, 1); //Pin mode as output
-	gpio->SetFunction(TB6612_RIGHT_MOTOR_PWMA, 1); // Pin function as PWM
+	gpio->SetMode(TB6612_RIGHT_MOTOR_PWMA, 1);		// Pin mode as output
+	gpio->SetFunction(TB6612_RIGHT_MOTOR_PWMA, 1);	// Pin function as PWM
 	gpio->SetMode(TB6612_RIGHT_MOTOR_AIN1, 1);
 	gpio->SetMode(TB6612_RIGHT_MOTOR_AIN2, 1);
 
-	gpio->SetMode(TB6612_LEFT_MOTOR_PWMB, 1); //Pin mode as output
-	gpio->SetFunction(TB6612_LEFT_MOTOR_PWMB, 1); // Pin function as PWM
+	gpio->SetMode(TB6612_LEFT_MOTOR_PWMB, 1);		// Pin mode as output
+	gpio->SetFunction(TB6612_LEFT_MOTOR_PWMB, 1);	// Pin function as PWM
 	gpio->SetMode(TB6612_LEFT_MOTOR_BIN1, 1);
 	gpio->SetMode(TB6612_LEFT_MOTOR_BIN2, 1);
 }

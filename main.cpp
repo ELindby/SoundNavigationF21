@@ -175,11 +175,11 @@ int main (int argc, char** argv)
 		odas.updateODAS(/*output_stream*/);
         //vision.updateCamera();
 
-		/*if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
+		if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
 			braitenberg(odas.getSoundAngle(), &motor_control);
 		} else {
 			motor_control.setMotorDirection(NONE); //STOPS ALL MOTORS
-		}*/
+		}
 
 		/*
 		w_A = (abs(angle_current - 180) - abs(angle_prev - 180))/180 * S_L + (1 - S_L) * w_A;
@@ -189,8 +189,8 @@ int main (int argc, char** argv)
 /***********************   END OF CONTROLLER LOOP   *************************/
 
 	
-	//motor_control.setMotorDirection(NONE);	//STOP ALL MOTORS
-	//motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
+	motor_control.setMotorDirection(NONE);		//STOP ALL MOTORS
+	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
     //vision.camera->release();					//Release camera resources
 
 	//Test flag
