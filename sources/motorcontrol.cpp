@@ -2,19 +2,18 @@
 #include "../includes/motorcontrol.h"
 
 //Constructor
-MotorControl::MotorControl(){
+MotorControl::MotorControl(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matrix_hal::EverloopImage* image1d_, matrix_hal::GPIOControl* gpio_){
 	/*****************************************************************************
 	*********************   INITIALISE MATRIX VOICE DEVICE   *********************
 	*****************************************************************************/
-	// Create MatrixIOBus object for hardware communication
+	/*// Create MatrixIOBus object for hardware communication
 	//matrix_hal::MatrixIOBus bus;
 	// Initialize bus and exit program if error occurs
 	if (!bus.Init())
 		throw("Bus Init failed");
 		//return false;
-
 	//DEBUG: Confirm bus init
-	std::cout << "Motor Control: Bus Init successful" << std::endl;
+	//std::cout << "Motor Control: Bus Init successful" << std::endl;
 
 	// Holds the number of LEDs on MATRIX device
 	ledCount = bus.MatrixLeds();
@@ -28,7 +27,12 @@ MotorControl::MotorControl(){
 	// Create GPIOControl object - General Purpose Input Output
 	gpio = new matrix_hal::GPIOControl;
 	// Set gpio to use MatrixIOBus bus
-	gpio->Setup(&bus);
+	gpio->Setup(&bus);*/
+	bus = bus_;
+	everloop = everloop_;
+	image1d = image1d_;
+	gpio = gpio_;
+
 
 	// Display rainbow animation
 	startupShowLEDRainbow(/*&everloop, &everloop_image*/);

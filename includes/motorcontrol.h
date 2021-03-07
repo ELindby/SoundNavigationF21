@@ -47,13 +47,13 @@ enum DIRECTIONS { NONE = 0, FORWARD = 1, BACKWARD = 2, LEFT = 3, RIGHT = 4};
 
 class MotorControl {
 private:
-	matrix_hal::MatrixIOBus bus;				// Create MatrixIOBus object for hardware communication
+	matrix_hal::MatrixIOBus* bus;				// Create MatrixIOBus object for hardware communication
 	int ledCount;
 	matrix_hal::EverloopImage* everloop_image;	// Create EverloopImage object, with size of ledCount
 	matrix_hal::Everloop* everloop;				// Create Everloop object
 	matrix_hal::GPIOControl* gpio;				// Create GPIOControl object - General Purpose Input Output
 public:
-	MotorControl();
+	MotorControl(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matrix_hal::EverloopImage* image1d_, matrix_hal::GPIOControl* gpio_);
 	~MotorControl();
 
 

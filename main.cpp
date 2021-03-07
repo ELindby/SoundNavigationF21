@@ -131,11 +131,14 @@ int main (int argc, char** argv)
 		throw("Bus Init failed");
 	matrix_hal::EverloopImage everloop_image(bus.MatrixLeds());		// Create EverloopImage object "image1d", with size of ledCount
 	matrix_hal::Everloop everloop;									// Create Everloop object
-	everloop.Setup(&bus);											// Setup Everloop object with MatrixIOBus
+	everloop.Setup(&bus);											// Set everloop to use MatrixIOBus bus
+	matrix_hal::GPIOControl gpio;									// Create GPIOControl object - General Purpose Input Output
+	gpio.Setup(&bus);												// Set gpio to use MatrixIOBus bus
 
-	//Initialise control instances
+	//Initialise control class instances
 	ODAS odas = ODAS(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
-	//MotorControl motor_control = MotorControl();
+	MotorControl motor_control = MotorControl(&bus, &everloop, 
+		&everloop_image, &gpio);									//Initialise Motor Control
 	//Vision vision;
 
 /*****************************************************************************
