@@ -1,1 +1,1 @@
-./main.out & ./odaslive -vc matrix_voice.cfg
+./main.out & ./ODAS/odaslive -vc ODAS/matrix_voice.cfg
