@@ -80,7 +80,7 @@ void Navigation::braitenberg(double angle, std::ofstream& output_stream) { //Bra
 	motor_control->setLeftMotorSpeedDirection(activation(angleL) /*+ VELOCITY_OFFSET*/, 1);
 	//TEST - Print motor values
 	std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
-	output_stream << (activation(angleL) << "," << (activation(angleR) << std::endl;
+	output_stream << (activation(angleL)) << "," << (activation(angleR)) << std::endl;
 }
 
 void navigationICO(double angle, double w_A) {
