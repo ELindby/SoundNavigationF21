@@ -15,7 +15,7 @@
 #include <ctime>
 #include <unistd.h>
 
-#include "includes/defines.h"
+#include "defines.h"
 
 
 enum DIRECTIONS { STOP = 0, FORWARD = 1, BACKWARD = 2, LEFT = 3, RIGHT = 4};

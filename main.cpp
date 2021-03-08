@@ -90,8 +90,9 @@ int main (int argc, char** argv)
 	//cout << "done." << endl;
 
 	//Create .csv output stream
-	//std::ofstream output_stream;
+	std::ofstream output_stream;
 	//output_stream.open("./testdata/ODASbugTest2_class.csv");
+	output_stream.open("./testdata/braitenberg_motorcommands.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
 
 
@@ -110,12 +111,12 @@ int main (int argc, char** argv)
 *****************************************************************************/
 
 	//while(true){
-	for(int i = 0; i < 1000;i++){
+	for(int i = 0; i < 4000;i++){
 		odas.updateODAS(/*output_stream*/);
         //vision.updateCamera();
 
 		if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
-			navigation.braitenberg(odas.getSoundAngle());
+			navigation.braitenberg(odas.getSoundAngle(), output_stream);
 		} else {
 			motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS
 		}
@@ -137,7 +138,7 @@ int main (int argc, char** argv)
 	std::cout << "End of main -------" << std::endl;
 
 	//Close outputstream
-	//output_stream.close();
+	output_stream.close();
 
 
 

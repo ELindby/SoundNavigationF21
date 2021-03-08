@@ -26,7 +26,7 @@ public:
 	Navigation(MotorControl * motor_control_);
 	~Navigation();
 
-	void braitenberg(double angle); //Braitenberg vehicle
+	void braitenberg(double angle, std::ofstream& output_stream); //Braitenberg vehicle
 	void setBraitenbergLEDs(int direction)
 
 	void navigationICO(double angle, double w_A)
