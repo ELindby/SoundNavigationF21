@@ -7,7 +7,7 @@
  * Creation date:   12-02-2021
  */
 
-#include "includes/motorcontrol.h"
+#include "motorcontrol.h"
 #include <math.h>
 
 #define VELOCITY_OFFSET		12
