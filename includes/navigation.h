@@ -9,6 +9,7 @@
 
 #include "motorcontrol.h"
 #include <math.h>
+#include <fstream>
 
 #define VELOCITY_OFFSET		12
 
@@ -27,7 +28,7 @@ public:
 	~Navigation();
 
 	void braitenberg(double angle, std::ofstream& output_stream); //Braitenberg vehicle
-	void setBraitenbergLEDs(int direction)
+	void setBraitenbergLEDs(int direction);
 
-	void navigationICO(double angle, double w_A)
+	void navigationICO(double angle, double w_A);
 };

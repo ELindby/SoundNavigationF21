@@ -33,6 +33,8 @@ public:
 
 
 	void initGPIOPins();
+	void setLeftMotorSpeedOnly(int speed);
+	void setRightMotorSpeedOnly(int speed);
 	void setLeftMotorSpeedDirection(int speed, int dir);
 	void setRightMotorSpeedDirection(int speed, int dir);
 	void startupShowLEDRainbow();
