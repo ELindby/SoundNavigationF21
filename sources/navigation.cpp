@@ -83,7 +83,7 @@ void Navigation::braitenberg(double angle, std::ofstream& output_stream) { //Bra
 	output_stream << (activation(angleL)) << "," << (activation(angleR)) << std::endl;
 }
 
-void navigationICO(double angle, double w_A) {
+void Navigation::navigationICO(double angle, double w_A) {
 	if (angle < 180) { //Object is on RIGHT side
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, 255, 0);
 	}
