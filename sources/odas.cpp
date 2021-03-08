@@ -2,7 +2,7 @@
 #include "../includes/odas.h"
 
 
-ODAS::ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matrix_hal::EverloopImage* image1d_) /*: bus{}*/ {
+ODAS::ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matrix_hal::EverloopImage* image1d_) /*: bus{bus_}*/ {
 	/*
 	// Everloop Initialization
 	// Initialize bus and exit program if error occurs

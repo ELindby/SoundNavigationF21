@@ -63,6 +63,28 @@ void MotorControl::initGPIOPins(/*matrix_hal::GPIOControl* gpio*/)
 	gpio->SetMode(TB6612_LEFT_MOTOR_BIN2, 1);
 }
 
+void MotorControl::setLeftMotorSpeedOnly(int speed) {
+	if (speed >= 0) // Forward
+	{
+		setLeftMotorSpeedDirection(speed, 1);
+	}
+	else			// Reverse
+	{
+		setLeftMotorSpeedDirection(-speed, 0);
+	}
+}
+
+void MotorControl::setRightMotorSpeedOnly(int speed) {
+	if (speed >= 0) // Forward
+	{
+		setRightMotorSpeedDirection(speed, 1);
+	}
+	else			// Reverse
+	{
+		setRightMotorSpeedDirection(-speed, 0);
+	}
+}
+
 // Set speed and direction of LEFT motor
 // Directiom -> 1 = forward, 0 = reverse
 // Speed -> 0-100% in steps of 1%
@@ -167,7 +189,10 @@ void MotorControl::setMatrixVoiceLED(/*matrix_hal::Everloop* everloop, matrix_ha
 
 //Turn off all matrix voice LEDS
 void MotorControl::resetMatrixVoiceLEDs(){
-	setMatrixVoiceLED(MATRIX_LED_R_1, 0, 0, 0);
+	for (int i = 0; i < 18; i++) {
+		setMatrixVoiceLED(i, 0, 0, 0);
+	}
+	/*setMatrixVoiceLED(MATRIX_LED_R_1, 0, 0, 0);
 	setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);
 	setMatrixVoiceLED(MATRIX_LED_R_3, 0, 0, 0);
 	setMatrixVoiceLED(MATRIX_LED_L_7, 0, 0, 0);
@@ -176,7 +201,7 @@ void MotorControl::resetMatrixVoiceLEDs(){
 	setMatrixVoiceLED(MATRIX_LED_R_5, 0, 0, 0);
 	setMatrixVoiceLED(MATRIX_LED_L_5, 0, 0, 0);
 	setMatrixVoiceLED(MATRIX_LED_R_9, 0, 0, 0);
-	setMatrixVoiceLED(MATRIX_LED_L_1, 0, 0, 0);
+	setMatrixVoiceLED(MATRIX_LED_L_1, 0, 0, 0);*/
 }
 
 void MotorControl::setMotorDirection(int direction){
@@ -197,7 +222,7 @@ void MotorControl::setMotorDirection(int direction){
 		setRightMotorSpeedDirection(25, 0);
 		setLeftMotorSpeedDirection(25, 1);
 		break;
-	case NONE:
+	case STOP:
 		setRightMotorSpeedDirection(0, 1);
 		setLeftMotorSpeedDirection(0, 1);
 		break;
