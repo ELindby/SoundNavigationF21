@@ -74,11 +74,12 @@ int main (int argc, char** argv)
 	gpio.Setup(&bus);												// Set gpio to use MatrixIOBus bus
 
 	//Initialise control class instances
+	Vision vision;
 	MotorControl motor_control = MotorControl(&bus, &everloop,
 		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
     ODAS odas = ODAS(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
 	Navigation navigation = Navigation(&motor_control);				//Initialise Navigation
-	Vision vision;
+
 
 /*****************************************************************************
 ************************   TEST IMPLEMENTATIONS   ****************************
@@ -88,6 +89,7 @@ int main (int argc, char** argv)
 	//cout << "Waiting for camera to stabilise...";
 	//usleep(3000000);
 	//cout << "done." << endl;
+	char k;
 
 	//Create .csv output stream
 	std::ofstream output_stream;
@@ -120,6 +122,11 @@ int main (int argc, char** argv)
 		} else {
 			motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS
 		}
+
+		k = cv::waitKey(100);
+
+        if(k == 27) //27 = 'ESC'
+            break;
 
 
 		/*
