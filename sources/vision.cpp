@@ -174,4 +174,5 @@ void Vision::updateCamera(){
 
 	// Display Image
 	cv::imshow("Image", imageMat);
+	waitKey(0);
 }

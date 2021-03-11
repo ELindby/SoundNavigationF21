@@ -78,7 +78,7 @@ int main (int argc, char** argv)
 		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
     ODAS odas = ODAS(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
 	Navigation navigation = Navigation(&motor_control);				//Initialise Navigation
-	//Vision vision;
+	Vision vision;
 
 /*****************************************************************************
 ************************   TEST IMPLEMENTATIONS   ****************************
@@ -113,7 +113,7 @@ int main (int argc, char** argv)
 	//while(true){
 	for(int i = 0; i < 1000000;i++){
 		odas.updateODAS(/*output_stream*/);
-        //vision.updateCamera();
+        vision.updateCamera();
 
 		if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
 			navigation.braitenberg(odas.getSoundAngle(), output_stream);
