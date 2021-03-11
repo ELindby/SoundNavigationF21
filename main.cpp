@@ -37,7 +37,8 @@
 #include <ctime>
 #include <fstream>
 #include <iostream>
-//#include <string>
+#include <string>
+#include <sstream>
 #include <unistd.h>
 #include <raspicam/raspicam.h>
 //#include <pigpio.h>
@@ -74,7 +75,7 @@ int main (int argc, char** argv)
 	gpio.Setup(&bus);												// Set gpio to use MatrixIOBus bus
 
 	//Initialise control class instances
-	Vision vision;
+	//Vision vision;
 	MotorControl motor_control = MotorControl(&bus, &everloop,
 		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
     ODAS odas = ODAS(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
@@ -91,10 +92,37 @@ int main (int argc, char** argv)
 	//cout << "done." << endl;
 	char k;
 
+	//Turn on tracking LED (Red) for video tracking of tests
+	motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
+
 	//Create .csv output stream
 	std::ofstream output_stream;
 	//output_stream.open("./testdata/ODASbugTest2_class.csv");
 	output_stream.open("./testdata/braitenberg_motorcommands.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
+
+	//Read motor commands from .csv file
+	/*std::ifstream input_stream;
+	input_stream.open("./testdata/braitenberg_motorcommands.csv");
+	if (!input_stream.is_open()){
+		std::cout << "ERROR OPENING MOTOR COMMANDS .csv FILE" << std::endl;
+	}
+
+	std::vector<double> motorcommands_left;
+	std::vector<double> motorcommands_right;
+
+	std::vector<std::string> string_vec;
+	std::string line;
+	while (std::getline(input_stream, line)){
+		std::istringstream iss(line);
+		std::string line_stream;
+		std::string::size_type sz;
+		std::vector<double> row;
+		while (std::getline(iss, line_stream, ',')){
+			row.push_back(stod(line_stream, &sz)); // convert to double
+		}
+		motorcommands_left.push_back(row[0]);
+		motorcommands_right.push_back(row[1]);
+	}*/
 
 
 
@@ -115,7 +143,7 @@ int main (int argc, char** argv)
 	//while(true){
 	for(int i = 0; i < 1000000;i++){
 		odas.updateODAS(/*output_stream*/);
-        vision.updateCamera();
+        
 
 		if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
 			navigation.braitenberg(odas.getSoundAngle(), output_stream);
@@ -123,17 +151,26 @@ int main (int argc, char** argv)
 			motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS
 		}
 
-		k = cv::waitKey(100);
+		//vision.updateCamera();
+		//k = cv::waitKey(100);
+        //if(k == 27) //27 = 'ESC'
+            //break;
 
-        if(k == 27) //27 = 'ESC'
-            break;
-
+		
 
 		/*
 		w_A = (abs(angle_current - 180) - abs(angle_prev - 180))/180 * S_L + (1 - S_L) * w_A;
         */
 
 	} // End of while loop
+
+	//Replay motor commands
+	/*for (size_t i = 0; i < motorcommands_left.size(); i++)
+	{
+		odas.updateODAS(); //Otherwise no time is spent, TODO: clock the control loop instead
+		motor_control.setRightMotorSpeedOnly(motorcommands_right[i]);
+		motor_control.setLeftMotorSpeedOnly(motorcommands_left[i]);
+	}*/
 /***********************   END OF CONTROLLER LOOP   *************************/
 
 

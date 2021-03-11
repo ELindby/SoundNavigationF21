@@ -12,42 +12,48 @@ Navigation::~Navigation()
 
 double Navigation::activation(double input) {
 	//return 50 / (1 + exp(-3*input));			//Sigmoid or Logistic						[0,1]
-	return 30 / (1 + exp(-10 * input)) + 10;	//Sigmoid or Logistic v2					[0,1]
+	//return 30 / (1 + exp(-10 * input)) + 10;	//Sigmoid or Logistic v2					[0,1]
 	//return 20 / (1 + exp(-10 * input)) + 20;	//Sigmoid or Logistic v2					[0,1]
 	//return 30 * tanh(3*input);				//Hyperbolic tangent (tanh)					[-1,1]
 	//return 30 * atan(5 * input);				//Inverse Hyperbolic Tangent (arctanh)		[-pi/2,pi/2]
 	//return 20 * 2 * atan(tanh(5x));			//Gudermannian								[-pi/2,pi/2]
+
+	//Test of braitenberg vehicle test activation functions:
+	return 20 / (1 + exp(-10 * input)) + 20;	//Sigmoid or Logistic				//Default
+	//return 10 * tanh(5 * input) + 30;			//Hyperbolic tangent (tanh)
+	//return 8 * atan(5 * input) + 30;			//Inverse Hyperbolic Tangent (arctanh)
+	//return 6 * 2 * atan(tanh(5x)) + 30;		//Gudermannian
 }
 
 void Navigation::setBraitenbergLEDs(int direction) {
 	switch (direction) {
 	case FORWARD:
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, MAX_BRIGHTNESS, 0);		//Center LED
-		motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, MAX_BRIGHTNESS, 0);		//Center LED
+		//motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, MAX_BRIGHTNESS, 0);		//Center LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_2, 0, 0, 0);					//Right LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_L_8, 0, 0, 0);					//Left LED
 		break;
 	case LEFT:
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, 0, 0);					//Center LED
-		motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);					//Center LED
+		//motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);					//Center LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_2, 0, 0, 0);					//Right LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_L_8, 0, MAX_BRIGHTNESS, 0);		//Left LED
 		break;
 	case RIGHT:
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, 0, 0);					//Center LED
-		motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);					//Center LED
+		//motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);					//Center LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_2, 0, MAX_BRIGHTNESS, 0);		//Right LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_L_8, 0, 0, 0);					//Left LED
 		break;
 	case STOP:
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, 0, 0);					//Center LED
-		motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);					//Center LED
+		//motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);					//Center LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_2, 0, 0, 0);					//Right LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_L_8, 0, 0, 0);					//Left LED
 		break;
 	default:
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, 0, 0);					//Center LED
-		motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);					//Center LED
+		//motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 0, 0);					//Center LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_R_2, 0, 0, 0);					//Right LED
 		motor_control->setMatrixVoiceLED(MATRIX_LED_L_8, 0, 0, 0);					//Left LED
 	}
@@ -76,11 +82,13 @@ void Navigation::braitenberg(double angle, std::ofstream& output_stream) { //Bra
 	double angleL = (((360 - angle) - 180) / 180); // Normalize
 	double angleR = (angle - 180) / 180; // Normalize
 
-	motor_control->setRightMotorSpeedDirection(activation(angleR) /*+ VELOCITY_OFFSET*/, 1);
-	motor_control->setLeftMotorSpeedDirection(activation(angleL) /*+ VELOCITY_OFFSET*/, 1);
+	//motor_control->setRightMotorSpeedDirection(activation(angleR) /*+ VELOCITY_OFFSET*/, 1);
+	//motor_control->setLeftMotorSpeedDirection(activation(angleL) /*+ VELOCITY_OFFSET*/, 1);
+	motor_control->setRightMotorSpeedOnly(activation(angleR) /*+ VELOCITY_OFFSET*/);
+	motor_control->setLeftMotorSpeedOnly(activation(angleL) /*+ VELOCITY_OFFSET*/);
 	//TEST - Print motor values
 	std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
-	output_stream << (activation(angleL)) << "," << (activation(angleR)) << std::endl;
+	output_stream << (activation(angleL)) << "," << (activation(angleR)) /*<< "," << angleL << "," angleR*/ << std::endl;
 }
 
 void Navigation::navigationICO(double angle, double w_A) {
