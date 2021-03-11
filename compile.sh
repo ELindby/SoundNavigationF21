@@ -1,4 +1,4 @@
-g++ main.cpp sources/motorcontrol.cpp sources/vision.cpp sources/odas.cpp -o main.out \
+g++ main.cpp sources/motorcontrol.cpp sources/vision.cpp sources/odas.cpp sources/navigation.cpp -o main.out \
 -Wall \
 -pthread \
 -L/usr/local/lib \
@@ -17,3 +17,5 @@ g++ main.cpp sources/motorcontrol.cpp sources/vision.cpp sources/odas.cpp -o mai
 
 echo "To run, type:"
 echo "./main.out"
+echo "To run with ODASlive, type:"
+echo "./runodasandmain.sh"

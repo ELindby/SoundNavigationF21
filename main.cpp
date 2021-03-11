@@ -111,7 +111,7 @@ int main (int argc, char** argv)
 *****************************************************************************/
 
 	//while(true){
-	for(int i = 0; i < 4000;i++){
+	for(int i = 0; i < 1000000;i++){
 		odas.updateODAS(/*output_stream*/);
         //vision.updateCamera();
 
@@ -120,7 +120,7 @@ int main (int argc, char** argv)
 		} else {
 			motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS
 		}
-		
+
 
 		/*
 		w_A = (abs(angle_current - 180) - abs(angle_prev - 180))/180 * S_L + (1 - S_L) * w_A;
