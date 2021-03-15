@@ -108,6 +108,7 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 		
 		//Print test data to .csv file - Only for testing
 		//output_stream << angle << "," << energy << std::endl;
+		//
 	}
 
 }
