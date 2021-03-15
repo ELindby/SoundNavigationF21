@@ -20,6 +20,7 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <mutex>
 
 #include "defines.h"
 
@@ -57,6 +58,7 @@ private:
 	int angle = -2;
 	int angle_prev = -2;
 	int energy = -2;
+	std::mutex angle_energy_mutex;
 
 
 	void increase_pots();

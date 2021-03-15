@@ -112,17 +112,17 @@ int main(int argc, char** argv)
 	
 
 	//while(true){
-	for (int i = 0; i < 500; i++) {
+	for (int i = 0; i < 1000; i++) {
 		//odas.updateODAS();
 		//motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
 
 
-		//if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
-		//	navigation.braitenberg(odas.getSoundAngle(), output_stream);
-		//}
-		//else {
-		//	motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS
-		//}
+		if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
+			navigation.braitenberg(odas.getSoundAngle(), output_stream);
+		}
+		else {
+			motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS
+		}
 
 		//vision.updateCamera();
 		k = cv::waitKey(100);

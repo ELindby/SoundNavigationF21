@@ -113,7 +113,6 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 
 }
 
-
 void ODAS::increase_pots() {
 	// Convert x,y to angle. TODO: See why x axis from ODAS is inverted
 	double angle_xy = fmodf((atan2(y, x) * (180.0 / M_PI)) + 360, 360);
@@ -133,7 +132,6 @@ void ODAS::decrease_pots() {
 		energy_array[i] -= (energy_array[i] > 0) ? DECREMENT : 0;
 	}
 }
-
 
 void ODAS::json_parse_array(json_object *jobj, char *key) {
 	// Forward Declaration
@@ -223,6 +221,10 @@ void ODAS::updateSoundInformation(/*int & angle, int & energy*/) {
 			largest_element_index = i;
 		}
 	}
+
+	//Lock angle and sound mutex
+	std::lock_guard<std::mutex> guard(angle_energy_mutex);
+
 	if (largest_element != -1)
 	{
 		angle = (largest_element_index * 360 / ENERGY_COUNT);
@@ -233,7 +235,7 @@ void ODAS::updateSoundInformation(/*int & angle, int & energy*/) {
 		std::cout << "THIS IS A TEST: THIS WAS ACTUALLY REACHED, REFACTOR CODE" << std::endl;
 	}
 	if (angle != angle_prev) {
-		std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
+		//std::cout << "Angle: " << angle << " Energy: " << energy << std::endl;
 		angle_prev = angle;
 	}
 	return;
@@ -267,9 +269,27 @@ void ODAS::updateSoundInformation(/*int & angle, int & energy*/) {
 //}
 
 int ODAS::getSoundAngle() {
-	return angle;
+	int temp_angle;
+	while (true) {
+		// try to lock mutex to modify 'angle'
+		if (angle_energy_mutex.try_lock()) {
+			temp_angle = angle;
+			angle_energy_mutex.unlock();
+			break;
+		}
+	}
+	return temp_angle;
 }
 
 int ODAS::getSoundEnergy() {
-	return energy;
+	int temp_energy;
+	while (true) {
+		// try to lock mutex to modify 'energy'
+		if (angle_energy_mutex.try_lock()) {
+			temp_energy = energy;
+			angle_energy_mutex.unlock();
+			break;
+		}
+	}
+	return temp_energy;
 }
