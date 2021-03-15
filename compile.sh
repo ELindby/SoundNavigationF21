@@ -1,4 +1,4 @@
-g++ main.cpp sources/motorcontrol.cpp sources/vision.cpp sources/odas.cpp sources/navigation.cpp -o main.out \
+g++ main_thread_test.cpp sources/motorcontrol.cpp sources/vision.cpp sources/odas.cpp sources/navigation.cpp -o main.out \
 -Wall \
 -pthread \
 -L/usr/local/lib \

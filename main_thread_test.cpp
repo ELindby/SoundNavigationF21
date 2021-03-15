@@ -54,6 +54,7 @@
 #include <matrix_hal/gpio_control.h>
 #include <matrix_hal/matrixio_bus.h>
 #include <thread>
+#include <mutex>
 
 #define ENERGY_THRESHOLD 30
 
@@ -79,7 +80,7 @@ int main(int argc, char** argv)
 	//Vision vision;
 	MotorControl motor_control = MotorControl(&bus, &everloop,
 		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
-	ODAS odas = ODAS(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
+	ODAS odas(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
 	Navigation navigation = Navigation(&motor_control);				//Initialise Navigation
 
 
@@ -109,7 +110,7 @@ int main(int argc, char** argv)
 	std::thread thread_odas(&ODAS::updateODAS,	// the pointer-to-member
 							odas);				// the object, could also be a pointer
 												// the argument
-	
+
 
 	//while(true){
 	for (int i = 0; i < 1000; i++) {
@@ -135,7 +136,7 @@ int main(int argc, char** argv)
 
 	} // End of while loop
 
-	
+
 	/***********************   END OF CONTROLLER LOOP   *************************/
 
 
