@@ -91,7 +91,7 @@ int main(int argc, char** argv)
 	//cout << "Waiting for camera to stabilise...";
 	//usleep(3000000);
 	//cout << "done." << endl;
-	//char k;
+	char k;
 
 	//Turn on tracking LED (Red) for video tracking of tests
 	motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
@@ -101,7 +101,6 @@ int main(int argc, char** argv)
 	//output_stream.open("./testdata/ODASbugTest2_class.csv");
 	output_stream.open("./testdata/no_test_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
-	
 
 
 	/*****************************************************************************
@@ -126,7 +125,7 @@ int main(int argc, char** argv)
 		//vision.updateCamera();
 		k = cv::waitKey(100);
 		if(k == 27) //27 = 'ESC'
-			//break;
+			break;
 
 
 
