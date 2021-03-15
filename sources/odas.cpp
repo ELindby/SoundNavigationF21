@@ -71,8 +71,8 @@ ODAS::ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matri
 ODAS::~ODAS(){}
 
 void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*//*std::ofstream& output_stream*/) {
-	//while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
-	if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
+	while ((messageSize = recv(connection_id, message, nBytes, 0)) > 0) {
+	//if((messageSize = recv(connection_id, message, nBytes, 0)) > 0){
 		message[messageSize] = 0x00;
 
 		// printf("message: %s\n\n", message);
