@@ -108,7 +108,7 @@ int main(int argc, char** argv)
 	************************   CONTROLLER LOOP   *********************************
 	*****************************************************************************/
 	std::thread thread_odas(&ODAS::updateODAS,	// the pointer-to-member
-							odas);				// the object, could also be a pointer
+							&odas);				// the object, could also be a pointer
 												// the argument
 
 
