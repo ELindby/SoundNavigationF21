@@ -77,7 +77,6 @@ int main(int argc, char** argv)
 	gpio.Setup(&bus);												// Set gpio to use MatrixIOBus bus
 
 	//Initialise control class instances
-	//Vision vision;
 	MotorControl motor_control = MotorControl(&bus, &everloop,
 		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
 	ODAS odas(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
@@ -88,10 +87,7 @@ int main(int argc, char** argv)
 	************************   TEST IMPLEMENTATIONS   ****************************
 	*****************************************************************************/
 
-	// Wait 3 seconds for camera image to stabilise
-	//cout << "Waiting for camera to stabilise...";
-	//usleep(3000000);
-	//cout << "done." << endl;
+	
 	char k;
 
 	//Turn on tracking LED (Red) for video tracking of tests
@@ -111,6 +107,8 @@ int main(int argc, char** argv)
 							&odas);				// the object, could also be a pointer
 												// the argument
 
+	Vision vision;
+
 
 	//while(true){
 	for (int i = 0; i < 1000; i++) {
@@ -125,7 +123,7 @@ int main(int argc, char** argv)
 			motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS
 		}
 
-		//vision.updateCamera();
+		vision.updateCamera();
 		k = cv::waitKey(100);
 		if(k == 27) //27 = 'ESC'
 			break;
@@ -142,7 +140,7 @@ int main(int argc, char** argv)
 
 	motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
 	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
-	//vision.camera->release();					//Release camera resources
+	vision.camera.release();					//Release camera resources
 
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
