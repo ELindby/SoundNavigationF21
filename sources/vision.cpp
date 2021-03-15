@@ -11,35 +11,35 @@ Vision::Vision(){
 
 	// Set Raspberry Pi camera parameters
 	// Set camera image format to BGR as used by  OpenCV
-	Camera.setFormat(raspicam::RASPICAM_FORMAT_BGR);
+	camera.setFormat(raspicam::RASPICAM_FORMAT_BGR);
 	// Set image resolution
-	Camera.setWidth(640);
-	Camera.setHeight(480);
+	camera.setWidth(640);
+	camera.setHeight(480);
 	// Flip camera image vertically and horizontally
 	// because camera is mounted upside down
-	Camera.setVerticalFlip(true);
-	Camera.setHorizontalFlip(true);
+	camera.setVerticalFlip(true);
+	camera.setHorizontalFlip(true);
 
 	// Display current camera parameters
-	std::cout << "Format: " << Camera.getFormat() << std::endl;
-	std::cout << "Width: " << Camera.getWidth() << std::endl;
-	std::cout << "Height: " << Camera.getHeight() << std::endl;
-	std::cout << "Brightness: " << Camera.getBrightness() << std::endl;
-	std::cout << "Rotation: " << Camera.getRotation() << std::endl;
-	std::cout << "ISO: " << Camera.getISO() << std::endl;
-	std::cout << "Sharrpness: " << Camera.getSharpness() << std::endl;
-	std::cout << "Contrast: " << Camera.getContrast() << std::endl;
-	std::cout << "Saturation: " << Camera.getSaturation() << std::endl;
-	std::cout << "ShutterSpeed: " << Camera.getShutterSpeed() << std::endl;
-	std::cout << "Exopsure: " << Camera.getExposure() << std::endl;
-	std::cout << "AWB: " << Camera.getAWB() << std::endl;
-	std::cout << "Image effect: " << Camera.getImageEffect() << std::endl;
-	std::cout << "Metering: " << Camera.getMetering() << std::endl;
-	std::cout << "Format:" << Camera.getFormat() << std::endl;
+	std::cout << "Format: " << camera.getFormat() << std::endl;
+	std::cout << "Width: " << camera.getWidth() << std::endl;
+	std::cout << "Height: " << camera.getHeight() << std::endl;
+	std::cout << "Brightness: " << camera.getBrightness() << std::endl;
+	std::cout << "Rotation: " << camera.getRotation() << std::endl;
+	std::cout << "ISO: " << camera.getISO() << std::endl;
+	std::cout << "Sharrpness: " << camera.getSharpness() << std::endl;
+	std::cout << "Contrast: " << camera.getContrast() << std::endl;
+	std::cout << "Saturation: " << camera.getSaturation() << std::endl;
+	std::cout << "ShutterSpeed: " << camera.getShutterSpeed() << std::endl;
+	std::cout << "Exopsure: " << camera.getExposure() << std::endl;
+	std::cout << "AWB: " << camera.getAWB() << std::endl;
+	std::cout << "Image effect: " << camera.getImageEffect() << std::endl;
+	std::cout << "Metering: " << camera.getMetering() << std::endl;
+	std::cout << "Format:" << camera.getFormat() << std::endl;
 	std::cout << "Body: " << "Ready" << std::endl;
 
 	// Open camera
-	if (!Camera.open())
+	if (!camera.open())
 	{
 		std::cerr << "Error opening camera." << std::endl;
 		throw("Error opening camera.");
@@ -57,11 +57,11 @@ Vision::Vision(){
 	*****************************************************************************/
 
 	// Create buffer of correct size to store image data
-	img_buf_len = Camera.getImageTypeSize(raspicam::RASPICAM_FORMAT_BGR);
+	img_buf_len = camera.getImageTypeSize(raspicam::RASPICAM_FORMAT_BGR);
 	img_buf = new unsigned char[img_buf_len];
 
 	// Initialise OpenCV image Mat
-	imageMat = cv::Mat(Camera.getHeight(), Camera.getWidth(), CV_8UC3, img_buf);
+	imageMat = cv::Mat(camera.getHeight(), camera.getWidth(), CV_8UC3, img_buf);
 
 	// Create window to display original image
 	cv::namedWindow("Image",cv::WINDOW_AUTOSIZE);
@@ -153,13 +153,13 @@ void Vision::setupSimpleBlobDetector()
 
 void Vision::updateCamera(){
 	// Grab image into internal buffer
-	Camera.grab();
+	camera.grab();
 
 	// Copy latest camera buffer into our defined buffer
-	Camera.retrieve(img_buf);
+	camera.retrieve(img_buf);
 
 	// Copy image buffer data into OpenCV Mat image
-	imageMat = cv::Mat(Camera.getHeight(), Camera.getWidth(), CV_8UC3, img_buf);
+	imageMat = cv::Mat(camera.getHeight(), camera.getWidth(), CV_8UC3, img_buf);
 
 	// Exit if there is no image data in OpenCV image Mat
 	if (!imageMat.data)
@@ -167,7 +167,7 @@ void Vision::updateCamera(){
 		std::cout << "No data in Mat imageMat." << std::endl;
 
 		// Release Raspberry Pi camera resources
-		Camera.release();
+		camera.release();
 
 		return;
 	}

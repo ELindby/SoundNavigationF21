@@ -20,7 +20,7 @@ class Vision
 {
 private:
 	//Camera
-	raspicam::RaspiCam Camera;									// Create Raspberry Pi camera object
+	raspicam::RaspiCam camera;									// Create Raspberry Pi camera object
 	int img_buf_len;											// Create buffer of correct size to store image data
 	unsigned char *img_buf;										// Create buffer of correct size to store image data
 	cv::Mat imageMat;											// Initialise OpenCV image Mat

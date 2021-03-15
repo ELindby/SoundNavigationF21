@@ -147,6 +147,7 @@ int main(int argc, char** argv)
 
 	thread_odas.join();
 	std::cout << "thread 1 joined" << std::endl;
+	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
 
 	//Close outputstream
 	output_stream.close();
