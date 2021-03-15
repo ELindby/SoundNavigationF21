@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
 
-	thread_1.join();
+	thread_odas.join();
 	std::cout << "thread 1 joined" << std::endl;
 
 	//Close outputstream
