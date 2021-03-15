@@ -22,7 +22,7 @@ double Navigation::activation(double input) {
 	return 20 / (1 + exp(-10 * input)) + 20;	//Sigmoid or Logistic				//Default
 	//return 10 * tanh(5 * input) + 30;			//Hyperbolic tangent (tanh)
 	//return 8 * atan(5 * input) + 30;			//Inverse Hyperbolic Tangent (arctanh)
-	//return 6 * 2 * atan(tanh(5x)) + 30;		//Gudermannian
+	//return 6 * 2 * atan(tanh(5 * input)) + 30;		//Gudermannian
 }
 
 void Navigation::setBraitenbergLEDs(int direction) {

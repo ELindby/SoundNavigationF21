@@ -90,7 +90,7 @@ int main (int argc, char** argv)
 	//cout << "Waiting for camera to stabilise...";
 	//usleep(3000000);
 	//cout << "done." << endl;
-	char k;
+	//char k;
 
 	//Turn on tracking LED (Red) for video tracking of tests
 	motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
@@ -98,11 +98,11 @@ int main (int argc, char** argv)
 	//Create .csv output stream
 	std::ofstream output_stream;
 	//output_stream.open("./testdata/ODASbugTest2_class.csv");
-	output_stream.open("./testdata/braitenberg_motorcommands.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
+	output_stream.open("./testdata/no_test_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
 	//Read motor commands from .csv file
 	/*std::ifstream input_stream;
-	input_stream.open("./testdata/braitenberg_motorcommands.csv");
+	input_stream.open("./testdata/Test1pos_13.csv");
 	if (!input_stream.is_open()){
 		std::cout << "ERROR OPENING MOTOR COMMANDS .csv FILE" << std::endl;
 	}
@@ -140,10 +140,12 @@ int main (int argc, char** argv)
 ************************   CONTROLLER LOOP   *********************************
 *****************************************************************************/
 
+
 	//while(true){
-	for(int i = 0; i < 1000000;i++){
-		odas.updateODAS(/*output_stream*/);
-        
+	for(int i = 0; i < 100000;i++){
+		odas.updateODAS();
+		motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
+
 
 		if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
 			navigation.braitenberg(odas.getSoundAngle(), output_stream);
@@ -156,16 +158,15 @@ int main (int argc, char** argv)
         //if(k == 27) //27 = 'ESC'
             //break;
 
-		
 
-		/*
-		w_A = (abs(angle_current - 180) - abs(angle_prev - 180))/180 * S_L + (1 - S_L) * w_A;
-        */
+
+
 
 	} // End of while loop
 
 	//Replay motor commands
-	/*for (size_t i = 0; i < motorcommands_left.size(); i++)
+	/*
+	for (size_t i = 0; i < motorcommands_left.size(); i++)
 	{
 		odas.updateODAS(); //Otherwise no time is spent, TODO: clock the control loop instead
 		motor_control.setRightMotorSpeedOnly(motorcommands_right[i]);
