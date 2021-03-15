@@ -39,4 +39,5 @@ public:
 	~Vision();
 	void setupSimpleBlobDetector();
 	void updateCamera();
+	void releaseCamera();
 };

@@ -176,3 +176,9 @@ void Vision::updateCamera(){
 	cv::imshow("Image", imageMat);
 	//cv::waitKey(30);
 }
+
+void Vision::releaseCamera()
+{
+	camera.release();
+	std::cout << "Camera resources released." << std::endl;
+}

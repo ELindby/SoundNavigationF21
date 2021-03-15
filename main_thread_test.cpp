@@ -140,7 +140,7 @@ int main(int argc, char** argv)
 
 	motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
 	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
-	vision.camera.release();					//Release camera resources
+	vision.releaseCamera();						//Release camera resources
 
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
