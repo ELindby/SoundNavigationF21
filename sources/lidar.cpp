@@ -1,4 +1,4 @@
-#include "../includes/LIDAR.h"
+#include "../includes/lidar.h"
 
 LIDAR::LIDAR()
 {

@@ -23,7 +23,6 @@
 #include "includes/navigation.h"
 #include "includes/odas.h"
 #include "includes/vision.h"
-#include "includes/lidar.h"
 
 
 //Odas test includes
@@ -79,10 +78,10 @@ int main (int argc, char** argv)
 	*****************************************************************************/
 	MotorControl motor_control(&bus, &everloop, &everloop_image, &gpio);
 	//ODAS soundLocalization(&bus, &everloop, &everloop_image);
-	navigation navigation(&motor_control);
+	Navigation navigation(&motor_control);
 
 
-	
+
 
 	LIDAR lidar;
 	std::thread thread_LIDAR(&LIDAR::scanLIDAR,
@@ -123,17 +122,17 @@ int main (int argc, char** argv)
 
 	/*********************************   END OF CONTROLLER LOOP   *********************************/
 
-	motor_control.changeMotorCommand(STOP);		//STOP ALL MOTORS
+	motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
 	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
-	//vision.releaseCamera();						//Release camera resources
+	//vision.releaseCamera();					//Release camera resources
 
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
 
 	//threadOdas.join();
 	//std::cout << "Odas thread joined" << std::endl;
-	lidar.ctrlc();
-	threadLIDAR.~thread();
+	lidar.ctrlc(0);
+	thread_LIDAR.~thread();
 
 	std::cout << "LIDAR thread terminated!" << std::endl;
 

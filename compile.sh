@@ -1,4 +1,16 @@
-g++ main_thread_test.cpp sources/motorcontrol.cpp sources/vision.cpp sources/odas.cpp sources/navigation.cpp -o main.out \
+g++ main.cpp \
+sources/motorcontrol.cpp \
+sources/vision.cpp \
+sources/odas.cpp \
+sources/navigation.cpp \
+sources/lidar.cpp \
+sdk/include/rplidar.h \
+sdk/src/rplidar_driver.cpp \
+sdk/src/hal/thread.cpp \
+sdk/src/arch/linux/timer.cpp \
+sdk/src/arch/linux/net_serial.cpp \
+sdk/src/arch/linux/net_socket.cpp \
+-o main.out \
 -Wall \
 -pthread \
 -L/usr/local/lib \

@@ -41,13 +41,12 @@
 #endif
 
 using namespace rp::standalone::rplidar;
+class LIDAR
 {
-
-
 private:
 	//LIDAR variables
 	RPlidarDriver* lidar;
-	const char* opt_com_path = "/dev/ttyUSB1";
+	const char* opt_com_path = "/dev/ttyUSB0";
 	_u32         baudrateArray[2] = { 115200, 256000 };
 	_u32         opt_com_baudrate = 0;
 	u_result     op_result;
