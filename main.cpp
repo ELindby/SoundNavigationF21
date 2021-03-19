@@ -23,6 +23,7 @@
 #include "includes/navigation.h"
 #include "includes/odas.h"
 #include "includes/vision.h"
+#include "includes/lidar.h"
 
 
 //Odas test includes
@@ -62,132 +63,85 @@ using namespace std;
 
 int main (int argc, char** argv)
 {
-/*****************************************************************************
-**********************   INITIALISE CONTROL OBJECTS   ************************
-*****************************************************************************/
+	/*****************************************************************************
+	************************   INITIALISE MATRIXIO  ************************
+	*****************************************************************************/
 	matrix_hal::MatrixIOBus bus;									// Create MatrixIOBus object for hardware communication
-	if (!bus.Init())
+	if (!bus.Init())												// Set gpio to use MatrixIOBus bus
 		throw("Bus Init failed");
 	matrix_hal::EverloopImage everloop_image(bus.MatrixLeds());		// Create EverloopImage object "image1d", with size of ledCount
 	matrix_hal::Everloop everloop;									// Create Everloop object
 	everloop.Setup(&bus);											// Set everloop to use MatrixIOBus bus
 	matrix_hal::GPIOControl gpio;									// Create GPIOControl object - General Purpose Input Output
-	gpio.Setup(&bus);												// Set gpio to use MatrixIOBus bus
+	gpio.Setup(&bus);
+	/*****************************************************************************
+	************************   INITIALISE CLASSES  ************************
+	*****************************************************************************/
+	MotorControl motor_control(&bus, &everloop, &everloop_image, &gpio);
+	//ODAS soundLocalization(&bus, &everloop, &everloop_image);
+	navigation navigation(&motor_control);
 
-	//Initialise control class instances
+
+	
+
+	LIDAR lidar;
+	std::thread thread_LIDAR(&LIDAR::scanLIDAR,
+		&lidar);
+
+
+
+
 	//Vision vision;
-	MotorControl motor_control = MotorControl(&bus, &everloop,
-		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
-    ODAS odas = ODAS(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
-	Navigation navigation = Navigation(&motor_control);				//Initialise Navigation
 
+	char k;
 
-/*****************************************************************************
-************************   TEST IMPLEMENTATIONS   ****************************
-*****************************************************************************/
-
-	// Wait 3 seconds for camera image to stabilise
-	//cout << "Waiting for camera to stabilise...";
-	//usleep(3000000);
-	//cout << "done." << endl;
-	//char k;
-
-	//Turn on tracking LED (Red) for video tracking of tests
-	motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
-
-	//Create .csv output stream
-	std::ofstream output_stream;
-	//output_stream.open("./testdata/ODASbugTest2_class.csv");
-	output_stream.open("./testdata/no_test_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
-
-	//Read motor commands from .csv file
-	/*std::ifstream input_stream;
-	input_stream.open("./testdata/Test1pos_13.csv");
-	if (!input_stream.is_open()){
-		std::cout << "ERROR OPENING MOTOR COMMANDS .csv FILE" << std::endl;
-	}
-
-	std::vector<double> motorcommands_left;
-	std::vector<double> motorcommands_right;
-
-	std::vector<std::string> string_vec;
-	std::string line;
-	while (std::getline(input_stream, line)){
-		std::istringstream iss(line);
-		std::string line_stream;
-		std::string::size_type sz;
-		std::vector<double> row;
-		while (std::getline(iss, line_stream, ',')){
-			row.push_back(stod(line_stream, &sz)); // convert to double
-		}
-		motorcommands_left.push_back(row[0]);
-		motorcommands_right.push_back(row[1]);
-	}*/
-
-
-
-/*****************************************************************************
-************************   ICO LEARNING   *********************************
-*****************************************************************************/
-	/*double angle_current = 270.0;
-	double angle_prev = 0.0;
-	double w_A = 1.0; //weight
-	double v_learning = 0.0;
-	double S_L = 0.3;*/
-
-
-/*****************************************************************************
-************************   CONTROLLER LOOP   *********************************
-*****************************************************************************/
 
 
 	//while(true){
-	for(int i = 0; i < 100000;i++){
-		odas.updateODAS();
-		motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
+	for (int i = 0; i < 1000; i++) {
+		rplidar_response_measurement_node_hq_t closestNode = lidar.readScan();
+		std::cout << "Nearest distance to obstacle: " << closestNode.dist_mm_q2 / 4.0f << " Angle: " << closestNode.angle_z_q14 * 90.f / (1 << 14) << std::endl;
+
+		usleep(100000);
+
+		//	//odas.updateODAS();
+		//	//motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
 
 
-		if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
-			navigation.braitenberg(odas.getSoundAngle(), output_stream);
-		} else {
-			motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS
-		}
+		//	if (soundLocalization.getEnergy() > ENERGY_THRESHOLD) {
+		//		navigation.braitenberg(soundLocalization.getSoundAngle(), outputStream);
+		//	}
+		//	else {
+		//		motorControl.changeMotorCommand(STOP); //STOPS ALL MOTORS
+		//	}
 
-		//vision.updateCamera();
-		//k = cv::waitKey(100);
-        //if(k == 27) //27 = 'ESC'
-            //break;
+		//	vision.updateCamera();
+		//	k = cv::waitKey(10);
+		//	if (k == 27) //27 = 'ESC'
+		//		break;
+	}
 
+	/*********************************   END OF CONTROLLER LOOP   *********************************/
 
-
-
-
-	} // End of while loop
-
-	//Replay motor commands
-	/*
-	for (size_t i = 0; i < motorcommands_left.size(); i++)
-	{
-		odas.updateODAS(); //Otherwise no time is spent, TODO: clock the control loop instead
-		motor_control.setRightMotorSpeedOnly(motorcommands_right[i]);
-		motor_control.setLeftMotorSpeedOnly(motorcommands_left[i]);
-	}*/
-/***********************   END OF CONTROLLER LOOP   *************************/
-
-
-	motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
+	motor_control.changeMotorCommand(STOP);		//STOP ALL MOTORS
 	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
-    //vision.camera->release();					//Release camera resources
+	//vision.releaseCamera();						//Release camera resources
 
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
 
-	//Close outputstream
-	output_stream.close();
+	//threadOdas.join();
+	//std::cout << "Odas thread joined" << std::endl;
+	lidar.ctrlc();
+	threadLIDAR.~thread();
 
+	std::cout << "LIDAR thread terminated!" << std::endl;
 
+	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
 
-
+	//outputStream.close();
+	//vision.releaseCamera();
+	std::cout << "End of main -------" << std::endl;
 
 	return 0;
 }
