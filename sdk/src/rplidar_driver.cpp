@@ -668,7 +668,7 @@ u_result RPlidarDriverImplCommon::checkExpressScanSupported(bool & support, _u32
 
 int RPlidarDriverImplCommon::_getSyncBitByAngle(const int current_angle_q16, const int angleInc_q16)
 {
-    static int last_angleInc_q16 = 0;
+    //static int last_angleInc_q16 = 0;
     int current_angleInc_q16 = angleInc_q16;
     int syncBit_check_threshold = (int)((5 << 16) / angleInc_q16) + 1;//find syncBit in 0~3 degree
     int syncBit = 0;
@@ -692,7 +692,7 @@ int RPlidarDriverImplCommon::_getSyncBitByAngle(const int current_angle_q16, con
         //    _is_previous_syncBit = false;
         //}
     }
-    last_angleInc_q16 = current_angleInc_q16;
+    //last_angleInc_q16 = current_angleInc_q16;
     return syncBit;
 }
 

@@ -32,7 +32,7 @@
  *
  */
 
-#pragma once
+//#pragma once Removed because included in main, use ifnot def instead if needed
 
 #include <vector>
 #include "../src/hal/types.h"
