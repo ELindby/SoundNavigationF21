@@ -32,7 +32,7 @@
  *
  */
 
-//#pragma once Removed because included in main, use ifnot def instead if needed
+//#pragma once Out-commemted to remove a warning during compilaton.
 
 #include <vector>
 #include "../src/hal/types.h"

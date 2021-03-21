@@ -668,9 +668,9 @@ u_result RPlidarDriverImplCommon::checkExpressScanSupported(bool & support, _u32
 
 int RPlidarDriverImplCommon::_getSyncBitByAngle(const int current_angle_q16, const int angleInc_q16)
 {
-    //static int last_angleInc_q16 = 0;
-    int current_angleInc_q16 = angleInc_q16;
-    int syncBit_check_threshold = (int)((5 << 16) / angleInc_q16) + 1;//find syncBit in 0~3 degree
+    //static int last_angleInc_q16 = 0; Outcommeted to remove warning during compilation
+    //int current_angleInc_q16 = angleInc_q16; Outcommeted to remove warning during compilation
+    //int syncBit_check_threshold = (int)((5 << 16) / angleInc_q16) + 1;//find syncBit in 0~3 degree // Outcommeted to remove warning during compilation
     int syncBit = 0;
     int predict_angle_q16 = (current_angle_q16 + angleInc_q16) % (360 << 16);
 
@@ -692,7 +692,7 @@ int RPlidarDriverImplCommon::_getSyncBitByAngle(const int current_angle_q16, con
         //    _is_previous_syncBit = false;
         //}
     }
-    //last_angleInc_q16 = current_angleInc_q16;
+    //last_angleInc_q16 = current_angleInc_q16; Outcommeted to remove warning during compilation
     return syncBit;
 }
 
@@ -768,7 +768,7 @@ u_result RPlidarDriverImplCommon::_cacheUltraCapsuledScanData()
     size_t                                   count = 512;
     rplidar_response_measurement_node_hq_t   local_scan[MAX_SCAN_NODES];
     size_t                                   scan_count = 0;
-    size_t                                   last_scan_count = 0;
+    //size_t                                   last_scan_count = 0; Outcommeted to remove warning during compilation
     u_result                                 ans;
     memset(local_scan, 0, sizeof(local_scan));
 
@@ -847,7 +847,7 @@ void     RPlidarDriverImplCommon::_capsuleToNormal(const rplidar_response_capsul
             int angle_offset1_q3 = ( (_cached_previous_capsuledata.cabins[pos].offset_angles_q3 & 0xF) | ((_cached_previous_capsuledata.cabins[pos].distance_angle_1 & 0x3)<<4));
             int angle_offset2_q3 = ( (_cached_previous_capsuledata.cabins[pos].offset_angles_q3 >> 4) | ((_cached_previous_capsuledata.cabins[pos].distance_angle_2 & 0x3)<<4));
 
-            int syncBit_check_threshold = (int)((2 << 16) / angleInc_q16) + 1;//find syncBit in 0~1 degree
+            //int syncBit_check_threshold = (int)((2 << 16) / angleInc_q16) + 1;//find syncBit in 0~1 degree // Outcommeted to remove warning during compilation
 
             angle_q16[0] = (currentAngle_raw_q16 - (angle_offset1_q3<<13));
             syncBit[0] = _getSyncBitByAngle(currentAngle_raw_q16, angleInc_q16);
@@ -1024,7 +1024,7 @@ static _u32 _crc32cal(_u32 crc, void* input, _u16 len)
     _u8 index;
     _u8* pch;
     pch = (unsigned char*)input;
-    _u8 leftBytes = 4 - len & 0x3;
+    _u8 leftBytes = (4 - len) & 0x3;
 
     for (i = 0; i<len; i++){
         index = (unsigned char)(crc^*pch);
@@ -1235,7 +1235,7 @@ void RPlidarDriverImplCommon::_ultraCapsuleToNormal(const rplidar_response_ultra
 
 
             dist_q2[0] = (dist_major << 2);
-            if ((dist_predict1 == 0xFFFFFE00) || (dist_predict1 == 0x1FF)) {
+            if ((dist_predict1 == (int)0xFFFFFE00) || (dist_predict1 == (int)0x1FF)) {
                 dist_q2[1] = 0;
             } else {
                 dist_predict1 = (dist_predict1 << scalelvl1);
@@ -1243,7 +1243,7 @@ void RPlidarDriverImplCommon::_ultraCapsuleToNormal(const rplidar_response_ultra
 
             }
 
-            if ((dist_predict2 == 0xFFFFFE00) || (dist_predict2 == 0x1FF)) {
+            if ((dist_predict2 == (int)0xFFFFFE00) || (dist_predict2 == (int)0x1FF)) {
                 dist_q2[2] = 0;
             } else {
                 dist_predict2 = (dist_predict2 << scalelvl2);
@@ -1253,7 +1253,7 @@ void RPlidarDriverImplCommon::_ultraCapsuleToNormal(const rplidar_response_ultra
 
             for (int cpos = 0; cpos < 3; ++cpos)
             {
-                int syncBit_check_threshold = (int)((3 << 16) / angleInc_q16)+1;//find syncBit in 0~1 degree
+                //int syncBit_check_threshold = (int)((3 << 16) / angleInc_q16)+1;//find syncBit in 0~1 degree // Outcommeted to remove warning during compilation
                 syncBit[cpos] = _getSyncBitByAngle(currentAngle_raw_q16, angleInc_q16);
 
                 int offsetAngleMean_q16 = (int)(7.5 * 3.1415926535 * (1 << 16) / 180.0);
@@ -2220,6 +2220,7 @@ u_result RPlidarDriverImplCommon::startMotor()
     }
     else {
         setLidarSpinSpeed(600);//set default rpm to tof lidar
+        return RESULT_FAIL_BIT;
     }
 
 }
