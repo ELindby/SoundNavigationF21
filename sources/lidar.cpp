@@ -146,6 +146,18 @@ void LIDAR::ctrlc(int) {
 	ctrl_c_pressed = true;
 }
 
+double LIDAR::getCorrectedAngle(rplidar_response_measurement_node_hq_t closestNode)
+{
+	double corrAngle = closestNode.angle_z_q14 * 90.f / (1 << 14);
+	corrAngle = 360 - (corrAngle + 180);
+	if (corrAngle < 0)
+		return corrAngle + 360;
+	else if (corrAngle > 360)
+		return corrAngle - 360;
+	else
+		return corrAngle;
+}
+
 void LIDAR::writeScan()
 {
 	std::lock_guard<std::mutex> guard(LIDARMutex);
