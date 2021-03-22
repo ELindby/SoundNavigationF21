@@ -57,28 +57,60 @@
 #define ENERGY_THRESHOLD 30
 
 
+//Obstacle avoidance
+#define REFLEX_THRESHOLD 200
+#define AVOIDANCE_THRESHOLD 400
+
+
 using namespace std;
 //using namespace cv;
 
 int main (int argc, char** argv)
 {
 	/*****************************************************************************
-	************************   INITIALISE MATRIXIO  ************************
+	**********************   INITIALISE CONTROL OBJECTS   ************************
 	*****************************************************************************/
 	matrix_hal::MatrixIOBus bus;									// Create MatrixIOBus object for hardware communication
-	if (!bus.Init())												// Set gpio to use MatrixIOBus bus
+	if (!bus.Init())
 		throw("Bus Init failed");
 	matrix_hal::EverloopImage everloop_image(bus.MatrixLeds());		// Create EverloopImage object "image1d", with size of ledCount
 	matrix_hal::Everloop everloop;									// Create Everloop object
 	everloop.Setup(&bus);											// Set everloop to use MatrixIOBus bus
 	matrix_hal::GPIOControl gpio;									// Create GPIOControl object - General Purpose Input Output
-	gpio.Setup(&bus);
+	gpio.Setup(&bus);												// Set gpio to use MatrixIOBus bus
+
+	//Initialise control class instances
+	MotorControl motor_control = MotorControl(&bus, &everloop,
+		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
+	ODAS odas(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
+	Navigation navigation = Navigation(&motor_control);				//Initialise Navigation
+
+
 	/*****************************************************************************
-	************************   INITIALISE CLASSES  ************************
+	************************   TEST IMPLEMENTATIONS   ****************************
 	*****************************************************************************/
-	MotorControl motor_control(&bus, &everloop, &everloop_image, &gpio);
-	//ODAS soundLocalization(&bus, &everloop, &everloop_image);
-	Navigation navigation(&motor_control);
+
+
+	char k;
+
+	//Turn on tracking LED (Red) for video tracking of tests
+	motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
+
+	//Create .csv output stream
+	std::ofstream output_stream;
+	//output_stream.open("./testdata/ODASbugTest2_class.csv");
+	output_stream.open("./testdata/no_test_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
+
+
+
+	/*****************************************************************************
+	************************   CONTROLLER LOOP   *********************************
+	*****************************************************************************/
+	std::thread thread_odas(&ODAS::updateODAS,	// the pointer-to-member
+		&odas);				// the object, could also be a pointer
+							// the argument
+
+	
 
 
 
@@ -86,38 +118,86 @@ int main (int argc, char** argv)
 	LIDAR lidar;
 	std::thread thread_LIDAR(&LIDAR::scanLIDAR,
 		&lidar);
+	//Lidar needs ~.8 seconds before it can start giving readings. This is handled by calling vision constructor afterwards (With 3s delay to stabilize camera)
 
-
-
-
-	//Vision vision;
 
 	char k;
+	Vision vision;
+
+	//Obstacle avoidance / ICO Learning
+	double dist_to_obst_current = 1000;		// Distance to closest obstacle on the track
+	double angle_to_obst = 0;
+	double dist_to_obst_prev;				// Previous Distance to closest obstacle on the track
+	
+
+	double dist_to_obst_prev_prev = 35.0;	// Previous Previus Distance to closest obstacle on the track
+	
+
+	double w_reflex_var = 1.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
+	double w_reflex_novar = 1.0;		// 
+
+	double reflex_learning_rate = 10;	// Learning rate for reflex µ 
+	double v_learning = 0.0; 		// Velocity to add to the initial velocity
+	int reflexcounter = 0;
 
 
 
 	//while(true){
 	for (int i = 0; i < 1000; i++) {
-		rplidar_response_measurement_node_hq_t closestNode = lidar.readScan();
-		std::cout << "Nearest distance to obstacle: " << closestNode.dist_mm_q2 / 4.0f << " Angle: " << closestNode.angle_z_q14 * 90.f / (1 << 14) << std::endl;
+		rplidar_response_measurement_node_hq_t closest_node = lidar.readScan();
+		std::cout << "Nearest distance to obstacle: " << closest_node.dist_mm_q2 / 4.0f << " Angle: " << getCorrectedAngle(closest_node) << std::endl;
+		
+		dist_to_obst_prev_prev	= dist_to_obst_prev;
+		dist_to_obst_prev		= dist_to_obst_current;
+		dist_to_obst_current	= closest_node.dist_mm_q2 / 4.0f;
+		angle_to_obst			= getCorrectedAngle(closest_node);
+		
+
+		odas.updateODAS();
+		motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
+
+
+		//REFLEX
+		if (dist_to_obst_current < REFLEX_THRESHOLD)
+		{
+			//LEFT OR RIGHT REFLEX DODGING
+			if (angle_to_obst <= 180){ //RIGHT SIDE OBSTACLE
+				double angle_norm = (angle_to_obst - 90) / 90;
+				motor_control.setRightMotorSpeedOnly(navigation.activation(angle_norm));
+				motor_control.setLeftMotorSpeedOnly(navigation.activation(-angle_norm));
+
+			} else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
+				double angle_norm = (90 - (angle_to_obst - 180)) / 90;
+				motor_control.setRightMotorSpeedOnly(navigation.activation(-angle_norm));
+				motor_control.setLeftMotorSpeedOnly(navigation.activation(angle_norm));
+			}
+			//Update weight used for v_learning
+			w_reflex_var = w_reflex_var + reflex_learning_rate * (dist_to_obst_current / REFLEX_THRESHOLD) * (dist_to_obst_prev - dist_to_obst_prev_prev) / REFLEX_THRESHOLD;
+			reflexcounter += 1;
+		}
+		else if (soundLocalization.getEnergy() > ENERGY_THRESHOLD) {
+			if (dist_to_obst_current < AVOIDANCE_THRESHOLD){
+				v_learning = (dist_to_obst_current / REFLEX_THRESHOLD) * w_reflex_var + (dist_to_obst_prev / REFLEX_THRESHOLD) * w_reflex_novar;
+				if (angle_to_obst <= 180){  //RIGHT SIDE OBSTACLE
+					navigation.braitenberg(soundLocalization.getSoundAngle(), outputStream, 0, v_learning);
+				}else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
+					navigation.braitenberg(soundLocalization.getSoundAngle(), outputStream, v_learning);
+				}
+			} else{
+				navigation.braitenberg(soundLocalization.getSoundAngle(), outputStream);
+			}
+			
+		}
+		else {
+			motorControl.changeMotorCommand(STOP); //STOPS ALL MOTORS
+		}
+
+		vision.updateCamera();
+		k = cv::waitKey(10);
+		if (k == 27) //27 = 'ESC'
+			break;
 
 		usleep(100000);
-
-		//	//odas.updateODAS();
-		//	//motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
-
-
-		//	if (soundLocalization.getEnergy() > ENERGY_THRESHOLD) {
-		//		navigation.braitenberg(soundLocalization.getSoundAngle(), outputStream);
-		//	}
-		//	else {
-		//		motorControl.changeMotorCommand(STOP); //STOPS ALL MOTORS
-		//	}
-
-		//	vision.updateCamera();
-		//	k = cv::waitKey(10);
-		//	if (k == 27) //27 = 'ESC'
-		//		break;
 	}
 
 	/*********************************   END OF CONTROLLER LOOP   *********************************/

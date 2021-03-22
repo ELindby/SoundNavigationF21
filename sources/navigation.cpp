@@ -60,7 +60,7 @@ void Navigation::setBraitenbergLEDs(int direction) {
 
 }
 
-void Navigation::braitenberg(double angle, std::ofstream& output_stream) { //Braitenberg aggression vehicle
+void Navigation::braitenberg(double angle, std::ofstream& output_stream, double avoidance_left = 0, double avoidance_right = 0) { //Braitenberg aggression vehicle
 	if (angle >= 170 && angle <= 190) //Object is on CENTER
 	{
 		//Set center LEDs
@@ -84,11 +84,11 @@ void Navigation::braitenberg(double angle, std::ofstream& output_stream) { //Bra
 
 	//motor_control->setRightMotorSpeedDirection(activation(angleR) /*+ VELOCITY_OFFSET*/, 1);
 	//motor_control->setLeftMotorSpeedDirection(activation(angleL) /*+ VELOCITY_OFFSET*/, 1);
-	motor_control->setRightMotorSpeedOnly(activation(angleR) /*+ VELOCITY_OFFSET*/);
-	motor_control->setLeftMotorSpeedOnly(activation(angleL) /*+ VELOCITY_OFFSET*/);
+	motor_control->setRightMotorSpeedOnly(activation(angleR) /*+ VELOCITY_OFFSET*/ + avoidance_right);
+	motor_control->setLeftMotorSpeedOnly(activation(angleL) /*+ VELOCITY_OFFSET*/ + avoidance_left);
 	//TEST - Print motor values
 	std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
-	output_stream << (activation(angleL)) << "," << (activation(angleR)) /*<< "," << angleL << "," angleR*/ << std::endl;
+	output_stream << (activation(angleL)) << "," << (activation(angleR)) << "," << angleL << "," << angleR << << "," << avoidance_left << << "," << avoidance_right << std::endl;
 }
 
 void Navigation::navigationICO(double angle, double w_A) {
