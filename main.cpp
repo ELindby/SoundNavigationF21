@@ -91,7 +91,7 @@ int main (int argc, char** argv)
 	*****************************************************************************/
 
 
-	char k;
+
 
 	//Turn on tracking LED (Red) for video tracking of tests
 	motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
@@ -110,7 +110,7 @@ int main (int argc, char** argv)
 		&odas);				// the object, could also be a pointer
 							// the argument
 
-	
+
 
 
 
@@ -128,15 +128,15 @@ int main (int argc, char** argv)
 	double dist_to_obst_current = 1000;		// Distance to closest obstacle on the track
 	double angle_to_obst = 0;
 	double dist_to_obst_prev;				// Previous Distance to closest obstacle on the track
-	
+
 
 	double dist_to_obst_prev_prev = 35.0;	// Previous Previus Distance to closest obstacle on the track
-	
+
 
 	double w_reflex_var = 1.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
-	double w_reflex_novar = 1.0;		// 
+	double w_reflex_novar = 1.0;		//
 
-	double reflex_learning_rate = 10;	// Learning rate for reflex µ 
+	double reflex_learning_rate = 10;	// Learning rate for reflex µ
 	double v_learning = 0.0; 		// Velocity to add to the initial velocity
 	int reflexcounter = 0;
 
@@ -145,13 +145,13 @@ int main (int argc, char** argv)
 	//while(true){
 	for (int i = 0; i < 1000; i++) {
 		rplidar_response_measurement_node_hq_t closest_node = lidar.readScan();
-		std::cout << "Nearest distance to obstacle: " << closest_node.dist_mm_q2 / 4.0f << " Angle: " << getCorrectedAngle(closest_node) << std::endl;
-		
+		std::cout << "Nearest distance to obstacle: " << closest_node.dist_mm_q2 / 4.0f << " Angle: " << lidar.getCorrectedAngle(closest_node) << std::endl;
+
 		dist_to_obst_prev_prev	= dist_to_obst_prev;
 		dist_to_obst_prev		= dist_to_obst_current;
 		dist_to_obst_current	= closest_node.dist_mm_q2 / 4.0f;
-		angle_to_obst			= getCorrectedAngle(closest_node);
-		
+		angle_to_obst			= lidar.getCorrectedAngle(closest_node);
+
 
 		odas.updateODAS();
 		motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
@@ -175,21 +175,21 @@ int main (int argc, char** argv)
 			w_reflex_var = w_reflex_var + reflex_learning_rate * (dist_to_obst_current / REFLEX_THRESHOLD) * (dist_to_obst_prev - dist_to_obst_prev_prev) / REFLEX_THRESHOLD;
 			reflexcounter += 1;
 		}
-		else if (soundLocalization.getEnergy() > ENERGY_THRESHOLD) {
+		else if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
 			if (dist_to_obst_current < AVOIDANCE_THRESHOLD){
 				v_learning = (dist_to_obst_current / REFLEX_THRESHOLD) * w_reflex_var + (dist_to_obst_prev / REFLEX_THRESHOLD) * w_reflex_novar;
 				if (angle_to_obst <= 180){  //RIGHT SIDE OBSTACLE
-					navigation.braitenberg(soundLocalization.getSoundAngle(), outputStream, 0, v_learning);
+					navigation.braitenberg(odas.getSoundAngle(), output_stream, 0, v_learning);
 				}else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
-					navigation.braitenberg(soundLocalization.getSoundAngle(), outputStream, v_learning);
+					navigation.braitenberg(odas.getSoundAngle(), output_stream, v_learning, 0);
 				}
 			} else{
-				navigation.braitenberg(soundLocalization.getSoundAngle(), outputStream);
+				navigation.braitenberg(odas.getSoundAngle(), output_stream, 0, 0);
 			}
-			
+
 		}
 		else {
-			motorControl.changeMotorCommand(STOP); //STOPS ALL MOTORS
+			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
 		}
 
 		vision.updateCamera();

@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 	************************   TEST IMPLEMENTATIONS   ****************************
 	*****************************************************************************/
 
-	
+
 	char k;
 
 	//Turn on tracking LED (Red) for video tracking of tests
@@ -117,7 +117,7 @@ int main(int argc, char** argv)
 
 
 		if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
-			navigation.braitenberg(odas.getSoundAngle(), output_stream);
+			navigation.braitenberg(odas.getSoundAngle(), output_stream, 0, 0);
 		}
 		else {
 			motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS

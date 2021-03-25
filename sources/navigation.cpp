@@ -88,7 +88,7 @@ void Navigation::braitenberg(double angle, std::ofstream& output_stream, double 
 	motor_control->setLeftMotorSpeedOnly(activation(angleL) /*+ VELOCITY_OFFSET*/ + avoidance_left);
 	//TEST - Print motor values
 	std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
-	output_stream << (activation(angleL)) << "," << (activation(angleR)) << "," << angleL << "," << angleR << << "," << avoidance_left << << "," << avoidance_right << std::endl;
+	output_stream << (activation(angleL)) << "," << (activation(angleR)) << "," << angleL << "," << angleR << "," << avoidance_left << "," << avoidance_right << std::endl;
 }
 
 void Navigation::navigationICO(double angle, double w_A) {
