@@ -15,6 +15,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <raspicam/raspicam.h>
+#include <atomic>
 
 class Vision
 {
@@ -26,6 +27,7 @@ private:
 	cv::Mat imageMat;											// Initialise OpenCV image Mat
 
 
+
 	//Blob Detector
 	cv::SimpleBlobDetector::Params sbdPar_red, sbdPar_black;	// Create OpenCV SimpleBlobDetector parameter objects (One for white object detection (red), one for black object detection).
 	cv::Ptr<cv::SimpleBlobDetector> sbd_red, sbd_black;			// Create OpenCV SimpleBlobDetector object based on assigned parameters
@@ -35,6 +37,9 @@ private:
 	std::vector<cv::Point2f> keyptXY_red, keyptXY_black;				// Vector storing [x,y] co-ordinates of detected blobs
 
 public:
+    //waitkey, written to by vision thread, read by main, terminates control loop.
+	std::atomic<char> k;
+
 	Vision();
 	~Vision();
 	void setupSimpleBlobDetector();

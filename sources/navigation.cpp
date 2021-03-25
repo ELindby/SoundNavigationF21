@@ -108,3 +108,35 @@ void Navigation::navigationICO(double angle, double w_A) {
 	//TEST - Print motor values
 	std::cout << "Left speed: " << (activation(angleL) + VELOCITY_OFFSET) << " - Right speed: " << (activation(angleR) + VELOCITY_OFFSET) << std::endl;
 }
+
+//This is used for debugging and test purposes
+void Navigation::manualInputSteering(Vision * vision_){
+    std::cout << "Manual steering enabled - Type 'r' to resume" << std::endl;
+    bool run_bool = true;
+    while(run_bool){
+        switch(vision_->k){
+            case 'w':
+                motor_control->setMotorDirection(FORWARD);
+                break;
+            case 's':
+                motor_control->setMotorDirection(BACKWARD);
+                break;
+            case 'a':
+                motor_control->setMotorDirection(LEFT);
+                break;
+            case 'd':
+                motor_control->setMotorDirection(RIGHT);
+                break;
+            case 27: //27 = 'ESC'
+            case 'r':
+                run_bool = false;
+                break;
+            default:
+                motor_control->setMotorDirection(STOP);
+                break;
+        }
+        usleep(50000);
+
+    }
+    std::cout << "Manual steering disabled - control loop resumes" << std::endl;
+}

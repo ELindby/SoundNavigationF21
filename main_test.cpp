@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 	/*****************************************************************************
 	**********************   INITIALISE CONTROL OBJECTS   ************************
 	*****************************************************************************/
-	matrix_hal::MatrixIOBus bus;									// Create MatrixIOBus object for hardware communication
+	matrix_hal::MatrixIOBus bus;									// Create MatrixIOBus object for hardware communication, aborts (terminate char const) if matrix device isnt connected properly
 	if (!bus.Init())
 		throw("Bus Init failed");
 	matrix_hal::EverloopImage everloop_image(bus.MatrixLeds());		// Create EverloopImage object "image1d", with size of ledCount
@@ -79,8 +79,13 @@ int main(int argc, char** argv)
 	//Initialise control class instances
 	MotorControl motor_control = MotorControl(&bus, &everloop,
 		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
-	ODAS odas(&bus, &everloop, &everloop_image);				//Initialise ODAS, class that handles MATRIX Voice
-	Navigation navigation = Navigation(&motor_control);				//Initialise Navigation
+    Navigation navigation = Navigation(&motor_control);				//Initialise Navigation
+
+	ODAS odas(&bus, &everloop, &everloop_image);				    //Initialise ODAS, class that handles MATRIX Voice
+	std::thread thread_odas(&ODAS::updateODAS, &odas);				//Start ODAS thread
+
+	Vision vision;                                                  //Initialise Vision, class that handles camera, and input
+	std::thread thread_vision(&Vision::updateCamera, &vision);      //Start Vision thread
 
 
 	/*****************************************************************************
@@ -88,7 +93,7 @@ int main(int argc, char** argv)
 	*****************************************************************************/
 
 
-	char k;
+	//char k;
 
 	//Turn on tracking LED (Red) for video tracking of tests
 	motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
@@ -103,18 +108,16 @@ int main(int argc, char** argv)
 	/*****************************************************************************
 	************************   CONTROLLER LOOP   *********************************
 	*****************************************************************************/
-	std::thread thread_odas(&ODAS::updateODAS,	// the pointer-to-member
-							&odas);				// the object, could also be a pointer
-												// the argument
 
-	Vision vision;
+
+
 
 
 	//while(true){
 	for (int i = 0; i < 1000; i++) {
 		//odas.updateODAS();
 		//motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
-
+        std::cout << "'a";
 
 		if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
 			navigation.braitenberg(odas.getSoundAngle(), output_stream, 0, 0);
@@ -123,10 +126,18 @@ int main(int argc, char** argv)
 			motor_control.setMotorDirection(STOP); //STOPS ALL MOTORS
 		}
 
-		vision.updateCamera();
-		k = cv::waitKey(100);
-		if(k == 27) //27 = 'ESC'
-			break;
+		//Control loop delay / ~=Timestep
+		usleep(100000);
+
+        if(vision.k == 112){ //112 = 'p'
+            navigation.manualInputSteering(&vision);
+		}
+		if(vision.k == 27){ //27 = 'ESC'
+            std::cout << "Vision thread joining...";
+            thread_vision.join();
+            std::cout << "done"  << std::endl;
+            break;
+		}
 
 
 
@@ -140,20 +151,18 @@ int main(int argc, char** argv)
 
 	motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
 	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
-	vision.releaseCamera();						//Release camera resources
-
-	//Test flag
-	std::cout << "End of main -------" << std::endl;
-
-	thread_odas.join();
-	std::cout << "thread 1 joined" << std::endl;
-	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
+	//vision.releaseCamera();						//Release camera resources
 
 	//Close outputstream
 	output_stream.close();
 
+	//Test flag
+	std::cout << "End of main -------" << std::endl;
 
-
+	//thread_odas.~thread();
+	thread_odas.join();
+	std::cout << "odas thread joined" << std::endl;
+	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
 
 
 	return 0;

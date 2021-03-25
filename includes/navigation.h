@@ -8,6 +8,7 @@
  */
 
 #include "motorcontrol.h"
+#include "vision.h"
 #include <math.h>
 #include <fstream>
 
@@ -32,4 +33,6 @@ public:
 	void setBraitenbergLEDs(int direction);
 
 	void navigationICO(double angle, double w_A);
+
+	void manualInputSteering(Vision * vision_);
 };

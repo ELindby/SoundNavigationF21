@@ -152,29 +152,37 @@ void Vision::setupSimpleBlobDetector()
 }
 
 void Vision::updateCamera(){
-	// Grab image into internal buffer
-	camera.grab();
+    //char k;
+    while(true){
+        // Grab image into internal buffer
+        camera.grab();
 
-	// Copy latest camera buffer into our defined buffer
-	camera.retrieve(img_buf);
+        // Copy latest camera buffer into our defined buffer
+        camera.retrieve(img_buf);
 
-	// Copy image buffer data into OpenCV Mat image
-	imageMat = cv::Mat(camera.getHeight(), camera.getWidth(), CV_8UC3, img_buf);
+        // Copy image buffer data into OpenCV Mat image
+        imageMat = cv::Mat(camera.getHeight(), camera.getWidth(), CV_8UC3, img_buf);
 
-	// Exit if there is no image data in OpenCV image Mat
-	if (!imageMat.data)
-	{
-		std::cout << "No data in Mat imageMat." << std::endl;
+        // Exit if there is no image data in OpenCV image Mat
+        if (!imageMat.data)
+        {
+            std::cout << "No data in Mat imageMat." << std::endl;
 
-		// Release Raspberry Pi camera resources
-		camera.release();
+            // Release Raspberry Pi camera resources
+            camera.release();
 
-		return;
-	}
+            break;
+        }
 
-	// Display Image
-	cv::imshow("Image", imageMat);
-	//cv::waitKey(30);
+        // Display Image
+        cv::imshow("Image", imageMat);
+
+        //cv::waitKey(30);
+        k = cv::waitKey(100);
+        if(k == 27) //27 = 'ESC'
+            break;
+    }
+    releaseCamera();
 }
 
 void Vision::releaseCamera()

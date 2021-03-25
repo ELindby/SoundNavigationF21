@@ -1,4 +1,4 @@
-g++ main_test.cpp \
+g++ main.cpp \
 sources/motorcontrol.cpp \
 sources/vision.cpp \
 sources/odas.cpp \

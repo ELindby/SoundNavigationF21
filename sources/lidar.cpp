@@ -97,6 +97,7 @@ void LIDAR::scanLIDAR()
 		}
 
 		if (ctrl_c_pressed) {
+            //std::cout << "ctrlc pressed check in scanLIDAR" << std::endl;
 			break;
 		}
 
