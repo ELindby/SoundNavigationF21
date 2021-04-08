@@ -188,7 +188,7 @@ rplidar_response_measurement_node_hq_t LIDAR::readScan()
 		//                    (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)),
 		//                    tempNodes[i].dist_mm_q2 / 4.0f,
 		//                    tempNodes[i].quality);
-		if (compDist > tempNodes[i].dist_mm_q2 && (tempNodes[i].quality != 0)) {
+		if (compDist > tempNodes[i].dist_mm_q2 && (tempNodes[i].quality != 0) && ( ( tempNodes[i].angle_z_q14 <= 90 ) || (tempNodes[i].angle_z_q14 >= 270) )) {
 			compDist = tempNodes[i].dist_mm_q2;
 			nodeIndex = i;
 		}

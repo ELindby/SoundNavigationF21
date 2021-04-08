@@ -60,8 +60,8 @@
 #define ENERGY_THRESHOLD 30
 
 //Obstacle avoidance
-#define REFLEX_THRESHOLD 200
-#define AVOIDANCE_THRESHOLD 400
+#define REFLEX_THRESHOLD 400
+#define AVOIDANCE_THRESHOLD 600
 
 
 using namespace std;
@@ -123,15 +123,25 @@ int main (int argc, char** argv)
 	int reflexcounter = 0;
 
 
+    rplidar_response_measurement_node_hq_t closest_node = lidar.readScan();
+    std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << " (Lidar stabilizing)" << std::endl;
+	while(closest_node.dist_mm_q2 == 0){
+            closest_node = lidar.readScan();
+            std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << " (Lidar stabilizing)" << std::endl;
+    }
+
+
 	/*****************************************************************************
 	************************   CONTROLLER LOOP   *********************************
 	*****************************************************************************/
 
 
-	//while(true){
-	for (int i = 0; i < 1000; i++) {
-		rplidar_response_measurement_node_hq_t closest_node = lidar.readScan();
+	while(true){
+	//for (int i = 0; i < 1000; i++) {
+        closest_node = lidar.readScan();
 		std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
+
+
 
 		dist_to_obst_prev_prev	= dist_to_obst_prev;
 		dist_to_obst_prev		= dist_to_obst_current;
