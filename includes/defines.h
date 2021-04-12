@@ -67,3 +67,10 @@
 #define DECREMENT 1			// DECREMENT : controls delay in the dimming
 #define MIN_THRESHOLD 8//10	// MAX_BRIGHTNESS: Filters out low energy
 #define MAX_BRIGHTNESS 50	// MAX_BRIGHTNESS: 0 - 255
+
+//Sound navigation threshold
+#define ENERGY_THRESHOLD 30
+
+//Obstacle avoidance thresholds
+#define REFLEX_THRESHOLD 400
+#define AVOIDANCE_THRESHOLD 600

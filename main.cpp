@@ -24,7 +24,6 @@
 #include "includes/odas.h"
 #include "includes/vision.h"
 
-
 //Odas test includes
 #include <netinet/in.h>
 #include <string.h>
@@ -55,13 +54,6 @@
 #include <matrix_hal/matrixio_bus.h>
 #include <thread>
 #include <mutex>
-
-//Sound navigation threshold
-#define ENERGY_THRESHOLD 30
-
-//Obstacle avoidance
-#define REFLEX_THRESHOLD 400
-#define AVOIDANCE_THRESHOLD 600
 
 
 using namespace std;
@@ -110,17 +102,9 @@ int main (int argc, char** argv)
 
 	//Obstacle avoidance / ICO Learning
 	double dist_to_obst_current = 1000;		// Distance to closest obstacle on the track
-	double angle_to_obst = 0;
+	double angle_to_obst = 0;				// Angle to closest obstacle for dist_to_obst_current
 	double dist_to_obst_prev;				// Previous Distance to closest obstacle on the track
-
 	double dist_to_obst_prev_prev = 35.0;	// Previous Previus Distance to closest obstacle on the track
-
-	double w_reflex_var = 1.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
-	double w_reflex_novar = 1.0;		//
-
-	double reflex_learning_rate = 10;	// Learning rate for reflex µ
-	double v_learning = 0.0; 		// Velocity to add to the initial velocity
-	int reflexcounter = 0;
 
 
     rplidar_response_measurement_node_hq_t closest_node = lidar.readScan();
@@ -135,6 +119,7 @@ int main (int argc, char** argv)
 	************************   CONTROLLER LOOP   *********************************
 	*****************************************************************************/
 
+	states current_state = WAIT;
 
 	while(true){
 	//for (int i = 0; i < 1000; i++) {
@@ -147,43 +132,39 @@ int main (int argc, char** argv)
 		dist_to_obst_prev		= dist_to_obst_current;
 		dist_to_obst_current	= closest_node.dist_mm_q2 / 4.0f;
 		angle_to_obst			= lidar.getCorrectedAngle(closest_node);
-
-		motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
-
-
-		//REFLEX
-		if (dist_to_obst_current < REFLEX_THRESHOLD)
+		
+		switch (current_state)
 		{
-			//LEFT OR RIGHT REFLEX DODGING
-			if (angle_to_obst <= 180){ //RIGHT SIDE OBSTACLE
-				double angle_norm = (angle_to_obst - 90) / 90;
-				motor_control.setRightMotorSpeedOnly(navigation.activation(angle_norm));
-				motor_control.setLeftMotorSpeedOnly(navigation.activation(-angle_norm));
-
-			} else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
-				double angle_norm = (90 - (angle_to_obst - 180)) / 90;
-				motor_control.setRightMotorSpeedOnly(navigation.activation(-angle_norm));
-				motor_control.setLeftMotorSpeedOnly(navigation.activation(angle_norm));
-			}
-			//Update weight used for v_learning
-			w_reflex_var = w_reflex_var + reflex_learning_rate * (dist_to_obst_current / REFLEX_THRESHOLD) * (dist_to_obst_prev - dist_to_obst_prev_prev) / REFLEX_THRESHOLD;
-			reflexcounter += 1;
-		}
-		else if (odas.getSoundEnergy() > ENERGY_THRESHOLD) {
-			if (dist_to_obst_current < AVOIDANCE_THRESHOLD){
-				v_learning = (dist_to_obst_current / REFLEX_THRESHOLD) * w_reflex_var + (dist_to_obst_prev / REFLEX_THRESHOLD) * w_reflex_novar;
-				if (angle_to_obst <= 180){  //RIGHT SIDE OBSTACLE
-					navigation.braitenberg(odas.getSoundAngle(), output_stream, 0, v_learning);
-				}else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
-					navigation.braitenberg(odas.getSoundAngle(), output_stream, v_learning, 0);
-				}
-			} else{
-				navigation.braitenberg(odas.getSoundAngle(), output_stream, 0, 0);
-			}
-
-		}
-		else {
+		case WAIT:
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
+			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
+			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, 0, 0, MAX_BRIGHTNESS);
+			break;
+		case NAVIGATION:
+			navigation.braitenberg(odas.getAngle(), outputStream, 0, 0);
+			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
+			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, 0, MAX_BRIGHTNESS, 0);
+			break;
+		case AVOIDANCE:
+			std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
+			navigation.obstacleAvoidance(angleToObst, distToObstCurrent, distToObstPrev, odas.getSoundAngle());
+			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
+			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, MAX_BRIGHTNESS, 0);
+			break;
+		case REFLEX:
+			std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
+			navigation.obstacleReflex(angleToObst, distToObstCurrent, distToObstPrev, distToObstPrevPrev);
+			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
+			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, 0, 0);
+			break;
+		case TARGET_FOUND:
+			//validate target
+			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
+			//navigation.updateState(distToObstCurrent, soundLocalization.getEnergy(), CURRENT_STATE)
+			motorControl.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+			break;
+		default:
+			break;
 		}
 
 		usleep(100000);
