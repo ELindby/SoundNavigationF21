@@ -88,7 +88,7 @@ void Navigation::braitenberg(double angle, std::ofstream& output_stream, double 
 	motor_control->setLeftMotorSpeedOnly(activation(angleL) /*+ VELOCITY_OFFSET*/ + avoidance_left);
 	//TEST - Print motor values
 	std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
-	output_stream << (activation(angleL)) << "," << (activation(angleR)) << "," << angleL << "," << angleR << "," << avoidance_left << "," << avoidance_right << std::endl;
+	//output_stream << (activation(angleL)) << "," << (activation(angleR)) << "," << angleL << "," << angleR << "," << avoidance_left << "," << avoidance_right << std::endl;
 }
 
 void Navigation::navigationICO(double angle, double w_A) {
@@ -110,9 +110,10 @@ void Navigation::navigationICO(double angle, double w_A) {
 }
 
 //This is used for debugging and test purposes
-void Navigation::manualInputSteering(Vision * vision_){
+void Navigation::manualInputSteering(Vision * vision_, std::ofstream& output_stream){
     std::cout << "Manual steering enabled - Type 'r' to resume" << std::endl;
     bool run_bool = true;
+    bool print_ico = true;
     while(run_bool){
         switch(vision_->k){
             case 'w':
@@ -127,6 +128,12 @@ void Navigation::manualInputSteering(Vision * vision_){
             case 'd':
                 motor_control->setMotorDirection(RIGHT);
                 break;
+            case 'i':
+                if(print_ico){
+                    std::cout << "w_reflex_var: " << w_reflex_var << " -- v_learning rate: " << v_learning << " -- Reflexcounter: " << reflexcounter << std::endl;
+                    output_stream << w_reflex_var << "," << v_learning << "," << reflexcounter << std::endl;
+                    print_ico = false;
+                }
             case 27: //27 = 'ESC'
             case 'r':
                 run_bool = false;
@@ -146,21 +153,21 @@ void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_curren
 	//LEFT OR RIGHT REFLEX DODGING
 	if (angle_to_obst <= 180) { //RIGHT SIDE OBSTACLE
 		double angle_norm = (angle_to_obst - 90) / 90;
-		motor_control->setRightMotorSpeedOnly(navigation.activation(angle_norm));
-		motor_control->setLeftMotorSpeedOnly(navigation.activation(-angle_norm));
+		motor_control->setRightMotorSpeedOnly(activation(angle_norm));
+		motor_control->setLeftMotorSpeedOnly(activation(-angle_norm));
 
 	}
 	else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
 		double angle_norm = (90 - (angle_to_obst - 180)) / 90;
-		motor_control->setRightMotorSpeedOnly(navigation.activation(-angle_norm));
-		motor_control->setLeftMotorSpeedOnly(navigation.activation(angle_norm));
+		motor_control->setRightMotorSpeedOnly(activation(-angle_norm));
+		motor_control->setLeftMotorSpeedOnly(activation(angle_norm));
 	}
 	//Update weight used for v_learning
 	w_reflex_var = w_reflex_var + reflex_learning_rate * (dist_to_obst_current / REFLEX_THRESHOLD) * (dist_to_obst_prev - dist_to_obst_prev_prev) / REFLEX_THRESHOLD;
 	reflexcounter += 1;
 }
 
-void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound)
+void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound, std::ofstream& output_stream)
 {
 	v_learning = (dist_to_obst_current / REFLEX_THRESHOLD) * w_reflex_var + (dist_to_obst_prev / REFLEX_THRESHOLD) * w_reflex_novar;
 

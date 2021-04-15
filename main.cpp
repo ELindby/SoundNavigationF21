@@ -98,7 +98,7 @@ int main (int argc, char** argv)
 	//Create .csv output stream
 	std::ofstream output_stream;
 	//output_stream.open("./testdata/ODASbugTest2_class.csv");
-	output_stream.open("./testdata/no_test_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
+	output_stream.open("./testdata/icolearningvalues_obstacleavoidance_test1.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
 	//Obstacle avoidance / ICO Learning
 	double dist_to_obst_current = 1000;		// Distance to closest obstacle on the track
@@ -132,7 +132,7 @@ int main (int argc, char** argv)
 		dist_to_obst_prev		= dist_to_obst_current;
 		dist_to_obst_current	= closest_node.dist_mm_q2 / 4.0f;
 		angle_to_obst			= lidar.getCorrectedAngle(closest_node);
-		
+
 		switch (current_state)
 		{
 		case WAIT:
@@ -141,27 +141,27 @@ int main (int argc, char** argv)
 			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, 0, 0, MAX_BRIGHTNESS);
 			break;
 		case NAVIGATION:
-			navigation.braitenberg(odas.getAngle(), outputStream, 0, 0);
+			navigation.braitenberg(odas.getSoundAngle(), output_stream, 0, 0);
 			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
 			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, 0, MAX_BRIGHTNESS, 0);
 			break;
 		case AVOIDANCE:
 			std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
-			navigation.obstacleAvoidance(angleToObst, distToObstCurrent, distToObstPrev, odas.getSoundAngle());
+			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, odas.getSoundAngle(), output_stream);
 			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
 			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, MAX_BRIGHTNESS, 0);
 			break;
 		case REFLEX:
 			std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
-			navigation.obstacleReflex(angleToObst, distToObstCurrent, distToObstPrev, distToObstPrevPrev);
+			navigation.obstacleReflex(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, dist_to_obst_prev_prev);
 			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
 			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, 0, 0);
 			break;
 		case TARGET_FOUND:
 			//validate target
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
-			//navigation.updateState(distToObstCurrent, soundLocalization.getEnergy(), CURRENT_STATE)
-			motorControl.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+			//navigation.updateState(dist_to_obst_current, soundLocalization.getEnergy(), CURRENT_STATE)
+			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
 			break;
 		default:
 			break;
@@ -171,7 +171,7 @@ int main (int argc, char** argv)
 
 		//Check Vision thread waitkey - exit or manual steering
 		if(vision.k == 112){ //112 = 'p'
-            navigation.manualInputSteering(&vision);
+            navigation.manualInputSteering(&vision, output_stream);
 		}
 		if(vision.k == 27){ //27 = 'ESC'
             std::cout << "Vision thread joining...";

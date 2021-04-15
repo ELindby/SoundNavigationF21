@@ -42,17 +42,11 @@ public:
 
 	void navigationICO(double angle, double w_A);
 
-	void manualInputSteering(Vision * vision_);
+	void manualInputSteering(Vision * vision_, std::ofstream& output_stream);
 
 	void obstacleReflex(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double dist_to_obst_prev_prev);
-	void obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound);
+	void obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound, std::ofstream& output_stream);
 	void updateState(states & current_state, double dist_to_obst_current, int sound_energy_level);
 
-	//ICO Learning
-	double w_reflex_var = 1.0;			// Standard weight that needs to be multiplied with distance to current Obstacle
-	double w_reflex_novar = 1.0;		// 
-	double reflex_learning_rate = 10;	// Learning rate for reflex µ
-	double v_learning = 0.0; 			// Velocity to add to the initial velocity
-	int reflexcounter = 0;
 
 };
