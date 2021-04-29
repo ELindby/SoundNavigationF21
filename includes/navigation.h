@@ -1,6 +1,7 @@
 #pragma once
 /*
  * Description:     Navigation class
+ *                  Handles navigation methods and information.
  *
  * Author:			Erik Lindby
  *					University of Southern Denmark
@@ -15,7 +16,8 @@
 
 #define VELOCITY_OFFSET		12
 
-enum states { WAIT = 0, NAVIGATION = 1, AVOIDANCE = 2, REFLEX = 3, TARGET_FOUND = 4 };
+//Navigation states, as defined in state machine
+enum states { WAIT = 0, NAVIGATION = 1, AVOIDANCE = 2, REFLEX = 3, TARGET_FOUND = 4, PROACTIVE_NAVIGATION = 5 };
 
 class Navigation
 {
@@ -33,6 +35,8 @@ private:
 
 
 public:
+    bool proactive_nav_ready = false; //If the necessary behaviour needed to use proactive nagivation, this is set to true. Used for updateState
+
 	double activation(double input);		//Activation function
 	Navigation(MotorControl * motor_control_);
 	~Navigation();

@@ -181,10 +181,15 @@ void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_cur
 
 void Navigation::updateState(states & current_state, double dist_to_obst_current, int sound_energy_level)
 {
+    if (current_state == TARGET_FOUND){
+        return;
+    }
+    //Check for obstacle within reflex threshold
 	if (dist_to_obst_current < REFLEX_THRESHOLD)
 	{
 		current_state = REFLEX;
 	}
+	//Check for active sound source, reactive sound navigation
 	else if (sound_energy_level > ENERGY_THRESHOLD) {
 		if (dist_to_obst_current < AVOIDANCE_THRESHOLD) {
 			current_state = AVOIDANCE;
@@ -193,6 +198,10 @@ void Navigation::updateState(states & current_state, double dist_to_obst_current
 			current_state = NAVIGATION;
 		}
 
+	}
+	//If neccessary behaviour has been learned, proactive navigation towards inactive sound source
+	else if (proactive_nav_ready == true){
+        current_state = PROACTIVE_NAVIGATION;
 	}
 	else {
 		current_state = WAIT;

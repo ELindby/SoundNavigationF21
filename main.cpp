@@ -11,12 +11,10 @@
   * MAIN CLASS
   *******************************************************************************
   ******************************************************************************/
-//INCLUDE DEFINES
-//#include "includes/defines.h"
+// INCLUDE DEFINES
+#include "includes/defines.h"
 
-
-//INCLUDE CLASSES
-#include "includes/soundlocalization.h"
+// INCLUDE CLASSES
 #include "includes/motorcontrol.h"
 #include "includes/lidar.h"
 #include "includes/icolearning.h"
@@ -24,12 +22,27 @@
 #include "includes/odas.h"
 #include "includes/vision.h"
 
-//Odas test includes
+// ODAS includes
 #include <netinet/in.h>
 #include <string.h>
 #include <sys/socket.h>
 #include <array>
 #include <vector>
+
+// OpenCV includes
+#include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/features2d.hpp>
+#include <raspicam/raspicam.h>
+
+// MATRIX HAL includes
+#include <matrix_hal/everloop.h>
+#include <matrix_hal/everloop_image.h>
+#include <matrix_hal/gpio_control.h>
+#include <matrix_hal/matrixio_bus.h>
+
 
 #include <cmath>
 #include <math.h>
@@ -39,19 +52,7 @@
 #include <string>
 #include <sstream>
 #include <unistd.h>
-#include <raspicam/raspicam.h>
 //#include <pigpio.h>
-
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgcodecs.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/features2d.hpp>
-
-#include <matrix_hal/everloop.h>
-#include <matrix_hal/everloop_image.h>
-#include <matrix_hal/gpio_control.h>
-#include <matrix_hal/matrixio_bus.h>
 #include <thread>
 #include <mutex>
 
@@ -81,19 +82,22 @@ int main (int argc, char** argv)
 	ODAS odas(&bus, &everloop, &everloop_image);				    //Initialise ODAS, class that handles MATRIX Voice
 	std::thread thread_odas(&ODAS::updateODAS, &odas);				//Start ODAS thread
 
+	LIDAR lidar;                                                    //Initialise LIDAR, class that handles sensor data from RP LIDAR
+	std::thread thread_lidar(&LIDAR::scanLIDAR, &lidar);            //Start LIDAR thread
+	/*  Lidar needs ~.8 seconds before it can start giving stable readings,
+        handled by calling vision constructor afterwards (3s delay to stabilize camera). */
+
 	Vision vision;                                                  //Initialise Vision, class that handles camera, and input
 	std::thread thread_vision(&Vision::updateCamera, &vision);      //Start Vision thread
 
-	LIDAR lidar;
-	std::thread thread_lidar(&LIDAR::scanLIDAR, &lidar);
-	//Lidar needs ~.8 seconds before it can start giving readings. This is handled by calling vision constructor afterwards (With 3s delay to stabilize camera)
+
 
 
 	/*****************************************************************************
 	************************   TEST IMPLEMENTATIONS   ****************************
 	*****************************************************************************/
 	//Turn on tracking LED (Red) for video tracking of tests
-	motor_control.setMatrixVoiceLED(MATRIX_LED_L_9, MAX_BRIGHTNESS, 0, 0);
+	motor_control.setMatrixVoiceLED(MATRIX_LED_TRACKING, MAX_BRIGHTNESS, 0, 0);
 
 	//Create .csv output stream
 	std::ofstream output_stream;
@@ -109,14 +113,14 @@ int main (int argc, char** argv)
 
     rplidar_response_measurement_node_hq_t closest_node = lidar.readScan();
     std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << " (Lidar stabilizing)" << std::endl;
-	while(closest_node.dist_mm_q2 == 0){
+	while(closest_node.dist_mm_q2 == 0){ //0 is default value of faulty LIDAR readings
             closest_node = lidar.readScan();
             std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << " (Lidar stabilizing)" << std::endl;
     }
 
 
 	/*****************************************************************************
-	************************   CONTROLLER LOOP   *********************************
+	************************   CONTROL LOOP   *********************************
 	*****************************************************************************/
 
 	states current_state = WAIT;
@@ -126,48 +130,51 @@ int main (int argc, char** argv)
         closest_node = lidar.readScan();
 		std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
 
-
-
 		dist_to_obst_prev_prev	= dist_to_obst_prev;
 		dist_to_obst_prev		= dist_to_obst_current;
 		dist_to_obst_current	= closest_node.dist_mm_q2 / 4.0f;
 		angle_to_obst			= lidar.getCorrectedAngle(closest_node);
 
+		navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
+
 		switch (current_state)
 		{
 		case WAIT:
+			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, 0, MAX_BRIGHTNESS); //BLUE
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
-			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
-			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, 0, 0, MAX_BRIGHTNESS);
 			break;
 		case NAVIGATION:
+			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, 0); //GREEN
 			navigation.braitenberg(odas.getSoundAngle(), output_stream, 0, 0);
-			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
-			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, 0, MAX_BRIGHTNESS, 0);
 			break;
 		case AVOIDANCE:
+			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, 0); //YELLOW
 			std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
 			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, odas.getSoundAngle(), output_stream);
-			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
-			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, MAX_BRIGHTNESS, 0);
 			break;
 		case REFLEX:
+			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, 0, 0); //RED
 			std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
 			navigation.obstacleReflex(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, dist_to_obst_prev_prev);
-			navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
-			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, 0, 0);
 			break;
 		case TARGET_FOUND:
-			//validate target
+			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS); //WHITE
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
-			//navigation.updateState(dist_to_obst_current, soundLocalization.getEnergy(), CURRENT_STATE)
-			motor_control.setMatrixVoiceLED(MATRIX_LED_R_9, MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+			//validate target with sound information
+			// Reset state (Start new iteration)
+			if(vision.k == 115){ //115 = 's'
+                current_state = WAIT;
+            }
 			break;
+        case PROACTIVE_NAVIGATION:
+            //Todo: Add proactive navigation based on learned paths here.
+            motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, MAX_BRIGHTNESS); //CYAN
+            break;
 		default:
 			break;
 		}
 
-		usleep(100000);
+		usleep(100000); //Todo: Clock this to be remainder of timestep since last wait, to effectively clock the process.
 
 		//Check Vision thread waitkey - exit or manual steering
 		if(vision.k == 112){ //112 = 'p'
@@ -181,7 +188,7 @@ int main (int argc, char** argv)
 		}
 	}
 
-	/*********************************   END OF CONTROLLER LOOP   *********************************/
+	/*********************************   END OF CONTROL LOOP   *********************************/
 
 	motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
 	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS

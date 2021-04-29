@@ -60,6 +60,9 @@
 #define MATRIX_LED_L_8          16
 #define MATRIX_LED_L_9          17
 
+#define MATRIX_LED_CONTROL      8
+#define MATRIX_LED_TRACKING     9
+
 //ODAS
 #define ENERGY_COUNT 36		// ENERGY_COUNT : Number of sound energy slots to maintain. - Implicit also defines angle precision, eg. 36 has angle precision of 10 degrees
 #define MAX_VALUE 200		// MAX_VALUE : controls smoothness

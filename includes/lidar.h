@@ -1,31 +1,22 @@
 #pragma once
 /*
- * Description:
+ * Description:     Handles sensor data from RP LIDAR.
+ *                  Modified library implementation, original license can be seen below.
  *
  * Author:			Erik Lindby
  *					University of Southern Denmark
  * Creation date:   12-02-2021
- */
- /*
-   *  RPLIDAR
-   *  Ultra Simple Data Grabber Demo App
-   *
-   *  Copyright (c) 2009 - 2014 RoboPeak Team
-   *  http://www.robopeak.com
-   *  Copyright (c) 2014 - 2019 Shanghai Slamtec Co., Ltd.
-   *  http://www.slamtec.com
-   *
-   */
+*/
 /*
-  *  RPLIDAR
-  *  Ultra Simple Data Grabber Demo App
-  *
-  *  Copyright (c) 2009 - 2014 RoboPeak Team
-  *  http://www.robopeak.com
-  *  Copyright (c) 2014 - 2019 Shanghai Slamtec Co., Ltd.
-  *  http://www.slamtec.com
-  *
-  */
+ * RPLIDAR
+ * Ultra Simple Data Grabber Demo App
+ *
+ * Copyright (c) 2009 - 2014 RoboPeak Team
+ * http://www.robopeak.com
+ * Copyright (c) 2014 - 2019 Shanghai Slamtec Co., Ltd.
+ * http://www.slamtec.com
+ *
+*/
 #include "../sdk/include/rplidar.h" //RPLIDAR standard sdk, all-in-one header
 #include <iostream>
 #include <stdio.h>

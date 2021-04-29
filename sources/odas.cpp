@@ -37,10 +37,7 @@ ODAS::ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matri
 	//Test values - 25/02 problems with not all matrix voice LEDs lighting up as expected
     //printf("\nDefines: ENERGY_COUNT:%d - MAX_BRIGHTNESS:%d - MAX_VALUE%d - MIN_THRESHOLD:%d - INCREMENT:%d",ENERGY_COUNT, MAX_BRIGHTNESS, MAX_VALUE, MIN_THRESHOLD,INCREMENT);
     //printf("\nbus.MatrixLeds(): %d --------------\n",bus.MatrixLeds());
-
-
 	server_id = socket(AF_INET, SOCK_STREAM, 0);
-
 	server_address.sin_family = AF_INET;
 	server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 	server_address.sin_port = htons(portNumber);
@@ -63,9 +60,6 @@ ODAS::ODAS(matrix_hal::MatrixIOBus* bus_, matrix_hal::Everloop* everloop_, matri
 	message = (char *)malloc(sizeof(char) * nBytes);
 
 	printf("Receiving data........... \n\n");
-
-
-
 }
 
 ODAS::~ODAS(){}
@@ -99,13 +93,14 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 			//Set LED values depending on sound input
 			//image1d->leds[i].red = 0;
 			//image1d->leds[i].green = 0;
-			image1d->leds[i].blue = color;//color;
+			if(i != MATRIX_LED_CONTROL)
+                image1d->leds[i].blue = color;
 			//image1d->leds[i].white = 0;
 		}
 		everloop->Write(image1d);
-		
-		updateSoundInformation(/*angle, energy*/);	//update sound information - Location(angle) and energy of largest energyarray sound
-		
+
+		updateSoundInformation(/*angle, energy*/);	//update sound information - Location(angle) and energy of sound with largest energy_array val
+
 		//Print test data to .csv file - Only for testing
 		//output_stream << angle << "," << energy << std::endl;
 		//
