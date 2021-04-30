@@ -75,5 +75,5 @@
 #define ENERGY_THRESHOLD 30
 
 //Obstacle avoidance thresholds
-#define REFLEX_THRESHOLD 400
+#define REFLEX_THRESHOLD 250
 #define AVOIDANCE_THRESHOLD 600
