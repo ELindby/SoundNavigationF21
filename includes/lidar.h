@@ -63,7 +63,10 @@ public:
 	~LIDAR();
 
 	void scanLIDAR();
+
 	rplidar_response_measurement_node_hq_t readScan();
+	rplidar_response_measurement_node_hq_t readScanNarrow();
+
 	void ctrlc(int);
 
 	double getCorrectedAngle(rplidar_response_measurement_node_hq_t closestNode);

@@ -6,11 +6,6 @@
  * Creation date:   01-02-2021
  */
 
- /*******************************************************************************
-  *******************************************************************************
-  * MAIN CLASS
-  *******************************************************************************
-  ******************************************************************************/
 // INCLUDE DEFINES
 #include "includes/defines.h"
 
@@ -42,7 +37,6 @@
 #include <matrix_hal/everloop_image.h>
 #include <matrix_hal/gpio_control.h>
 #include <matrix_hal/matrixio_bus.h>
-
 
 #include <cmath>
 #include <math.h>
@@ -90,9 +84,6 @@ int main (int argc, char** argv)
 	Vision vision;                                                  //Initialise Vision, class that handles camera, and input
 	std::thread thread_vision(&Vision::updateCamera, &vision);      //Start Vision thread
 
-
-
-
 	/*****************************************************************************
 	************************   TEST IMPLEMENTATIONS   ****************************
 	*****************************************************************************/
@@ -101,17 +92,26 @@ int main (int argc, char** argv)
 
 	//Create .csv output stream
 	std::ofstream output_stream;
+	std::ofstream output_stream_ICO;
 	//output_stream.open("./testdata/ODASbugTest2_class.csv");
-	output_stream.open("./testdata/icolearningvalues_obstacleavoidance_test1.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
+	output_stream.open("./testdata/no_test_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
-	//Obstacle avoidance / ICO Learning
-	double dist_to_obst_current = 1000;		// Distance to closest obstacle on the track
-	double angle_to_obst = 0;				// Angle to closest obstacle for dist_to_obst_current
-	double dist_to_obst_prev;				// Previous Distance to closest obstacle on the track
-	double dist_to_obst_prev_prev = 35.0;	// Previous Previus Distance to closest obstacle on the track
+	output_stream_ICO.open("./testdata/icolearningvalues_obstacleavoidance_test1.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
+	//Front 180 degree cone - LIDAR sensor readings for obstacle avoidance
+	rplidar_response_measurement_node_hq_t closest_node;
+	double dist_to_obst_current		= 1000;	// Distance to closest obstacle on the track
+	double angle_to_obst			= 0;	// Angle to closest obstacle for dist_to_obst_current
+	double dist_to_obst_prev		= 1000;	// Previous Distance to closest obstacle on the track
+	double dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
 
-    rplidar_response_measurement_node_hq_t closest_node = lidar.readScan();
+	//Front 90 degree cone  - LIDAR sensor readings for obstacle avoidance
+	rplidar_response_measurement_node_hq_t narrow_closest_node;
+	double narrow_dist_to_obst_current		= 1000;	// Distance to closest obstacle on the track
+	double narrow_angle_to_obst				= 0;	// Angle to closest obstacle for dist_to_obst_current
+	double narrow_dist_to_obst_prev			= 1000;	// Previous Distance to closest obstacle on the track
+	double narrow_dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
+    
     std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << " (Lidar stabilizing)" << std::endl;
 	while(closest_node.dist_mm_q2 == 0){ //0 is default value of faulty LIDAR readings
             closest_node = lidar.readScan();
@@ -127,15 +127,22 @@ int main (int argc, char** argv)
 
 	while(true){
 	//for (int i = 0; i < 1000; i++) {
-        closest_node = lidar.readScan();
+        closest_node		= lidar.readScan();			//Reads closest node in the front 180 degrees of robot
+		narrow_closest_node = lidar.readScanNarrow();	//Reads closest node in the front 90 degrees of robot
+
 		std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
 
+		//Update LIDAR reading values
 		dist_to_obst_prev_prev	= dist_to_obst_prev;
 		dist_to_obst_prev		= dist_to_obst_current;
 		dist_to_obst_current	= closest_node.dist_mm_q2 / 4.0f;
 		angle_to_obst			= lidar.getCorrectedAngle(closest_node);
+		narrow_dist_to_obst_prev_prev	= narrow_dist_to_obst_prev;
+		narrow_dist_to_obst_prev		= narrow_dist_to_obst_current;
+		narrow_dist_to_obst_current		= narrow_closest_node.dist_mm_q2 / 4.0f;
+		narrow_angle_to_obst			= lidar.getCorrectedAngle(narrow_closest_node);
 
-		navigation.updateState(current_state, dist_to_obst_current, odas.getSoundEnergy());
+		navigation.updateState(current_state, odas.getSoundEnergy(), dist_to_obst_current, narrow_dist_to_obst_current);
 
 		switch (current_state)
 		{
@@ -149,13 +156,13 @@ int main (int argc, char** argv)
 			break;
 		case AVOIDANCE:
 			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, 0); //YELLOW
-			std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
-			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, odas.getSoundAngle(), output_stream);
+			//std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
+			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, odas.getSoundAngle(), output_stream_ICO);
 			break;
 		case REFLEX:
 			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, 0, 0); //RED
-			std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
-			navigation.obstacleReflex(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, dist_to_obst_prev_prev);
+			//std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
+			navigation.obstacleReflex(narrow_angle_to_obst, narrow_dist_to_obst_current, narrow_dist_to_obst_prev, narrow_dist_to_obst_prev_prev);
 			break;
 		case TARGET_FOUND:
 			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS); //WHITE
@@ -173,12 +180,15 @@ int main (int argc, char** argv)
 		default:
 			break;
 		}
+		std::cout << "Sound energy " << odas.getSoundEnergy() << "\nWAIT = 0, NAVIGATE = 1, AVOID = 2, REFLEX = 3, TARGET_FOUND = 4. Current state:  " << CURRENT_STATE << std::endl;
+		std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
+		std::cout << "180deg dist/angle: " << dist_to_obst_current << " | " << angle_to_obst << std::endl;
 
 		usleep(100000); //Todo: Clock this to be remainder of timestep since last wait, to effectively clock the process.
 
 		//Check Vision thread waitkey - exit or manual steering
 		if(vision.k == 112){ //112 = 'p'
-            navigation.manualInputSteering(&vision, output_stream);
+            navigation.consoleControl(&vision, output_stream);
 		}
 		if(vision.k == 27){ //27 = 'ESC'
             std::cout << "Vision thread joining...";
@@ -196,6 +206,7 @@ int main (int argc, char** argv)
 
 	//Close outputstream
 	output_stream.close();
+	output_stream_ICO.close();
 
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
@@ -206,7 +217,7 @@ int main (int argc, char** argv)
 
 	thread_odas.join();
 	std::cout << "ODAS thread joined" << std::endl;
-	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS
+	motor_control.resetMatrixVoiceLEDs();		//RESET ALL LEDS, repeated because ODAS thread might set an LED value.
 
 	return 0;
 }

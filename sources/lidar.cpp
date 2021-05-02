@@ -195,3 +195,28 @@ rplidar_response_measurement_node_hq_t LIDAR::readScan()
 	}
 	return tempNodes[nodeIndex];
 }
+
+rplidar_response_measurement_node_hq_t LIDAR::readScanNarrow()
+{
+	rplidar_response_measurement_node_hq_t tempNodes[8192];
+	while (true) {
+
+		if (LIDARMutex.try_lock()) {
+			memcpy(tempNodes, dataNodes, sizeof(tempNodes));
+			LIDARMutex.unlock();
+			break;
+		}
+	}
+	_u32 compDist = 9999;
+	int nodeIndex = 0;
+	size_t count = _countof(tempNodes);
+
+	for (int i = 0; i < (int)count; i++)
+	{
+		if (compDist > tempNodes[i].dist_mm_q2 && (tempNodes[i].quality != 0) && ((tempNodes[i].angle_z_q14 <= 45) || (tempNodes[i].angle_z_q14 >= 315))) {
+			compDist = tempNodes[i].dist_mm_q2;
+			nodeIndex = i;
+		}
+	}
+	return tempNodes[nodeIndex];
+}

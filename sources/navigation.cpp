@@ -25,6 +25,10 @@ double Navigation::activation(double input) {
 	//return 6 * 2 * atan(tanh(5 * input)) + 30;		//Gudermannian
 }
 
+double Navigation::activationAvoidance(double input) {
+	return 2 / (1 + exp(-5 * input)) - 1;	//Sigmoid or Logistic
+}
+
 void Navigation::setBraitenbergLEDs(int direction) {
 	switch (direction) {
 	case FORWARD:
@@ -110,7 +114,7 @@ void Navigation::navigationICO(double angle, double w_A) {
 }
 
 //This is used for debugging and test purposes
-void Navigation::manualInputSteering(Vision * vision_, std::ofstream& output_stream){
+void Navigation::consoleControl(Vision * vision_, std::ofstream& output_stream){
     std::cout << "Manual steering enabled - Type 'r' to resume" << std::endl;
     bool run_bool = true;
     bool print_ico = true;
@@ -150,12 +154,16 @@ void Navigation::manualInputSteering(Vision * vision_, std::ofstream& output_str
 
 void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double dist_to_obst_prev_prev)
 {
+	//Reflex only looks for nodes in a 90 degree cone towards the front of the robot
+	//Instead of the 180 degree half circle avoidance looks in. This is because collision almost only happens in front, 
+	//and avoidance learns values to make tight turns around obstacles.
+	//Otherwise reflex would trigger on otherwise successful avoidance
+
 	//LEFT OR RIGHT REFLEX DODGING
 	if (angle_to_obst <= 180) { //RIGHT SIDE OBSTACLE
 		double angle_norm = (angle_to_obst - 90) / 90;
 		motor_control->setRightMotorSpeedOnly(activation(angle_norm));
 		motor_control->setLeftMotorSpeedOnly(activation(-angle_norm));
-
 	}
 	else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
 		double angle_norm = (90 - (angle_to_obst - 180)) / 90;
@@ -163,29 +171,36 @@ void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_curren
 		motor_control->setLeftMotorSpeedOnly(activation(angle_norm));
 	}
 	//Update weight used for v_learning
-	w_reflex_var = w_reflex_var + reflex_learning_rate * (dist_to_obst_current / REFLEX_THRESHOLD) * (dist_to_obst_prev_prev - dist_to_obst_prev) / REFLEX_THRESHOLD;
+	w_reflex_var = w_reflex_var + reflex_learning_rate * ((REFLEX_THRESHOLD - dist_to_obst_current) / REFLEX_THRESHOLD) * (dist_to_obst_prev_prev - dist_to_obst_prev) / REFLEX_THRESHOLD;
 	reflexcounter += 1;
 }
 
 void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound, std::ofstream& output_stream)
 {
-	v_learning = ((AVOIDANCE_THRESHOLD - dist_to_obst_current) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_var + ((AVOIDANCE_THRESHOLD - dist_to_obst_prev) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_novar;
+	v_learning = ((AVOIDANCE_THRESHOLD - dist_to_obst_current) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_var + 
+				 ((AVOIDANCE_THRESHOLD - dist_to_obst_prev) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_novar;
 
 	if (angle_to_obst <= 180) {  //RIGHT SIDE OBSTACLE
-		braitenberg(angle_to_sound, output_stream, 0, v_learning);
+		double angle_norm = (angle_to_obst - 90) / 90;
+		double left_motor_offset	= v_learning * activationAvoidance(-angle_norm);
+		double right_motor_offset	= v_learning * activationAvoidance( angle_norm);
+		braitenberg(angle_to_sound, output_stream, left_motor_offset, right_motor_offset);
 	}
 	else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
-		braitenberg(angle_to_sound, output_stream, v_learning, 0);
+		double angle_norm = (90 - (angle_to_obst - 180)) / 90;
+		double left_motor_offset	= v_learning * activationAvoidance( angle_norm);
+		double right_motor_offset	= v_learning * activationAvoidance(-angle_norm);
+		braitenberg(angle_to_sound, output_stream, left_motor_offset, right_motor_offset);
 	}
 }
 
-void Navigation::updateState(states & current_state, double dist_to_obst_current, int sound_energy_level)
+void Navigation::updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current)
 {
     if (current_state == TARGET_FOUND){
         return;
     }
     //Check for obstacle within reflex threshold
-	if (dist_to_obst_current < REFLEX_THRESHOLD)
+	if (narrow_dist_to_obst_current < REFLEX_THRESHOLD)
 	{
 		current_state = REFLEX;
 	}

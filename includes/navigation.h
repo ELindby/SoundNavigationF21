@@ -22,8 +22,7 @@ enum states { WAIT = 0, NAVIGATION = 1, AVOIDANCE = 2, REFLEX = 3, TARGET_FOUND 
 class Navigation
 {
 private:
-	MotorControl * motor_control;
-
+	MotorControl * motor_control; //Pointer to motor control, used so navigation can pass motor commands to the motor control object created in main
 
 	//double * angle_pointer;
 	double w_reflex_var = 1.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
@@ -37,7 +36,9 @@ private:
 public:
     bool proactive_nav_ready = false; //If the necessary behaviour needed to use proactive nagivation, this is set to true. Used for updateState
 
-	double activation(double input);		//Activation function
+	double activation(double input);		//Activation function for reactive sound navigation, and obstacle reflex
+	double activationAvoidance(double input);		//Activation function for obstacle avoidance
+
 	Navigation(MotorControl * motor_control_);
 	~Navigation();
 
@@ -46,11 +47,12 @@ public:
 
 	void navigationICO(double angle, double w_A);
 
-	void manualInputSteering(Vision * vision_, std::ofstream& output_stream);
+	void consoleControl(Vision * vision_, std::ofstream& output_stream);
 
 	void obstacleReflex(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double dist_to_obst_prev_prev);
 	void obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound, std::ofstream& output_stream);
-	void updateState(states & current_state, double dist_to_obst_current, int sound_energy_level);
+
+	void updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current);
 
 
 };
