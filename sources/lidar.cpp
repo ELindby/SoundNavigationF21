@@ -188,7 +188,9 @@ rplidar_response_measurement_node_hq_t LIDAR::readScan()
 		//                    (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)),
 		//                    tempNodes[i].dist_mm_q2 / 4.0f,
 		//                    tempNodes[i].quality);
-		if (compDist > tempNodes[i].dist_mm_q2 && (tempNodes[i].quality != 0) && ( ( tempNodes[i].angle_z_q14 <= 90 ) || (tempNodes[i].angle_z_q14 >= 270) )) {
+		//If node is closer than previous node, and within the specified cone (180 degrees), node is set as new closest node found
+		if ( compDist > tempNodes[i].dist_mm_q2 && (tempNodes[i].quality != 0) &&
+            (( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) <= 90 ) || ( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) >= 270)) ) {
 			compDist = tempNodes[i].dist_mm_q2;
 			nodeIndex = i;
 		}
@@ -213,7 +215,9 @@ rplidar_response_measurement_node_hq_t LIDAR::readScanNarrow()
 
 	for (int i = 0; i < (int)count; i++)
 	{
-		if (compDist > tempNodes[i].dist_mm_q2 && (tempNodes[i].quality != 0) && ((tempNodes[i].angle_z_q14 <= 45) || (tempNodes[i].angle_z_q14 >= 315))) {
+        //If node is closer than previous node, and within the specified cone (90 degrees), node is set as new closest node found
+		if ( compDist > tempNodes[i].dist_mm_q2 && (tempNodes[i].quality != 0) &&
+            (( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) <= 45 ) || ( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) >= 315)) ) {
 			compDist = tempNodes[i].dist_mm_q2;
 			nodeIndex = i;
 		}

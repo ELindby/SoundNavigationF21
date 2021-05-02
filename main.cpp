@@ -103,7 +103,7 @@ int main (int argc, char** argv)
 	double dist_to_obst_current		= 1000;	// Distance to closest obstacle on the track
 	double angle_to_obst			= 0;	// Angle to closest obstacle for dist_to_obst_current
 	double dist_to_obst_prev		= 1000;	// Previous Distance to closest obstacle on the track
-	double dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
+	//double dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
 
 	//Front 90 degree cone  - LIDAR sensor readings for obstacle avoidance
 	rplidar_response_measurement_node_hq_t narrow_closest_node;
@@ -111,7 +111,7 @@ int main (int argc, char** argv)
 	double narrow_angle_to_obst				= 0;	// Angle to closest obstacle for dist_to_obst_current
 	double narrow_dist_to_obst_prev			= 1000;	// Previous Distance to closest obstacle on the track
 	double narrow_dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
-    
+
     std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << " (Lidar stabilizing)" << std::endl;
 	while(closest_node.dist_mm_q2 == 0){ //0 is default value of faulty LIDAR readings
             closest_node = lidar.readScan();
@@ -133,7 +133,7 @@ int main (int argc, char** argv)
 		std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
 
 		//Update LIDAR reading values
-		dist_to_obst_prev_prev	= dist_to_obst_prev;
+		//dist_to_obst_prev_prev	= dist_to_obst_prev;
 		dist_to_obst_prev		= dist_to_obst_current;
 		dist_to_obst_current	= closest_node.dist_mm_q2 / 4.0f;
 		angle_to_obst			= lidar.getCorrectedAngle(closest_node);
@@ -180,7 +180,7 @@ int main (int argc, char** argv)
 		default:
 			break;
 		}
-		std::cout << "Sound energy " << odas.getSoundEnergy() << "\nWAIT = 0, NAVIGATE = 1, AVOID = 2, REFLEX = 3, TARGET_FOUND = 4. Current state:  " << CURRENT_STATE << std::endl;
+		std::cout << "Sound energy " << odas.getSoundEnergy() << "\nWAIT = 0, NAVIGATE = 1, AVOID = 2, REFLEX = 3, TARGET_FOUND = 4. Current state:  " << current_state << std::endl;
 		std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
 		std::cout << "180deg dist/angle: " << dist_to_obst_current << " | " << angle_to_obst << std::endl;
 
