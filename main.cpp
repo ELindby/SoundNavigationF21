@@ -50,6 +50,11 @@
 #include <thread>
 #include <mutex>
 
+//timed includes:
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
 
 using namespace std;
 //using namespace cv;
@@ -127,6 +132,8 @@ int main (int argc, char** argv)
 
 	while(true){
 	//for (int i = 0; i < 1000; i++) {
+		time_t start = time(NULL); //Start time for timestep
+
         closest_node		= lidar.readScan();			//Reads closest node in the front 180 degrees of robot
 		narrow_closest_node = lidar.readScanNarrow();	//Reads closest node in the front 90 degrees of robot
 
@@ -184,7 +191,19 @@ int main (int argc, char** argv)
 		std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
 		std::cout << "180deg dist/angle: " << dist_to_obst_current << " | " << angle_to_obst << std::endl;
 
-		usleep(100000); //Todo: Clock this to be remainder of timestep since last wait, to effectively clock the process.
+		time_t start = time(NULL); //End time for timestep (Before wait)
+		double elapsed_time = difftime(end, start) * 1e+6; //compute remaining time to sleep [sec]*1000000=[microsec]
+		int time_to_sleep = 100000 - (int) elapsed_time;
+		if (time_to_sleep > 0) //Skip sleep if timestep has been exceeded
+		{
+			usleep(time_to_sleep);
+		}
+		else
+		{
+			std::cout << "Timestep exceeded: " << -time_to_sleep << " microsec overtime." << std::endl;
+		}
+		
+		//usleep(100000); //[microsec] //Todo: Clock this to be remainder of timestep since last wait, to effectively clock the process.
 
 		//Check Vision thread waitkey - exit or manual steering
 		if(vision.k == 112){ //112 = 'p'
