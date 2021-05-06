@@ -1,0 +1,36 @@
+#include "../includes/learnedpath.h"
+//Learned path --------------------------------------
+LearnedPath::LearnedPath()
+{
+}
+
+LearnedPath::~LearnedPath()
+{
+}
+
+void LearnedPath::trackPath(double left_motor_command_, double right_motor_command_, double angle_to_sound_, double angle_to_obst_, double dist_to_obst_)
+{
+    left_motor_command.push_back(left_motor_command_);
+    right_motor_command.push_back(right_motor_command_);
+    angle_to_sound.push_back(angle_to_sound_);
+    angle_to_obst.push_back(angle_to_obst_);
+    dist_to_obst.push_back(dist_to_obst_);
+
+}
+
+
+//Learned path handler -------------------------------
+LearnedPathHandler::LearnedPathHandler()
+{
+    active_path = new LearnedPath();
+}
+
+LearnedPathHandler::~LearnedPathHandler()
+{
+}
+
+void LearnedPathHandler::startNewPath()
+{
+    learned_paths.push_back(*active_path);
+    active_path = new LearnedPath();
+}

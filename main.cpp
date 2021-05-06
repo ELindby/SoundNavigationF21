@@ -16,6 +16,7 @@
 #include "includes/navigation.h"
 #include "includes/odas.h"
 #include "includes/vision.h"
+#include "includes/learnedpath.h"
 
 // ODAS includes
 #include <netinet/in.h>
@@ -88,6 +89,8 @@ int main (int argc, char** argv)
 
 	Vision vision;                                                  //Initialise Vision, class that handles camera, and input
 	std::thread thread_vision(&Vision::updateCamera, &vision);      //Start Vision thread
+
+	LearnedPathHandler learned_path_handler;
 
 	/*****************************************************************************
 	************************   TEST IMPLEMENTATIONS   ****************************
@@ -200,9 +203,6 @@ int main (int argc, char** argv)
         clock_gettime(CLOCK_MONOTONIC, &end_time); //End time for timestep (Before wait)
         elapsed_time_us = ((long)end_time.tv_sec - (long)start_time.tv_sec) * (long)1e+6 + ((long)end_time.tv_nsec - (long)start_time.tv_nsec) / 1000; //Compute elapsed time in microsec [us]
         time_to_sleep_us = 100000 - elapsed_time_us; //Calculate how long to sleep, remainder of timestep interval
-		//time_t end_time = time(NULL); //End time for timestep (Before wait)
-		//double elapsed_time = difftime(end_time, start_time);// * 1e+6; //compute remaining time to sleep [sec]*1000000=[microsec]
-		//int time_to_sleep = 100000 - (int) elapsed_time;
 		if (time_to_sleep_us > 0) //Skip sleep if timestep has been exceeded
 		{
 			usleep(time_to_sleep_us); //[microsec]

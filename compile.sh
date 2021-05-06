@@ -4,6 +4,7 @@ sources/vision.cpp \
 sources/odas.cpp \
 sources/navigation.cpp \
 sources/lidar.cpp \
+sources/learnedpath.cpp \
 sdk/include/rplidar.h \
 sdk/src/rplidar_driver.cpp \
 sdk/src/hal/thread.cpp \
@@ -24,10 +25,11 @@ sdk/src/arch/linux/net_socket.cpp \
 -lopencv_imgcodecs \
 -lopencv_imgproc \
 -lmatrix_creator_hal \
--lgflags 
+-lgflags \
+-Wno-psabi
 
 
 echo "To run, type:"
 echo "./main.out"
 echo "To run with ODASlive, type:"
-echo "./runodasandmain.sh"
+echo "./run.sh"
