@@ -129,10 +129,15 @@ int main (int argc, char** argv)
 	*****************************************************************************/
 
 	states current_state = WAIT;
+	int current_timestep = 0;
+    struct timespec start_time, end_time;
+    long elapsed_time_us, time_to_sleep_us;
 
 	while(true){
 	//for (int i = 0; i < 1000; i++) {
-		time_t start = time(NULL); //Start time for timestep
+
+		//time_t start_time = time(NULL); //Start time for timestep
+		clock_gettime(CLOCK_MONOTONIC, &start_time);
 
         closest_node		= lidar.readScan();			//Reads closest node in the front 180 degrees of robot
 		narrow_closest_node = lidar.readScanNarrow();	//Reads closest node in the front 90 degrees of robot
@@ -187,22 +192,28 @@ int main (int argc, char** argv)
 		default:
 			break;
 		}
-		std::cout << "Sound energy " << odas.getSoundEnergy() << "\nWAIT = 0, NAVIGATE = 1, AVOID = 2, REFLEX = 3, TARGET_FOUND = 4. Current state:  " << current_state << std::endl;
-		std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
-		std::cout << "180deg dist/angle: " << dist_to_obst_current << " | " << angle_to_obst << std::endl;
+		//std::cout << "Sound energy " << odas.getSoundEnergy() << "\nWAIT = 0, NAVIGATE = 1, AVOID = 2, REFLEX = 3, TARGET_FOUND = 4. ";
 
-		time_t start = time(NULL); //End time for timestep (Before wait)
-		double elapsed_time = difftime(end, start) * 1e+6; //compute remaining time to sleep [sec]*1000000=[microsec]
-		int time_to_sleep = 100000 - (int) elapsed_time;
-		if (time_to_sleep > 0) //Skip sleep if timestep has been exceeded
+		//std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
+		//std::cout << "180deg dist/angle: " << dist_to_obst_current << " | " << angle_to_obst << std::endl;
+
+        clock_gettime(CLOCK_MONOTONIC, &end_time); //End time for timestep (Before wait)
+        elapsed_time_us = ((long)end_time.tv_sec - (long)start_time.tv_sec) * (long)1e+6 + ((long)end_time.tv_nsec - (long)start_time.tv_nsec) / 1000; //Compute elapsed time in microsec [us]
+        time_to_sleep_us = 100000 - elapsed_time_us; //Calculate how long to sleep, remainder of timestep interval
+		//time_t end_time = time(NULL); //End time for timestep (Before wait)
+		//double elapsed_time = difftime(end_time, start_time);// * 1e+6; //compute remaining time to sleep [sec]*1000000=[microsec]
+		//int time_to_sleep = 100000 - (int) elapsed_time;
+		if (time_to_sleep_us > 0) //Skip sleep if timestep has been exceeded
 		{
-			usleep(time_to_sleep);
+			usleep(time_to_sleep_us); //[microsec]
 		}
 		else
 		{
-			std::cout << "Timestep exceeded: " << -time_to_sleep << " microsec overtime." << std::endl;
+			std::cout << "Timestep exceeded: " << -time_to_sleep_us << " microsec overtime." << std::endl;
 		}
-		
+
+		//std::cout << "Current state:  " << current_state << "  Timestep: "<< current_timestep << " Elapsed_time: " << elapsed_time_us << std::endl;
+
 		//usleep(100000); //[microsec] //Todo: Clock this to be remainder of timestep since last wait, to effectively clock the process.
 
 		//Check Vision thread waitkey - exit or manual steering
@@ -215,6 +226,7 @@ int main (int argc, char** argv)
             std::cout << "done"  << std::endl;
             break;
 		}
+		current_timestep++;
 	}
 
 	/*********************************   END OF CONTROL LOOP   *********************************/

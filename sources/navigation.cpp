@@ -91,7 +91,7 @@ void Navigation::braitenberg(double angle, std::ofstream& output_stream, double 
 	motor_control->setRightMotorSpeedOnly(activation(angleR) /*+ VELOCITY_OFFSET*/ + avoidance_right);
 	motor_control->setLeftMotorSpeedOnly(activation(angleL) /*+ VELOCITY_OFFSET*/ + avoidance_left);
 	//TEST - Print motor values
-	std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
+	//std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
 	//output_stream << (activation(angleL)) << "," << (activation(angleR)) << "," << angleL << "," << angleR << "," << avoidance_left << "," << avoidance_right << std::endl;
 }
 
@@ -110,7 +110,7 @@ void Navigation::navigationICO(double angle, double w_A) {
 	motor_control->setRightMotorSpeedDirection(activation(angleR)*w_A + VELOCITY_OFFSET, 1);
 	motor_control->setLeftMotorSpeedDirection(activation(angleL)*w_A + VELOCITY_OFFSET, 1);
 	//TEST - Print motor values
-	std::cout << "Left speed: " << (activation(angleL) + VELOCITY_OFFSET) << " - Right speed: " << (activation(angleR) + VELOCITY_OFFSET) << std::endl;
+	//std::cout << "Left speed: " << (activation(angleL) + VELOCITY_OFFSET) << " - Right speed: " << (activation(angleR) + VELOCITY_OFFSET) << std::endl;
 }
 
 //This is used for debugging and test purposes
@@ -155,7 +155,7 @@ void Navigation::consoleControl(Vision * vision_, std::ofstream& output_stream){
 void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double dist_to_obst_prev_prev)
 {
 	//Reflex only looks for nodes in a 90 degree cone towards the front of the robot
-	//Instead of the 180 degree half circle avoidance looks in. This is because collision almost only happens in front, 
+	//Instead of the 180 degree half circle avoidance looks in. This is because collision almost only happens in front,
 	//and avoidance learns values to make tight turns around obstacles.
 	//Otherwise reflex would trigger on otherwise successful avoidance
 
@@ -177,7 +177,7 @@ void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_curren
 
 void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound, std::ofstream& output_stream)
 {
-	v_learning = ((AVOIDANCE_THRESHOLD - dist_to_obst_current) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_var + 
+	v_learning = ((AVOIDANCE_THRESHOLD - dist_to_obst_current) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_var +
 				 ((AVOIDANCE_THRESHOLD - dist_to_obst_prev) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_novar;
 
 	if (angle_to_obst <= 180) {  //RIGHT SIDE OBSTACLE
