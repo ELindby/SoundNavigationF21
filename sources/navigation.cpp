@@ -146,6 +146,9 @@ void Navigation::consoleControl(Vision * vision_, std::ofstream& output_stream){
             case 'r':
                 run_bool = false;
                 break;
+			case 'l':
+				proactive_nav_ready = true;
+				break;
             default:
                 motor_control->setMotorDirection(STOP);
                 break;

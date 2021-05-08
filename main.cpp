@@ -161,6 +161,10 @@ int main (int argc, char** argv)
 
 		navigation.updateState(current_state, sound_energy, dist_to_obst_current, narrow_dist_to_obst_current);
 
+		if (vision.k == 116) { //116 = t
+			current_state = TARGET_FOUND;
+		}
+
 		switch (current_state)
 		{
 		case WAIT:
@@ -187,12 +191,22 @@ int main (int argc, char** argv)
 			//validate target with sound information
 			// Reset state (Start new iteration)
 			if(vision.k == 115){ //115 = 's'
+				learned_path_handler.startNewPath();
+				current_timestep = 0;
                 current_state = WAIT;
             }
 			break;
         case PROACTIVE_NAVIGATION:
             //Todo: Add proactive navigation based on learned paths here.
             motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, MAX_BRIGHTNESS); //CYAN
+			if (learned_path_handler.learned_paths[0].timesteps_tracked < current_timestep)
+			{
+				current_state = TARGET_FOUND;
+				break;
+			}
+			motor_control.setLeftMotorSpeedOnly(learned_path_handler.learned_paths[0].left_motor_command[current_timestep]);
+			motor_control.setRightMotorSpeedOnly(learned_path_handler.learned_paths[0].right_motor_command[current_timestep]);
+			//for now, replay 1st iteration motor commands
             break;
 		default:
 			break;

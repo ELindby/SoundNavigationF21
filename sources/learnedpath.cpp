@@ -15,7 +15,7 @@ void LearnedPath::trackPath(double left_motor_command_, double right_motor_comma
     angle_to_sound.push_back(angle_to_sound_);
     angle_to_obst.push_back(angle_to_obst_);
     dist_to_obst.push_back(dist_to_obst_);
-
+	timesteps_tracked++;
 }
 
 
