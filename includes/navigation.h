@@ -31,8 +31,6 @@ private:
 	double reflex_learning_rate = 10;	// Learning rate for reflex µ
 	double v_learning = 0.0; 		// Velocity to add to the initial velocity
 	int reflexcounter = 0;
-
-
 public:
     bool proactive_nav_ready = false; //If the necessary behaviour needed to use proactive nagivation, this is set to true. Used for updateState
 
@@ -54,5 +52,7 @@ public:
 
 	void updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current);
 
-
+	//Store last issued motor commands, for path learning
+	double left_motor_command = 0;
+	double right_motor_command = 0;
 };

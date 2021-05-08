@@ -71,9 +71,12 @@
 #define MIN_THRESHOLD 8//10	// MAX_BRIGHTNESS: Filters out low energy
 #define MAX_BRIGHTNESS 50	// MAX_BRIGHTNESS: 0 - 255
 
-//Sound navigation threshold
+//Sound navigation energy threshold
 #define ENERGY_THRESHOLD 30
 
 //Obstacle avoidance thresholds
 #define REFLEX_THRESHOLD 250
 #define AVOIDANCE_THRESHOLD 600
+
+//Navigation default values
+#define NO_COMMAND_OBST_REFLEX -1

@@ -37,5 +37,7 @@ public:
     LearnedPathHandler();
 	~LearnedPathHandler();
 
+	void handlerTrackPath(double left_motor_command_, double right_motor_command_, double angle_to_sound_, double angle_to_obst_, double dist_to_obst_);
+
 	void startNewPath();
 };

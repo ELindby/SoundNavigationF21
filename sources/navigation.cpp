@@ -83,16 +83,20 @@ void Navigation::braitenberg(double angle, std::ofstream& output_stream, double 
 	}
 
 	// Update sensor signals
-	double angleL = (((360 - angle) - 180) / 180); // Normalize
-	double angleR = (angle - 180) / 180; // Normalize
+	double angle_norm_l = (((360 - angle) - 180) / 180); // Normalize
+	double angle_norm_r = (angle - 180) / 180; // Normalize
 
 	//motor_control->setRightMotorSpeedDirection(activation(angleR) /*+ VELOCITY_OFFSET*/, 1);
 	//motor_control->setLeftMotorSpeedDirection(activation(angleL) /*+ VELOCITY_OFFSET*/, 1);
-	motor_control->setRightMotorSpeedOnly(activation(angleR) /*+ VELOCITY_OFFSET*/ + avoidance_right);
-	motor_control->setLeftMotorSpeedOnly(activation(angleL) /*+ VELOCITY_OFFSET*/ + avoidance_left);
+	motor_control->setRightMotorSpeedOnly(activation(angle_norm_r) /*+ VELOCITY_OFFSET*/ + avoidance_right);
+	motor_control->setLeftMotorSpeedOnly(activation(angle_norm_l) /*+ VELOCITY_OFFSET*/ + avoidance_left);
 	//TEST - Print motor values
 	//std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
 	//output_stream << (activation(angleL)) << "," << (activation(angleR)) << "," << angleL << "," << angleR << "," << avoidance_left << "," << avoidance_right << std::endl;
+
+	//Store last issued motor commands, for path learning
+	left_motor_command	= activation(angle_norm_l);
+	right_motor_command	= activation(angle_norm_r);
 }
 
 void Navigation::navigationICO(double angle, double w_A) {
@@ -173,6 +177,10 @@ void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_curren
 	//Update weight used for v_learning
 	w_reflex_var = w_reflex_var + reflex_learning_rate * ((REFLEX_THRESHOLD - dist_to_obst_current) / REFLEX_THRESHOLD) * (dist_to_obst_prev_prev - dist_to_obst_prev) / REFLEX_THRESHOLD;
 	reflexcounter += 1;
+
+	//Store last issued motor commands, for path learning
+	left_motor_command	= NO_COMMAND_OBST_REFLEX;
+	right_motor_command = NO_COMMAND_OBST_REFLEX;
 }
 
 void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound, std::ofstream& output_stream)

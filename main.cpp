@@ -120,6 +120,9 @@ int main (int argc, char** argv)
 	double narrow_dist_to_obst_prev			= 1000;	// Previous Distance to closest obstacle on the track
 	double narrow_dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
 
+	int angle_to_sound			= 180;
+	int sound_energy			= 0;
+
     std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << " (Lidar stabilizing)" << std::endl;
 	while(closest_node.dist_mm_q2 == 0){ //0 is default value of faulty LIDAR readings
             closest_node = lidar.readScan();
@@ -136,19 +139,14 @@ int main (int argc, char** argv)
     struct timespec start_time, end_time;
     long elapsed_time_us, time_to_sleep_us;
 
-	while(true){
-	//for (int i = 0; i < 1000; i++) {
+	while(true)
+	{
+		clock_gettime(CLOCK_MONOTONIC, &start_time); //Start time for timestep
 
-		//time_t start_time = time(NULL); //Start time for timestep
-		clock_gettime(CLOCK_MONOTONIC, &start_time);
-
-        closest_node		= lidar.readScan();			//Reads closest node in the front 180 degrees of robot
-		narrow_closest_node = lidar.readScanNarrow();	//Reads closest node in the front 90 degrees of robot
-
-		std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
-
-		//Update LIDAR reading values
+		//Read LIDAR sensor data
 		//dist_to_obst_prev_prev	= dist_to_obst_prev;
+		closest_node		= lidar.readScan();			//Reads closest node in the front 180 degrees of robot
+		narrow_closest_node = lidar.readScanNarrow();	//Reads closest node in the front 90 degrees of robot
 		dist_to_obst_prev		= dist_to_obst_current;
 		dist_to_obst_current	= closest_node.dist_mm_q2 / 4.0f;
 		angle_to_obst			= lidar.getCorrectedAngle(closest_node);
@@ -157,7 +155,11 @@ int main (int argc, char** argv)
 		narrow_dist_to_obst_current		= narrow_closest_node.dist_mm_q2 / 4.0f;
 		narrow_angle_to_obst			= lidar.getCorrectedAngle(narrow_closest_node);
 
-		navigation.updateState(current_state, odas.getSoundEnergy(), dist_to_obst_current, narrow_dist_to_obst_current);
+		//Read MATRIX Voice sensor data
+		angle_to_sound	= odas.getSoundAngle();
+		sound_energy	= odas.getSoundEnergy();
+
+		navigation.updateState(current_state, sound_energy, dist_to_obst_current, narrow_dist_to_obst_current);
 
 		switch (current_state)
 		{
@@ -167,12 +169,12 @@ int main (int argc, char** argv)
 			break;
 		case NAVIGATION:
 			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, 0); //GREEN
-			navigation.braitenberg(odas.getSoundAngle(), output_stream, 0, 0);
+			navigation.braitenberg(angle_to_sound, output_stream, 0, 0);
 			break;
 		case AVOIDANCE:
 			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, 0); //YELLOW
 			//std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
-			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, odas.getSoundAngle(), output_stream_ICO);
+			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, angle_to_sound, output_stream_ICO);
 			break;
 		case REFLEX:
 			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, 0, 0); //RED
@@ -195,7 +197,8 @@ int main (int argc, char** argv)
 		default:
 			break;
 		}
-		//std::cout << "Sound energy " << odas.getSoundEnergy() << "\nWAIT = 0, NAVIGATE = 1, AVOID = 2, REFLEX = 3, TARGET_FOUND = 4. ";
+
+		learned_path_handler.handlerTrackPath(navigation.left_motor_command, navigation.right_motor_command, angle_to_sound, angle_to_obst, dist_to_obst_current);
 
 		//std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
 		//std::cout << "180deg dist/angle: " << dist_to_obst_current << " | " << angle_to_obst << std::endl;
@@ -212,9 +215,8 @@ int main (int argc, char** argv)
 			std::cout << "Timestep exceeded: " << -time_to_sleep_us << " microsec overtime." << std::endl;
 		}
 
+		//std::cout << "Sound energy " << odas.getSoundEnergy() << "\nWAIT = 0, NAVIGATE = 1, AVOID = 2, REFLEX = 3, TARGET_FOUND = 4. ";
 		//std::cout << "Current state:  " << current_state << "  Timestep: "<< current_timestep << " Elapsed_time: " << elapsed_time_us << std::endl;
-
-		//usleep(100000); //[microsec] //Todo: Clock this to be remainder of timestep since last wait, to effectively clock the process.
 
 		//Check Vision thread waitkey - exit or manual steering
 		if(vision.k == 112){ //112 = 'p'

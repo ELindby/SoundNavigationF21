@@ -29,6 +29,11 @@ LearnedPathHandler::~LearnedPathHandler()
 {
 }
 
+void LearnedPathHandler::handlerTrackPath(double left_motor_command_, double right_motor_command_, double angle_to_sound_, double angle_to_obst_, double dist_to_obst_)
+{
+	active_path->trackPath(left_motor_command_, right_motor_command_, angle_to_sound_, angle_to_obst_, dist_to_obst_);
+}
+
 void LearnedPathHandler::startNewPath()
 {
     learned_paths.push_back(*active_path);
