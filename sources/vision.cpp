@@ -21,7 +21,7 @@ Vision::Vision(){
 	camera.setHorizontalFlip(true);
 
 	// Display current camera parameters
-	std::cout << "Format: " << camera.getFormat() << std::endl;
+	/*std::cout << "Format: " << camera.getFormat() << std::endl;
 	std::cout << "Width: " << camera.getWidth() << std::endl;
 	std::cout << "Height: " << camera.getHeight() << std::endl;
 	std::cout << "Brightness: " << camera.getBrightness() << std::endl;
@@ -36,7 +36,7 @@ Vision::Vision(){
 	std::cout << "Image effect: " << camera.getImageEffect() << std::endl;
 	std::cout << "Metering: " << camera.getMetering() << std::endl;
 	std::cout << "Format:" << camera.getFormat() << std::endl;
-	std::cout << "Body: " << "Ready" << std::endl;
+	std::cout << "Body: " << "Ready" << std::endl;*/
 
 	// Open camera
 	if (!camera.open())

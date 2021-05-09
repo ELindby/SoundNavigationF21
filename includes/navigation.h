@@ -9,6 +9,7 @@
  */
 
 #include "motorcontrol.h"
+#include "learnedpath.h"
 #include "vision.h"
 #include "defines.h"
 #include <math.h>
@@ -17,12 +18,13 @@
 #define VELOCITY_OFFSET		12
 
 //Navigation states, as defined in state machine
-enum states { WAIT = 0, NAVIGATION = 1, AVOIDANCE = 2, REFLEX = 3, TARGET_FOUND = 4, PROACTIVE_NAVIGATION = 5 };
+enum states { WAIT = 0, NAVIGATION = 1, AVOIDANCE = 2, REFLEX = 3, TARGET_FOUND = 4, PROACTIVE_NAVIGATION = 5, PROACTIVE_NAV_AVOIDANCE };
 
 class Navigation
 {
 private:
 	MotorControl * motor_control; //Pointer to motor control, used so navigation can pass motor commands to the motor control object created in main
+	LearnedPathHandler * learned_path_handler; //Pointer to learned path handler (Where learned paths are stored)
 
 	//double * angle_pointer;
 	double w_reflex_var = 1.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
@@ -31,16 +33,16 @@ private:
 	double reflex_learning_rate = 10;	// Learning rate for reflex µ
 	double v_learning = 0.0; 		// Velocity to add to the initial velocity
 	int reflexcounter = 0;
-public:
-    bool proactive_nav_ready = false; //If the necessary behaviour needed to use proactive nagivation, this is set to true. Used for updateState
 
 	double activation(double input);		//Activation function for reactive sound navigation, and obstacle reflex
 	double activationAvoidance(double input);		//Activation function for obstacle avoidance
-
-	Navigation(MotorControl * motor_control_);
+public:
+	Navigation(MotorControl * motor_control_, LearnedPathHandler * learned_path_handler_);
 	~Navigation();
 
-	void braitenberg(double angle, std::ofstream& output_stream, double avoidance_left, double avoidance_right); //Braitenberg vehicle
+	bool proactive_nav_ready = false; //If the necessary behaviour needed to use proactive nagivation, this is set to true. Used for updateState
+
+	void braitenberg(double angle, std::ofstream& output_stream, double avoidance_left, double avoidance_right); //Braitenberg-like reactive navigation
 	void setBraitenbergLEDs(int direction);
 
 	void navigationICO(double angle, double w_A);
@@ -48,9 +50,11 @@ public:
 	void consoleControl(Vision * vision_, std::ofstream& output_stream);
 
 	void obstacleReflex(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double dist_to_obst_prev_prev);
-	void obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound, std::ofstream& output_stream);
+	void obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double& avoidance_left_o, double& avoidance_right_o);
 
 	void updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current);
+
+	void displayStateLED(const states current_state);
 
 	//Store last issued motor commands, for path learning
 	double left_motor_command = 0;

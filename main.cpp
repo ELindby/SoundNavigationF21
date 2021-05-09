@@ -74,10 +74,13 @@ int main (int argc, char** argv)
 	matrix_hal::GPIOControl gpio;									// Create GPIOControl object - General Purpose Input Output
 	gpio.Setup(&bus);												// Set gpio to use MatrixIOBus bus
 
-	//Initialise control class instances
+	//Initialise class instances
 	MotorControl motor_control = MotorControl(&bus, &everloop,
 		&everloop_image, &gpio);									//Initialise Motor Control - OBS: This constructor has to be called BEFORE the ODAS constructor, initGPIO
-    Navigation navigation = Navigation(&motor_control);				//Initialise Navigation
+
+    LearnedPathHandler learned_path_handler;
+
+    Navigation navigation = Navigation(&motor_control, &learned_path_handler);	//Initialise Navigation
 
 	ODAS odas(&bus, &everloop, &everloop_image);				    //Initialise ODAS, class that handles MATRIX Voice
 	std::thread thread_odas(&ODAS::updateODAS, &odas);				//Start ODAS thread
@@ -89,8 +92,6 @@ int main (int argc, char** argv)
 
 	Vision vision;                                                  //Initialise Vision, class that handles camera, and input
 	std::thread thread_vision(&Vision::updateCamera, &vision);      //Start Vision thread
-
-	LearnedPathHandler learned_path_handler;
 
 	/*****************************************************************************
 	************************   TEST IMPLEMENTATIONS   ****************************
@@ -126,6 +127,9 @@ int main (int argc, char** argv)
 	//Store read motor commands from learned path
 	double left_motor_command_learned = 0;
 	double right_motor_command_learned = 0;
+
+	//Store avoidance motor values, calculated from Navigation::obstacleAvoidance
+	double avoidance_left, avoidance_right;
 
     std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << " (Lidar stabilizing)" << std::endl;
 	while(closest_node.dist_mm_q2 == 0){ //0 is default value of faulty LIDAR readings
@@ -165,6 +169,7 @@ int main (int argc, char** argv)
 
 		navigation.updateState(current_state, sound_energy, dist_to_obst_current, narrow_dist_to_obst_current);
 
+        //Temporary solution because target assertance isnt working
 		if (vision.k == 116) { //116 = t
 			current_state = TARGET_FOUND;
 		}
@@ -172,38 +177,32 @@ int main (int argc, char** argv)
 		switch (current_state)
 		{
 		case WAIT:
-			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, 0, MAX_BRIGHTNESS); //BLUE
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
 			navigation.setMotorCommandsForTrackingNone(); //Set commands for tracking for current timestep to none
 			break;
 		case NAVIGATION:
-			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, 0); //GREEN
 			navigation.braitenberg(angle_to_sound, output_stream, 0, 0);
 			break;
 		case AVOIDANCE:
-			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, 0); //YELLOW
-			//std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
-			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, angle_to_sound, output_stream_ICO);
+			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, avoidance_left, avoidance_right);
+			navigation.braitenberg(angle_to_sound, output_stream, avoidance_left, avoidance_right);
 			break;
 		case REFLEX:
-			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, 0, 0); //RED
-			//std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << std::endl;
 			navigation.obstacleReflex(narrow_angle_to_obst, narrow_dist_to_obst_current, narrow_dist_to_obst_prev, narrow_dist_to_obst_prev_prev);
 			break;
 		case TARGET_FOUND:
-			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS); //WHITE
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
 			//validate target with sound information
 			// Reset state (Start new iteration)
 			if(vision.k == 115){ //115 = 's'
 				learned_path_handler.startNewPath();
 				current_timestep = 0;
-                current_state = PROACTIVE_NAVIGATION;
+                navigation.proactive_nav_ready = true;
+                //current_state = PROACTIVE_NAVIGATION;
             }
 			break;
         case PROACTIVE_NAVIGATION:
             //Todo: Add proactive navigation based on learned paths here.
-            motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, MAX_BRIGHTNESS); //CYAN
 			if (learned_path_handler.learned_paths[0].timesteps_tracked < current_timestep)
 			{
 				current_state = TARGET_FOUND;
@@ -214,9 +213,23 @@ int main (int argc, char** argv)
 			motor_control.setRightMotorSpeedOnly(right_motor_command_learned);
 			//for now, replay 1st iteration motor commands
             break;
+        case PROACTIVE_NAV_AVOIDANCE:
+			if (learned_path_handler.learned_paths[0].timesteps_tracked < current_timestep)
+			{
+				current_state = TARGET_FOUND;
+				break;
+			}
+			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, avoidance_left, avoidance_right);
+			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned);
+			motor_control.setLeftMotorSpeedOnly(left_motor_command_learned + avoidance_left);
+			motor_control.setRightMotorSpeedOnly(right_motor_command_learned + avoidance_right);
+			//for now, replay 1st iteration motor commands
+            break;
 		default:
 			break;
 		}
+
+		navigation.displayStateLED(current_state);
 
 		learned_path_handler.handlerTrackPath(navigation.left_motor_command, navigation.right_motor_command, angle_to_sound, angle_to_obst, dist_to_obst_current);
 

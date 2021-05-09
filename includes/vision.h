@@ -40,6 +40,9 @@ public:
     //waitkey, written to by vision thread, read by main, terminates control loop.
 	std::atomic<char> k;
 
+	//if target has been found this is set to true
+	//std::atomic<bool> target_found = false;
+
 	Vision();
 	~Vision();
 	void setupSimpleBlobDetector();

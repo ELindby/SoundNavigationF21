@@ -1,14 +1,9 @@
-//#include "pch.h"
 #include "../includes/navigation.h"
 
+Navigation::Navigation(MotorControl * motor_control_, LearnedPathHandler * learned_path_handler_)
+: motor_control{ motor_control_ }, learned_path_handler{ learned_path_handler_ } {}
 
-Navigation::Navigation(MotorControl * motor_control_) : motor_control{ motor_control_ }
-{
-}
-
-Navigation::~Navigation()
-{
-}
+Navigation::~Navigation(){}
 
 double Navigation::activation(double input) {
 	//return 50 / (1 + exp(-3*input));			//Sigmoid or Logistic						[0,1]
@@ -185,22 +180,20 @@ void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_curren
 	setMotorCommandsForTrackingNone();
 }
 
-void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound, std::ofstream& output_stream)
+void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double& avoidance_left_o, double& avoidance_right_o)
 {
 	v_learning = ((AVOIDANCE_THRESHOLD - dist_to_obst_current) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_var +
 				 ((AVOIDANCE_THRESHOLD - dist_to_obst_prev) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_novar;
 
 	if (angle_to_obst <= 180) {  //RIGHT SIDE OBSTACLE
 		double angle_norm = (angle_to_obst - 90) / 90;
-		double left_motor_offset	= v_learning * activationAvoidance(-angle_norm);
-		double right_motor_offset	= v_learning * activationAvoidance( angle_norm);
-		braitenberg(angle_to_sound, output_stream, left_motor_offset, right_motor_offset);
+		avoidance_left_o	= v_learning * activationAvoidance(-angle_norm);
+		avoidance_right_o	= v_learning * activationAvoidance( angle_norm);
 	}
 	else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
 		double angle_norm = (90 - (angle_to_obst - 180)) / 90;
-		double left_motor_offset	= v_learning * activationAvoidance( angle_norm);
-		double right_motor_offset	= v_learning * activationAvoidance(-angle_norm);
-		braitenberg(angle_to_sound, output_stream, left_motor_offset, right_motor_offset);
+		avoidance_left_o	= v_learning * activationAvoidance( angle_norm);
+		avoidance_right_o	= v_learning * activationAvoidance(-angle_norm);
 	}
 }
 
@@ -214,7 +207,7 @@ void Navigation::updateState(states & current_state, int sound_energy_level, dou
 	{
 		current_state = REFLEX;
 	}
-	//Check for active sound source, reactive sound navigation
+	//Check for active sound source, reactive sound navigation towards active sound source
 	else if (sound_energy_level > ENERGY_THRESHOLD) {
 		if (dist_to_obst_current < AVOIDANCE_THRESHOLD) {
 			current_state = AVOIDANCE;
@@ -222,15 +215,50 @@ void Navigation::updateState(states & current_state, int sound_energy_level, dou
 		else {
 			current_state = NAVIGATION;
 		}
-
 	}
 	//If neccessary behaviour has been learned, proactive navigation towards inactive sound source
 	else if (proactive_nav_ready == true){
-        current_state = PROACTIVE_NAVIGATION;
+        if (dist_to_obst_current < AVOIDANCE_THRESHOLD) {
+			current_state = PROACTIVE_NAV_AVOIDANCE;
+		}
+		else {
+			current_state = PROACTIVE_NAVIGATION;
+		}
 	}
 	else {
 		current_state = WAIT;
 	}
+}
+
+void Navigation::displayStateLED(const states current_state)
+{
+    switch (current_state)
+    {
+    case WAIT:                      //BLUE
+        motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, 0, MAX_BRIGHTNESS);
+        break;
+    case NAVIGATION:                //GREEN
+        motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, 0);
+        break;
+    case AVOIDANCE:                 //YELLOW
+        motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, 0);
+        break;
+    case REFLEX:                    //RED
+        motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, 0, 0);
+        break;
+    case TARGET_FOUND:              //WHITE
+        motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+        break;
+    case PROACTIVE_NAVIGATION:      //CYAN
+        motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+        break;
+    case PROACTIVE_NAV_AVOIDANCE:   //PURPLE
+        motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, 0, MAX_BRIGHTNESS);
+        break;
+    default:                        //NONE
+        motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, 0, 0);
+        break;
+    }
 }
 
 void Navigation::setMotorCommandsForTrackingNone(){
