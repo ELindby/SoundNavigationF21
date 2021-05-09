@@ -39,3 +39,8 @@ void LearnedPathHandler::startNewPath()
     learned_paths.push_back(*active_path);
     active_path = new LearnedPath();
 }
+
+void LearnedPathHandler::getLearnedCommands(const int timestep, double & left_motor_command_o, double & right_motor_command_o){
+    left_motor_command_o = learned_paths[0].left_motor_command[timestep];
+    right_motor_command_o = learned_paths[0].right_motor_command[timestep];
+}

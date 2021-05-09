@@ -55,4 +55,6 @@ public:
 	//Store last issued motor commands, for path learning
 	double left_motor_command = 0;
 	double right_motor_command = 0;
+
+	void setMotorCommandsForTrackingNone();
 };

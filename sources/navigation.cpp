@@ -181,9 +181,8 @@ void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_curren
 	w_reflex_var = w_reflex_var + reflex_learning_rate * ((REFLEX_THRESHOLD - dist_to_obst_current) / REFLEX_THRESHOLD) * (dist_to_obst_prev_prev - dist_to_obst_prev) / REFLEX_THRESHOLD;
 	reflexcounter += 1;
 
-	//Store last issued motor commands, for path learning
-	left_motor_command	= NO_COMMAND_OBST_REFLEX;
-	right_motor_command = NO_COMMAND_OBST_REFLEX;
+	//Store no motor commands, for path learning
+	setMotorCommandsForTrackingNone();
 }
 
 void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double angle_to_sound, std::ofstream& output_stream)
@@ -207,7 +206,7 @@ void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_cur
 
 void Navigation::updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current)
 {
-    if (current_state == TARGET_FOUND){
+    if (current_state == TARGET_FOUND || current_state == PROACTIVE_NAVIGATION){
         return;
     }
     //Check for obstacle within reflex threshold
@@ -232,4 +231,10 @@ void Navigation::updateState(states & current_state, int sound_energy_level, dou
 	else {
 		current_state = WAIT;
 	}
+}
+
+void Navigation::setMotorCommandsForTrackingNone(){
+    //Store no motor commands, for path learning
+	left_motor_command	= NO_COMMAND_FOR_TRACKING;
+	right_motor_command = NO_COMMAND_FOR_TRACKING;
 }

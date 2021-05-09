@@ -123,6 +123,10 @@ int main (int argc, char** argv)
 	int angle_to_sound			= 180;
 	int sound_energy			= 0;
 
+	//Store read motor commands from learned path
+	double left_motor_command_learned = 0;
+	double right_motor_command_learned = 0;
+
     std::cout << " Angle: " << lidar.getCorrectedAngle(closest_node) << " Nearest dist: " << closest_node.dist_mm_q2 / 4.0f << " (Lidar stabilizing)" << std::endl;
 	while(closest_node.dist_mm_q2 == 0){ //0 is default value of faulty LIDAR readings
             closest_node = lidar.readScan();
@@ -170,6 +174,7 @@ int main (int argc, char** argv)
 		case WAIT:
 			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, 0, MAX_BRIGHTNESS); //BLUE
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
+			navigation.setMotorCommandsForTrackingNone(); //Set commands for tracking for current timestep to none
 			break;
 		case NAVIGATION:
 			motor_control.setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, 0); //GREEN
@@ -193,7 +198,7 @@ int main (int argc, char** argv)
 			if(vision.k == 115){ //115 = 's'
 				learned_path_handler.startNewPath();
 				current_timestep = 0;
-                current_state = WAIT;
+                current_state = PROACTIVE_NAVIGATION;
             }
 			break;
         case PROACTIVE_NAVIGATION:
@@ -204,8 +209,9 @@ int main (int argc, char** argv)
 				current_state = TARGET_FOUND;
 				break;
 			}
-			motor_control.setLeftMotorSpeedOnly(learned_path_handler.learned_paths[0].left_motor_command[current_timestep]);
-			motor_control.setRightMotorSpeedOnly(learned_path_handler.learned_paths[0].right_motor_command[current_timestep]);
+			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned);
+			motor_control.setLeftMotorSpeedOnly(left_motor_command_learned);
+			motor_control.setRightMotorSpeedOnly(right_motor_command_learned);
 			//for now, replay 1st iteration motor commands
             break;
 		default:

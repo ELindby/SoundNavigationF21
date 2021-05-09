@@ -13,6 +13,8 @@
 class LearnedPath
 {
 private:
+
+public:
     std::vector<double> left_motor_command;
     std::vector<double> right_motor_command;
     std::vector<double> angle_to_sound;
@@ -22,7 +24,6 @@ private:
 
 	int timesteps_tracked = 0;
 
-public:
 	LearnedPath();
 	~LearnedPath();
 
@@ -32,15 +33,18 @@ public:
 class LearnedPathHandler
 {
 private:
-    
-    std::vector<LearnedPath> learned_paths;
+
+
 public:
     LearnedPathHandler();
 	~LearnedPathHandler();
 
+    std::vector<LearnedPath> learned_paths;
 	LearnedPath * active_path;
 
 	void handlerTrackPath(double left_motor_command_, double right_motor_command_, double angle_to_sound_, double angle_to_obst_, double dist_to_obst_);
 
 	void startNewPath();
+
+	void getLearnedCommands(const int timestep, double & left_motor_command_o, double & right_motor_command_o);
 };

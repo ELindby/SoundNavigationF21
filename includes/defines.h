@@ -79,4 +79,4 @@
 #define AVOIDANCE_THRESHOLD 600
 
 //Navigation default values
-#define NO_COMMAND_OBST_REFLEX -1
+#define NO_COMMAND_FOR_TRACKING 0
