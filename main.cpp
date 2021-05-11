@@ -181,11 +181,11 @@ int main (int argc, char** argv)
 			navigation.setMotorCommandsForTrackingNone(); //Set commands for tracking for current timestep to none
 			break;
 		case NAVIGATION:
-			navigation.braitenberg(angle_to_sound, output_stream, 0, 0);
+			navigation.reactiveSoundNavigation(angle_to_sound, output_stream, 0, 0);
 			break;
 		case AVOIDANCE:
 			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, avoidance_left, avoidance_right);
-			navigation.braitenberg(angle_to_sound, output_stream, avoidance_left, avoidance_right);
+			navigation.reactiveSoundNavigation(angle_to_sound, output_stream, avoidance_left, avoidance_right);
 			break;
 		case REFLEX:
 			navigation.obstacleReflex(narrow_angle_to_obst, narrow_dist_to_obst_current, narrow_dist_to_obst_prev, narrow_dist_to_obst_prev_prev);

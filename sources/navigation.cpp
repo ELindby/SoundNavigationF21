@@ -59,7 +59,7 @@ void Navigation::setBraitenbergLEDs(int direction) {
 
 }
 
-void Navigation::braitenberg(double angle, std::ofstream& output_stream, double avoidance_left = 0, double avoidance_right = 0) { //Braitenberg aggression vehicle
+void Navigation::reactiveSoundNavigation(double angle, std::ofstream& output_stream, double avoidance_left = 0, double avoidance_right = 0) { //Braitenberg aggression vehicle
 	if (angle >= 170 && angle <= 190) //Object is on CENTER
 	{
 		//Set center LEDs

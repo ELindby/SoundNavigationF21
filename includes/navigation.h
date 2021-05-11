@@ -42,7 +42,7 @@ public:
 
 	bool proactive_nav_ready = false; //If the necessary behaviour needed to use proactive nagivation, this is set to true. Used for updateState
 
-	void braitenberg(double angle, std::ofstream& output_stream, double avoidance_left, double avoidance_right); //Braitenberg-like reactive navigation
+	void reactiveSoundNavigation(double angle, std::ofstream& output_stream, double avoidance_left, double avoidance_right); //Braitenberg-like reactive navigation
 	void setBraitenbergLEDs(int direction);
 
 	void navigationICO(double angle, double w_A);
