@@ -112,7 +112,6 @@ int main (int argc, char** argv)
 	double dist_to_obst_current		= 1000;	// Distance to closest obstacle on the track
 	double angle_to_obst			= 0;	// Angle to closest obstacle for dist_to_obst_current
 	double dist_to_obst_prev		= 1000;	// Previous Distance to closest obstacle on the track
-	//double dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
 
 	//Front 90 degree cone  - LIDAR sensor readings for obstacle avoidance
 	rplidar_response_measurement_node_hq_t narrow_closest_node;
@@ -121,6 +120,7 @@ int main (int argc, char** argv)
 	double narrow_dist_to_obst_prev			= 1000;	// Previous Distance to closest obstacle on the track
 	double narrow_dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
 
+	//MATRIX Voice sensor readings
 	int angle_to_sound			= 180;
 	int sound_energy			= 0;
 
@@ -152,7 +152,6 @@ int main (int argc, char** argv)
 		clock_gettime(CLOCK_MONOTONIC, &start_time); //Start time for timestep
 
 		//Read LIDAR sensor data
-		//dist_to_obst_prev_prev	= dist_to_obst_prev;
 		closest_node		= lidar.readScan();			//Reads closest node in the front 180 degrees of robot
 		narrow_closest_node = lidar.readScanNarrow();	//Reads closest node in the front 90 degrees of robot
 		dist_to_obst_prev		= dist_to_obst_current;
@@ -167,12 +166,13 @@ int main (int argc, char** argv)
 		angle_to_sound	= odas.getSoundAngle();
 		sound_energy	= odas.getSoundEnergy();
 
-		navigation.updateState(current_state, sound_energy, dist_to_obst_current, narrow_dist_to_obst_current);
+		//Update state
+		navigation.updateState(current_state, sound_energy, dist_to_obst_current, narrow_dist_to_obst_current, vision.getTargetFound());
 
         //Temporary solution because target assertance isnt working
-		if (vision.k == 116) { //116 = t
-			current_state = TARGET_FOUND;
-		}
+		//if (vision.k == 116) { //116 = t
+		//	current_state = TARGET_FOUND;
+		//}
 
 		switch (current_state)
 		{
@@ -192,14 +192,19 @@ int main (int argc, char** argv)
 			break;
 		case TARGET_FOUND:
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
-			//validate target with sound information
-			// Reset state (Start new iteration)
+			// Start new ICO Learning iteration
 			if(vision.k == 115){ //115 = 's'
 				learned_path_handler.startNewPath();
 				current_timestep = 0;
-                navigation.proactive_nav_ready = true;
-                //current_state = PROACTIVE_NAVIGATION;
+				vision.resetTargetFound();
             }
+			// Start new proactive navigation iteration
+			if (vision.k == 116) { //116 = 't'
+				learned_path_handler.startNewPath();
+				current_timestep = 0;
+				vision.resetTargetFound();
+				navigation.proactive_nav_ready = true;
+			}
 			break;
         case PROACTIVE_NAVIGATION:
             //Todo: Add proactive navigation based on learned paths here.
@@ -231,7 +236,10 @@ int main (int argc, char** argv)
 
 		navigation.displayStateLED(current_state);
 
-		learned_path_handler.handlerTrackPath(navigation.left_motor_command, navigation.right_motor_command, angle_to_sound, angle_to_obst, dist_to_obst_current);
+		if (current state != TARGET_FOUND)
+		{
+			learned_path_handler.handlerTrackPath(navigation.left_motor_command, navigation.right_motor_command, angle_to_sound, angle_to_obst, dist_to_obst_current);
+		}
 
 		//std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
 		//std::cout << "180deg dist/angle: " << dist_to_obst_current << " | " << angle_to_obst << std::endl;

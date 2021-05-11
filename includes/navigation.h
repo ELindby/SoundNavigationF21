@@ -52,7 +52,7 @@ public:
 	void obstacleReflex(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double dist_to_obst_prev_prev);
 	void obstacleAvoidance(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double& avoidance_left_o, double& avoidance_right_o);
 
-	void updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current);
+	void updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current, bool target_found);
 
 	void displayStateLED(const states current_state);
 

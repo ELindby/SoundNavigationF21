@@ -197,9 +197,11 @@ void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_cur
 	}
 }
 
-void Navigation::updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current)
+void Navigation::updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current, bool target_found)
 {
-    if (current_state == TARGET_FOUND || current_state == PROACTIVE_NAVIGATION){
+	//Check if target has been found
+    if (target_found){
+		current_state = TARGET_FOUND;
         return;
     }
     //Check for obstacle within reflex threshold

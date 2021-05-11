@@ -65,6 +65,14 @@ Vision::Vision(){
 
 	// Create window to display original image
 	cv::namedWindow("Image",cv::WINDOW_AUTOSIZE);
+
+	// Create a bunch of windows for displaying image processing steps
+	// Create window to display original HSV image
+	//cv::namedWindow("HSV image",cv::WINDOW_AUTOSIZE);
+	// Create window to display thresholded image
+	//cv::namedWindow("Thresholded image",cv::WINDOW_AUTOSIZE);
+	// Create window to display blob image
+	//cv::namedWindow("Blobs", cv::WINDOW_AUTOSIZE);
 }
 
 
@@ -77,57 +85,32 @@ void Vision::setupSimpleBlobDetector()
 /*****************************************************************************
 *********************  SETUP SIMPLE BLOB DETECTOR   **************************
 *****************************************************************************/
-	/*// Create OpenCV SimpleBlobDetector parameter objects (One for white object detection (red), one for black object detection).
-	//cv::SimpleBlobDetector::Params sbdPar_red, sbdPar_black;
+	// Create OpenCV SimpleBlobDetector parameter object (Stored as member variable instead)
+	//cv::SimpleBlobDetector::Params sbdPar;
 
 	// Set blob detection parameters
 	// Change thresholds
-	sbdPar_red.minThreshold = 1;
-	sbdPar_red.maxThreshold = 1000;
-	sbdPar_black.minThreshold = 1;
-	sbdPar_black.maxThreshold = 1000;
+	sbdPar.minThreshold = 1;
+	sbdPar.maxThreshold = 1000;
+
 	// Filter by colour
-	sbdPar_red.filterByColor = true;
-	sbdPar_black.filterByColor = true;
+	sbdPar.filterByColor = true;
+
 	// Look for colours that match grayscale value of 255 (white) or 0 (black)
-	sbdPar_red.blobColor = 255;
-	sbdPar_black.blobColor = 0;
+	sbdPar.blobColor = 255;
+
 	// Filter by area
-	sbdPar_red.filterByArea = true;
-	sbdPar_red.minArea = 100; // 10x10 pixels
-	sbdPar_red.maxArea = 160000; // 400x400 pixels
-	sbdPar_black.filterByArea = true;
-	sbdPar_black.minArea = 1225; // 100x100 pixels
-	sbdPar_black.maxArea = 160000; // 400x400 pixels
+	sbdPar.filterByArea = true;
+	sbdPar.minArea = 100; // 10x10 pixels
+	sbdPar.maxArea = 160000; // 400x400 pixels
 
 	// Create OpenCV SimpleBlobDetector object based on assigned parameters
-	sbd_red = cv::SimpleBlobDetector::create(sbdPar_red);
-	sbd_black = cv::SimpleBlobDetector::create(sbdPar_black);
-	vector<cv::KeyPoint> keypts_red, keypts_black;*/
+	sbd = cv::SimpleBlobDetector::create(sbdPar);
+	//std::vector<cv::KeyPoint> keypts;
 
 	/*****************************************************************************
 	************************   INITIALISE VISUALISATION   ************************
 	*****************************************************************************/
-	/*// Black threshold values
-	int iLowH_black = 0;
-	int iHighH_black = 179;
-
-	int iLowS_black = 0;
-	int iHighS_black = 255;
-
-	int iLowV_black = 30;
-	int iHighV_black = 255;
-
-	// Red threshold values Remember blobcolor = 255
-	int iLowH_red = 0;
-	int iHighH_red = 179;
-
-	int iLowS_red = 74;
-	int iHighS_red = 255;
-
-	int iLowV_red = 60;
-	int iHighV_red = 255;
-
 	//~ // Create a window for displaying HSV
 	//~ cv::namedWindow("HSV controls",cv::WINDOW_NORMAL);
 
@@ -138,17 +121,62 @@ void Vision::setupSimpleBlobDetector()
 	//~ cv::createTrackbar("HighS", "HSV controls", &iHighS, 255);
 	//~ cv::createTrackbar("LowV", "HSV controls", &iLowV, 255); //Value (0 - 255)
 	//~ cv::createTrackbar("HighV", "HSV controls", &iHighV, 255);
-
-	// Create a bunch of windows for displaying image processing steps
-	// Create window to display original HSV image
-	//cv::namedWindow("HSV image",cv::WINDOW_AUTOSIZE);
-	// Create window to display thresholded image
-	//cv::namedWindow("Thresholded image - Red",cv::WINDOW_AUTOSIZE);
-	//cv::namedWindow("Thresholded image - Black",cv::WINDOW_AUTOSIZE);
-	// Create window to display blob image
-	cv::namedWindow("Blobs - Red", cv::WINDOW_AUTOSIZE);
-	cv::namedWindow("Blobs - Black", cv::WINDOW_AUTOSIZE);*/
 	/*********************************   DONE   *********************************/
+}
+
+void Vision::simpleBlobDetector() {
+	// Convert image from BGR to HSV
+	cv::cvtColor(imageMat, imageMatHSV, cv::COLOR_BGR2HSV);
+
+	//Threshold image
+	cv::inRange(imageMatHSV, cv::Scalar(iLowH, iLowS, iLowV), cv::Scalar(iHighH, iHighS, iHighV), imageThreshold);
+
+	//Perform morphological opening and closing to smooth out object (Repeated once)
+	erode (imageThreshold, imageThreshold, getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5))); //morphological opening (remove small objects from the foreground)
+	dilate(imageThreshold, imageThreshold, getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5))); //morphological closing (fill small holes in the foreground)
+	erode (imageThreshold, imageThreshold, getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
+	dilate(imageThreshold, imageThreshold, getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(5, 5)));
+
+	// Display HSV image
+	//cv::imshow("HSV image", imageMatHSV);
+
+	// Display thresholded imnage
+	//cv::imshow("Thresholded image",imageThreshold);
+
+	// Detect keypoints in thresholded image using SimpleBlobDetector object
+	sbd->detect(imageThreshold, keypts);
+
+	// Draw detected keypoints as red/rblue(black) circles around detected blobs and store new image in OpenCV image Mat
+	//cv::drawKeypoints(imageThreshold, keypts, imageKeypoints, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+
+	// Display image with detected blobs
+	//cv::imshow("Blobs", imageKeypoints);
+
+	// Extract [x,y] co-ordinates of blobs from keypoints
+	cv::KeyPoint::convert(keypts, keyptXY);
+
+	//Handle detected object, if target is within center and within close proximity, give that information to main thread
+	if (keyptXY.size() >= 1) { //If there is a detected target
+		if (keypts_red.front().size >= TARGET_SIZE_THRESHOLD) { //If detected target is close enough (Blob is within size)
+			//Target has been found. 
+			target_found = true;
+		}
+	}
+}
+
+bool Vision::getTargetFound() {
+	//Target found is atomic bool (non copyable)
+	if (target_found == true) {
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void Vision::resetTargetFound() {
+	target_found = false;
 }
 
 void Vision::updateCamera(){
@@ -176,6 +204,9 @@ void Vision::updateCamera(){
 
         // Display Image
         cv::imshow("Image", imageMat);
+
+		//Perform blob detection
+		simpleBlobDetector();
 
         //cv::waitKey(30);
         k = cv::waitKey(100);
