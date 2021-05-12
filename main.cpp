@@ -121,8 +121,9 @@ int main (int argc, char** argv)
 	double narrow_dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
 
 	//MATRIX Voice sensor readings
-	int angle_to_sound			= 180;
-	int sound_energy			= 0;
+	int angle_to_sound			    = 180;
+	int sound_energy			    = 0;
+	int last_known_angle_to_sound   = 180;
 
 	//Store read motor commands from learned path
 	double left_motor_command_learned = 0;
@@ -165,14 +166,11 @@ int main (int argc, char** argv)
 		//Read MATRIX Voice sensor data
 		angle_to_sound	= odas.getSoundAngle();
 		sound_energy	= odas.getSoundEnergy();
+		if(sound_energy > ENERGY_THRESHOLD)
+            last_known_angle_to_sound = angle_to_sound;
 
 		//Update state
 		navigation.updateState(current_state, sound_energy, dist_to_obst_current, narrow_dist_to_obst_current, vision.getTargetFound());
-
-        //Temporary solution because target assertance isnt working
-		//if (vision.k == 116) { //116 = t
-		//	current_state = TARGET_FOUND;
-		//}
 
 		switch (current_state)
 		{
@@ -213,7 +211,8 @@ int main (int argc, char** argv)
 				current_state = TARGET_FOUND;
 				break;
 			}
-			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned);
+			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned,
+                                                    last_known_angle_to_sound, angle_to_obst, dist_to_obst_current);
 			motor_control.setLeftMotorSpeedOnly(left_motor_command_learned);
 			motor_control.setRightMotorSpeedOnly(right_motor_command_learned);
 			//for now, replay 1st iteration motor commands
@@ -225,7 +224,8 @@ int main (int argc, char** argv)
 				break;
 			}
 			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, avoidance_left, avoidance_right);
-			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned);
+			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned,
+                                                    last_known_angle_to_sound, angle_to_obst, dist_to_obst_current);
 			motor_control.setLeftMotorSpeedOnly(left_motor_command_learned + avoidance_left);
 			motor_control.setRightMotorSpeedOnly(right_motor_command_learned + avoidance_right);
 			//for now, replay 1st iteration motor commands
@@ -236,7 +236,7 @@ int main (int argc, char** argv)
 
 		navigation.displayStateLED(current_state);
 
-		if (current state != TARGET_FOUND)
+		if (current_state != TARGET_FOUND)
 		{
 			learned_path_handler.handlerTrackPath(navigation.left_motor_command, navigation.right_motor_command, angle_to_sound, angle_to_obst, dist_to_obst_current);
 		}

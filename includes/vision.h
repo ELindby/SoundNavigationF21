@@ -12,6 +12,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/features2d.hpp>
 
+#include "defines.h"
+
 #include <iostream>
 #include <unistd.h>
 #include <raspicam/raspicam.h>
@@ -50,7 +52,7 @@ public:
 	std::atomic<char> k;
 
 	//if target has been found this is set to true
-	std::atomic<bool> target_found = false;
+	std::atomic<bool> target_found = ATOMIC_VAR_INIT(false);
 
 	Vision();
 	~Vision();

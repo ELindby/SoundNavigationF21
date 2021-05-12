@@ -157,8 +157,8 @@ void Vision::simpleBlobDetector() {
 
 	//Handle detected object, if target is within center and within close proximity, give that information to main thread
 	if (keyptXY.size() >= 1) { //If there is a detected target
-		if (keypts_red.front().size >= TARGET_SIZE_THRESHOLD) { //If detected target is close enough (Blob is within size)
-			//Target has been found. 
+		if (keypts.front().size >= TARGET_SIZE_THRESHOLD) { //If detected target is close enough (Blob is within size)
+			//Target has been found.
 			target_found = true;
 		}
 	}
@@ -166,7 +166,7 @@ void Vision::simpleBlobDetector() {
 
 bool Vision::getTargetFound() {
 	//Target found is atomic bool (non copyable)
-	if (target_found == true) {
+	if (target_found.load()) { //If target_found == true
 		return true;
 	}
 	else
@@ -176,7 +176,7 @@ bool Vision::getTargetFound() {
 }
 
 void Vision::resetTargetFound() {
-	target_found = false;
+	target_found.store(false);
 }
 
 void Vision::updateCamera(){
