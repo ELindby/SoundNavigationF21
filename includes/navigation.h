@@ -27,8 +27,8 @@ private:
 	LearnedPathHandler * learned_path_handler; //Pointer to learned path handler (Where learned paths are stored)
 
 	//double * angle_pointer;
-	double w_reflex_var = 1.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
-	double w_reflex_novar = 1.0;		//
+	double w_reflex_var = 5.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
+	double w_reflex_novar = 5.0;		//
 
 	double reflex_learning_rate = 10;	// Learning rate for reflex µ
 	double v_learning = 0.0; 		// Velocity to add to the initial velocity
@@ -42,10 +42,12 @@ public:
 
 	bool proactive_nav_ready = false; //If the necessary behaviour needed to use proactive nagivation, this is set to true. Used for updateState
 
-	void braitenberg(double angle, std::ofstream& output_stream, double avoidance_left, double avoidance_right); //Braitenberg-like reactive navigation
+	void reactiveSoundNavigation(double angle, std::ofstream& output_stream, double avoidance_left, double avoidance_right); //Braitenberg-like reactive navigation
 	void setBraitenbergLEDs(int direction);
 
 	void navigationICO(double angle, double w_A);
+
+	void printICOValues(std::ofstream& output_stream);
 
 	void consoleControl(Vision * vision_, std::ofstream& output_stream);
 

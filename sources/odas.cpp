@@ -93,7 +93,7 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 			//Set LED values depending on sound input
 			//image1d->leds[i].red = 0;
 			//image1d->leds[i].green = 0;
-			if(i != MATRIX_LED_CONTROL)
+			if(i != MATRIX_LED_TRACKING)
                 image1d->leds[i].blue = color;
 			//image1d->leds[i].white = 0;
 		}
@@ -104,6 +104,7 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 		//Print test data to .csv file - Only for testing
 		//output_stream << angle << "," << energy << std::endl;
 		//
+		usleep(100);
 	}
 
 }
@@ -125,6 +126,9 @@ void ODAS::increase_pots() {
 void ODAS::decrease_pots() {
 	for (int i = 0; i < ENERGY_COUNT; i++) {
 		energy_array[i] -= (energy_array[i] > 0) ? DECREMENT : 0;
+		if(i == 1 || i == 35) {//Two anterior directions
+            energy_array[i] -= (energy_array[i] > 0) ? DECREMENT : 0;
+		}
 	}
 }
 

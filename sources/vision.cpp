@@ -97,7 +97,7 @@ void Vision::setupSimpleBlobDetector()
 	sbdPar.filterByColor = true;
 
 	// Look for colours that match grayscale value of 255 (white) or 0 (black)
-	sbdPar.blobColor = 255;
+	sbdPar.blobColor = 0;
 
 	// Filter by area
 	sbdPar.filterByArea = true;

@@ -41,10 +41,10 @@ private:
 	int iLowH	= 0;
 	int iHighH	= 179;
 
-	int iLowS	= 74;
+	int iLowS	= 0;
 	int iHighS	= 255;
 
-	int iLowV	= 60;
+	int iLowV	= 49;
 	int iHighV	= 255;
 
 public:
