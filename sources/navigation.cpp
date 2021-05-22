@@ -83,7 +83,7 @@ void Navigation::reactiveSoundNavigation(double angle, std::ofstream& output_str
 
 	//motor_control->setRightMotorSpeedDirection(activation(angleR) /*+ VELOCITY_OFFSET*/, 1);
 	//motor_control->setLeftMotorSpeedDirection(activation(angleL) /*+ VELOCITY_OFFSET*/, 1);
-	motor_control->setRightMotorSpeedOnly(activation(angle_norm_r) /*+ VELOCITY_OFFSET*/ + avoidance_right + 3.0f);
+	motor_control->setRightMotorSpeedOnly(activation(angle_norm_r) /*+ VELOCITY_OFFSET*/ + avoidance_right + 4.0f);
 	motor_control->setLeftMotorSpeedOnly(activation(angle_norm_l) /*+ VELOCITY_OFFSET*/ + avoidance_left);
 	//TEST - Print motor values
 	//std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
@@ -91,7 +91,7 @@ void Navigation::reactiveSoundNavigation(double angle, std::ofstream& output_str
 
 	//Store last issued motor commands, for path learning
 	left_motor_command	= activation(angle_norm_l);
-	right_motor_command	= activation(angle_norm_r) + 3.0f;
+	right_motor_command	= activation(angle_norm_r) + 4.0f;
 }
 
 void Navigation::navigationICO(double angle, double w_A) {
@@ -213,10 +213,10 @@ void Navigation::updateState(states & current_state, int sound_energy_level, dou
         return;
     }
     //Check for obstacle within reflex threshold
-	if (narrow_dist_to_obst_current < REFLEX_THRESHOLD)
-	{
-		current_state = REFLEX;
-	}
+	//if (narrow_dist_to_obst_current < REFLEX_THRESHOLD)
+	//{
+		//current_state = REFLEX;
+	//}
 	//Check for active sound source, reactive sound navigation towards active sound source
 	else if (sound_energy_level > ENERGY_THRESHOLD) {
 		if (dist_to_obst_current < AVOIDANCE_THRESHOLD) {

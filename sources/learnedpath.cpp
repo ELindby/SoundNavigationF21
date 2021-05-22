@@ -45,7 +45,7 @@ void LearnedPathHandler::getLearnedCommands(const int timestep, double & left_mo
     //Find the learned path with closest parameters to the actual scenario
     //NOTE: This can be vastly improved with a localization method ike extended kalman filter,
     //or a particle filter, but this wasn't implemented because of a lack of time
-    double path_unlikeness      = abs(last_known_angle_to_sound - learned_paths[0].angle_to_sound[0])/ 360   * 100
+    double path_unlikeness      = abs(last_known_angle_to_sound - learned_paths[0].angle_to_sound[0])/ 360   * 10
                                 + abs(angle_to_obst_            - learned_paths[0].angle_to_obst[0]) / 360   * 10
                                 + abs(dist_to_obst_             - learned_paths[0].dist_to_obst[0])  / 10000 * 10;
     int closest_path_index = 0;
@@ -54,7 +54,7 @@ void LearnedPathHandler::getLearnedCommands(const int timestep, double & left_mo
     double path_unlikeness_temp;
     for(size_t i = 1; i < learned_paths.size(); i++){
         for(int j = 0; j < learned_paths[i].timesteps_tracked; j++){
-            path_unlikeness_temp    = abs(last_known_angle_to_sound - learned_paths[i].angle_to_sound[j])/ 360   * 100
+            path_unlikeness_temp    = abs(last_known_angle_to_sound - learned_paths[i].angle_to_sound[j])/ 360   * 10
                                     + abs(angle_to_obst_            - learned_paths[i].angle_to_obst[j])    / 360   * 10
                                     + abs(dist_to_obst_             - learned_paths[i].dist_to_obst[j])     / 10000 * 10;
             if(path_unlikeness_temp < path_unlikeness){

@@ -242,7 +242,7 @@ int main (int argc, char** argv)
 
 		navigation.displayStateLED(current_state);
 
-		if ((current_state != TARGET_FOUND) && (current_state != WAIT) && (current_state != REFLEX))
+		if ((current_state != TARGET_FOUND) && (current_state != WAIT) && (current_state != REFLEX) && navigation.proactive_nav_ready != true)
 		{
 			learned_path_handler.handlerTrackPath(navigation.left_motor_command, navigation.right_motor_command, angle_to_sound, angle_to_obst, dist_to_obst_current);
             current_timestep++;

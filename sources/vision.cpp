@@ -63,16 +63,15 @@ Vision::Vision(){
 	// Initialise OpenCV image Mat
 	imageMat = cv::Mat(camera.getHeight(), camera.getWidth(), CV_8UC3, img_buf);
 
+    // Create a bunch of windows for displaying image processing steps
 	// Create window to display original image
-	cv::namedWindow("Image",cv::WINDOW_AUTOSIZE);
-
-	// Create a bunch of windows for displaying image processing steps
+	//cv::namedWindow("Image",cv::WINDOW_AUTOSIZE);
 	// Create window to display original HSV image
 	//cv::namedWindow("HSV image",cv::WINDOW_AUTOSIZE);
 	// Create window to display thresholded image
 	//cv::namedWindow("Thresholded image",cv::WINDOW_AUTOSIZE);
 	// Create window to display blob image
-	//cv::namedWindow("Blobs", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("Blobs", cv::WINDOW_AUTOSIZE);
 }
 
 
@@ -148,9 +147,10 @@ void Vision::simpleBlobDetector() {
 
 	// Draw detected keypoints as red/rblue(black) circles around detected blobs and store new image in OpenCV image Mat
 	//cv::drawKeypoints(imageThreshold, keypts, imageKeypoints, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+	cv::drawKeypoints(imageMat, keypts, imageKeypoints, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
 	// Display image with detected blobs
-	//cv::imshow("Blobs", imageKeypoints);
+	cv::imshow("Blobs", imageKeypoints);
 
 	// Extract [x,y] co-ordinates of blobs from keypoints
 	cv::KeyPoint::convert(keypts, keyptXY);
@@ -203,7 +203,8 @@ void Vision::updateCamera(){
         }
 
         // Display Image
-        cv::imshow("Image", imageMat);
+        //cv::imshow("Image", imageMat);
+        //NOTE: Image with detected blobs drawn is shown in SBD instead
 
 		//Perform blob detection
 		simpleBlobDetector();
