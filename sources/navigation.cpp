@@ -213,10 +213,10 @@ void Navigation::updateState(states & current_state, int sound_energy_level, dou
         return;
     }
     //Check for obstacle within reflex threshold
-	//if (narrow_dist_to_obst_current < REFLEX_THRESHOLD)
-	//{
-		//current_state = REFLEX;
-	//}
+	if (narrow_dist_to_obst_current < REFLEX_THRESHOLD)
+	{
+		current_state = REFLEX;
+	}
 	//Check for active sound source, reactive sound navigation towards active sound source
 	else if (sound_energy_level > ENERGY_THRESHOLD) {
 		if (dist_to_obst_current < AVOIDANCE_THRESHOLD) {
