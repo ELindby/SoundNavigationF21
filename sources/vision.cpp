@@ -63,16 +63,15 @@ Vision::Vision(){
 	// Initialise OpenCV image Mat
 	imageMat = cv::Mat(camera.getHeight(), camera.getWidth(), CV_8UC3, img_buf);
 
+    // Create a bunch of windows for displaying image processing steps
 	// Create window to display original image
-	cv::namedWindow("Image",cv::WINDOW_AUTOSIZE);
-
-	// Create a bunch of windows for displaying image processing steps
+	//cv::namedWindow("Image",cv::WINDOW_AUTOSIZE);
 	// Create window to display original HSV image
 	//cv::namedWindow("HSV image",cv::WINDOW_AUTOSIZE);
 	// Create window to display thresholded image
 	//cv::namedWindow("Thresholded image",cv::WINDOW_AUTOSIZE);
 	// Create window to display blob image
-	//cv::namedWindow("Blobs", cv::WINDOW_AUTOSIZE);
+	cv::namedWindow("Blobs", cv::WINDOW_AUTOSIZE);
 }
 
 
@@ -97,7 +96,7 @@ void Vision::setupSimpleBlobDetector()
 	sbdPar.filterByColor = true;
 
 	// Look for colours that match grayscale value of 255 (white) or 0 (black)
-	sbdPar.blobColor = 255;
+	sbdPar.blobColor = 0;
 
 	// Filter by area
 	sbdPar.filterByArea = true;
@@ -148,17 +147,18 @@ void Vision::simpleBlobDetector() {
 
 	// Draw detected keypoints as red/rblue(black) circles around detected blobs and store new image in OpenCV image Mat
 	//cv::drawKeypoints(imageThreshold, keypts, imageKeypoints, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+	cv::drawKeypoints(imageMat, keypts, imageKeypoints, cv::Scalar(0, 0, 255), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
 	// Display image with detected blobs
-	//cv::imshow("Blobs", imageKeypoints);
+	cv::imshow("Blobs", imageKeypoints);
 
 	// Extract [x,y] co-ordinates of blobs from keypoints
 	cv::KeyPoint::convert(keypts, keyptXY);
 
 	//Handle detected object, if target is within center and within close proximity, give that information to main thread
 	if (keyptXY.size() >= 1) { //If there is a detected target
-		if (keypts_red.front().size >= TARGET_SIZE_THRESHOLD) { //If detected target is close enough (Blob is within size)
-			//Target has been found. 
+		if (keypts.front().size >= TARGET_SIZE_THRESHOLD) { //If detected target is close enough (Blob is within size)
+			//Target has been found.
 			target_found = true;
 		}
 	}
@@ -166,7 +166,7 @@ void Vision::simpleBlobDetector() {
 
 bool Vision::getTargetFound() {
 	//Target found is atomic bool (non copyable)
-	if (target_found == true) {
+	if (target_found.load()) { //If target_found == true
 		return true;
 	}
 	else
@@ -176,7 +176,7 @@ bool Vision::getTargetFound() {
 }
 
 void Vision::resetTargetFound() {
-	target_found = false;
+	target_found.store(false);
 }
 
 void Vision::updateCamera(){
@@ -203,7 +203,8 @@ void Vision::updateCamera(){
         }
 
         // Display Image
-        cv::imshow("Image", imageMat);
+        //cv::imshow("Image", imageMat);
+        //NOTE: Image with detected blobs drawn is shown in SBD instead
 
 		//Perform blob detection
 		simpleBlobDetector();

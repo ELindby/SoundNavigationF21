@@ -21,6 +21,7 @@
 #include <vector>
 #include <fstream>
 #include <mutex>
+#include <unistd.h>
 
 #include "defines.h"
 
@@ -73,7 +74,7 @@ public:
 	void updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* everloop, matrix_hal::EverloopImage* image1d*//*std::ofstream& output_stream*/);
 	//void updateODAS(std::ofstream& output_stream); //Update odas, and print data to a csv file
 	void updateSoundInformation(); //Updates angle, angle_prev and energy
-	
+
 	int getSoundAngle();
 	int getSoundEnergy();
 };

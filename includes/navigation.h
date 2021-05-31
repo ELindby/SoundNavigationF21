@@ -18,7 +18,7 @@
 #define VELOCITY_OFFSET		12
 
 //Navigation states, as defined in state machine
-enum states { WAIT = 0, NAVIGATION = 1, AVOIDANCE = 2, REFLEX = 3, TARGET_FOUND = 4, PROACTIVE_NAVIGATION = 5, PROACTIVE_NAV_AVOIDANCE };
+enum states { WAIT = 0, NAVIGATION = 1, AVOIDANCE = 2, REFLEX = 3, TARGET_FOUND = 4, PROACTIVE_NAVIGATION = 5, PROACTIVE_NAV_AVOIDANCE = 6};
 
 class Navigation
 {
@@ -27,12 +27,12 @@ private:
 	LearnedPathHandler * learned_path_handler; //Pointer to learned path handler (Where learned paths are stored)
 
 	//double * angle_pointer;
-	double w_reflex_var = 1.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
-	double w_reflex_novar = 1.0;		//
+	double w_reflex_var = 9.26925;//9.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
+	double w_reflex_novar = 9.0;		//
 
 	double reflex_learning_rate = 10;	// Learning rate for reflex µ
 	double v_learning = 0.0; 		// Velocity to add to the initial velocity
-	int reflexcounter = 0;
+	int reflexcounter = 0;//0;
 
 	double activation(double input);		//Activation function for reactive sound navigation, and obstacle reflex
 	double activationAvoidance(double input);		//Activation function for obstacle avoidance
@@ -46,6 +46,8 @@ public:
 	void setBraitenbergLEDs(int direction);
 
 	void navigationICO(double angle, double w_A);
+
+	void printICOValues(std::ofstream& output_stream);
 
 	void consoleControl(Vision * vision_, std::ofstream& output_stream);
 

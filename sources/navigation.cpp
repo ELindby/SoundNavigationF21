@@ -60,22 +60,22 @@ void Navigation::setBraitenbergLEDs(int direction) {
 }
 
 void Navigation::reactiveSoundNavigation(double angle, std::ofstream& output_stream, double avoidance_left = 0, double avoidance_right = 0) { //Braitenberg aggression vehicle
-	if (angle >= 170 && angle <= 190) //Object is on CENTER
-	{
-		//Set center LEDs
-		//motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, MAX_BRIGHTNESS, 0);
-		//motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, MAX_BRIGHTNESS, 0);
-		setBraitenbergLEDs(FORWARD);
-	}
-	if (angle < 180) { //Object is on RIGHT side
-		//Set right LED
-		//motor_control->setMatrixVoiceLED(MATRIX_LED_R_2, 0, MAX_BRIGHTNESS, 0);
-		setBraitenbergLEDs(RIGHT);
-	}
-	else { // angle >= 180 //object is on LEFT side
-		//motor_control->setMatrixVoiceLED(MATRIX_LED_L_8, 0, MAX_BRIGHTNESS, 0);
-		setBraitenbergLEDs(LEFT);
-	}
+//	if (angle >= 170 && angle <= 190) //Object is on CENTER
+//	{
+//		//Set center LEDs
+//		//motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, MAX_BRIGHTNESS, 0);
+//		//motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, MAX_BRIGHTNESS, 0);
+//		setBraitenbergLEDs(FORWARD);
+//	}
+//	if (angle < 180) { //Object is on RIGHT side
+//		//Set right LED
+//		//motor_control->setMatrixVoiceLED(MATRIX_LED_R_2, 0, MAX_BRIGHTNESS, 0);
+//		setBraitenbergLEDs(RIGHT);
+//	}
+//	else { // angle >= 180 //object is on LEFT side
+//		//motor_control->setMatrixVoiceLED(MATRIX_LED_L_8, 0, MAX_BRIGHTNESS, 0);
+//		setBraitenbergLEDs(LEFT);
+//	}
 
 	// Update sensor signals
 	double angle_norm_l = (((360 - angle) - 180) / 180); // Normalize
@@ -83,7 +83,7 @@ void Navigation::reactiveSoundNavigation(double angle, std::ofstream& output_str
 
 	//motor_control->setRightMotorSpeedDirection(activation(angleR) /*+ VELOCITY_OFFSET*/, 1);
 	//motor_control->setLeftMotorSpeedDirection(activation(angleL) /*+ VELOCITY_OFFSET*/, 1);
-	motor_control->setRightMotorSpeedOnly(activation(angle_norm_r) /*+ VELOCITY_OFFSET*/ + avoidance_right);
+	motor_control->setRightMotorSpeedOnly(activation(angle_norm_r) /*+ VELOCITY_OFFSET*/ + avoidance_right + 4.0f);
 	motor_control->setLeftMotorSpeedOnly(activation(angle_norm_l) /*+ VELOCITY_OFFSET*/ + avoidance_left);
 	//TEST - Print motor values
 	//std::cout << "Left speed: " << (activation(angleL) /*+ VELOCITY_OFFSET*/) << " - Right speed: " << (activation(angleR) /*+ VELOCITY_OFFSET*/) << std::endl;
@@ -91,7 +91,7 @@ void Navigation::reactiveSoundNavigation(double angle, std::ofstream& output_str
 
 	//Store last issued motor commands, for path learning
 	left_motor_command	= activation(angle_norm_l);
-	right_motor_command	= activation(angle_norm_r);
+	right_motor_command	= activation(angle_norm_r) + 4.0f;
 }
 
 void Navigation::navigationICO(double angle, double w_A) {
@@ -110,6 +110,11 @@ void Navigation::navigationICO(double angle, double w_A) {
 	motor_control->setLeftMotorSpeedDirection(activation(angleL)*w_A + VELOCITY_OFFSET, 1);
 	//TEST - Print motor values
 	//std::cout << "Left speed: " << (activation(angleL) + VELOCITY_OFFSET) << " - Right speed: " << (activation(angleR) + VELOCITY_OFFSET) << std::endl;
+}
+
+void Navigation::printICOValues(std::ofstream& output_stream){
+    std::cout << "w_reflex_var: " << w_reflex_var << " -- v_learning rate: " << v_learning << " -- Reflexcounter: " << reflexcounter << std::endl;
+    output_stream << w_reflex_var << "," << v_learning << "," << reflexcounter << std::endl;
 }
 
 //This is used for debugging and test purposes
@@ -133,11 +138,14 @@ void Navigation::consoleControl(Vision * vision_, std::ofstream& output_stream){
                 break;
             case 'i':
                 if(print_ico){
-                    std::cout << "w_reflex_var: " << w_reflex_var << " -- v_learning rate: " << v_learning << " -- Reflexcounter: " << reflexcounter << std::endl;
+                    std::cout << "w_reflex_var: " << w_reflex_var << " -- v_learning: " << v_learning << " -- Reflexcounter: " << reflexcounter << std::endl;
                     output_stream << w_reflex_var << "," << v_learning << "," << reflexcounter << std::endl;
                     print_ico = false;
                 }
+                break;
             case 27: //27 = 'ESC'
+                run_bool = false;
+                break;
             case 'r':
                 run_bool = false;
                 break;
@@ -200,15 +208,15 @@ void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_cur
 void Navigation::updateState(states & current_state, int sound_energy_level, double dist_to_obst_current, double narrow_dist_to_obst_current, bool target_found)
 {
 	//Check if target has been found
-    if (target_found){
+    if (target_found ||  current_state == TARGET_FOUND){
 		current_state = TARGET_FOUND;
         return;
     }
     //Check for obstacle within reflex threshold
-	if (narrow_dist_to_obst_current < REFLEX_THRESHOLD)
-	{
-		current_state = REFLEX;
-	}
+	//if (narrow_dist_to_obst_current < REFLEX_THRESHOLD)
+	//{
+		//current_state = REFLEX;
+	//}
 	//Check for active sound source, reactive sound navigation towards active sound source
 	else if (sound_energy_level > ENERGY_THRESHOLD) {
 		if (dist_to_obst_current < AVOIDANCE_THRESHOLD) {

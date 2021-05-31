@@ -12,6 +12,8 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/features2d.hpp>
 
+#include "defines.h"
+
 #include <iostream>
 #include <unistd.h>
 #include <raspicam/raspicam.h>
@@ -39,10 +41,10 @@ private:
 	int iLowH	= 0;
 	int iHighH	= 179;
 
-	int iLowS	= 74;
+	int iLowS	= 0;
 	int iHighS	= 255;
 
-	int iLowV	= 60;
+	int iLowV	= 49;
 	int iHighV	= 255;
 
 public:
@@ -50,7 +52,7 @@ public:
 	std::atomic<char> k;
 
 	//if target has been found this is set to true
-	std::atomic<bool> target_found = false;
+	std::atomic<bool> target_found = ATOMIC_VAR_INIT(false);
 
 	Vision();
 	~Vision();

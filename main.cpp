@@ -105,7 +105,7 @@ int main (int argc, char** argv)
 	//output_stream.open("./testdata/ODASbugTest2_class.csv");
 	output_stream.open("./testdata/no_test_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
-	output_stream_ICO.open("./testdata/icolearningvalues_obstacleavoidance_test1.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
+	output_stream_ICO.open("./testdata/ico_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
 	//Front 180 degree cone - LIDAR sensor readings for obstacle avoidance
 	rplidar_response_measurement_node_hq_t closest_node;
@@ -121,8 +121,9 @@ int main (int argc, char** argv)
 	double narrow_dist_to_obst_prev_prev	= 1000;	// Previous Previus Distance to closest obstacle on the track
 
 	//MATRIX Voice sensor readings
-	int angle_to_sound			= 180;
-	int sound_energy			= 0;
+	int angle_to_sound			    = 180;
+	int sound_energy			    = 0;
+	int last_known_angle_to_sound   = 180;
 
 	//Store read motor commands from learned path
 	double left_motor_command_learned = 0;
@@ -165,14 +166,15 @@ int main (int argc, char** argv)
 		//Read MATRIX Voice sensor data
 		angle_to_sound	= odas.getSoundAngle();
 		sound_energy	= odas.getSoundEnergy();
+		if(sound_energy > ENERGY_THRESHOLD)
+            last_known_angle_to_sound = angle_to_sound;
+
+        if(vision.k == 98){ //98 = 'b'
+            current_state = TARGET_FOUND;
+		}
 
 		//Update state
 		navigation.updateState(current_state, sound_energy, dist_to_obst_current, narrow_dist_to_obst_current, vision.getTargetFound());
-
-        //Temporary solution because target assertance isnt working
-		//if (vision.k == 116) { //116 = t
-		//	current_state = TARGET_FOUND;
-		//}
 
 		switch (current_state)
 		{
@@ -197,38 +199,42 @@ int main (int argc, char** argv)
 				learned_path_handler.startNewPath();
 				current_timestep = 0;
 				vision.resetTargetFound();
+				current_state = WAIT;//REMOVE THIS AFTER DEBUGGING
+				navigation.printICOValues(output_stream_ICO);
             }
 			// Start new proactive navigation iteration
 			if (vision.k == 116) { //116 = 't'
 				learned_path_handler.startNewPath();
 				current_timestep = 0;
 				vision.resetTargetFound();
+				current_state = WAIT;//REMOVE THIS AFTER DEBUGGING
+				navigation.printICOValues(output_stream_ICO);
 				navigation.proactive_nav_ready = true;
 			}
 			break;
         case PROACTIVE_NAVIGATION:
             //Todo: Add proactive navigation based on learned paths here.
-			if (learned_path_handler.learned_paths[0].timesteps_tracked < current_timestep)
-			{
-				current_state = TARGET_FOUND;
-				break;
-			}
-			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned);
+//			if (learned_path_handler.learned_paths[0].timesteps_tracked < current_timestep)
+//			{
+//				current_state = TARGET_FOUND;
+//				break;
+//			}
+			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned,
+                                                    last_known_angle_to_sound, angle_to_obst, dist_to_obst_current);
 			motor_control.setLeftMotorSpeedOnly(left_motor_command_learned);
 			motor_control.setRightMotorSpeedOnly(right_motor_command_learned);
-			//for now, replay 1st iteration motor commands
             break;
         case PROACTIVE_NAV_AVOIDANCE:
-			if (learned_path_handler.learned_paths[0].timesteps_tracked < current_timestep)
-			{
-				current_state = TARGET_FOUND;
-				break;
-			}
+//			if (learned_path_handler.learned_paths[0].timesteps_tracked < current_timestep)
+//			{
+//				current_state = TARGET_FOUND;
+//				break;
+//			}
 			navigation.obstacleAvoidance(angle_to_obst, dist_to_obst_current, dist_to_obst_prev, avoidance_left, avoidance_right);
-			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned);
+			learned_path_handler.getLearnedCommands(current_timestep, left_motor_command_learned, right_motor_command_learned,
+                                                    last_known_angle_to_sound, angle_to_obst, dist_to_obst_current);
 			motor_control.setLeftMotorSpeedOnly(left_motor_command_learned + avoidance_left);
 			motor_control.setRightMotorSpeedOnly(right_motor_command_learned + avoidance_right);
-			//for now, replay 1st iteration motor commands
             break;
 		default:
 			break;
@@ -236,9 +242,10 @@ int main (int argc, char** argv)
 
 		navigation.displayStateLED(current_state);
 
-		if (current state != TARGET_FOUND)
+		if ((current_state != TARGET_FOUND) && (current_state != WAIT) && (current_state != REFLEX) && navigation.proactive_nav_ready != true)
 		{
 			learned_path_handler.handlerTrackPath(navigation.left_motor_command, navigation.right_motor_command, angle_to_sound, angle_to_obst, dist_to_obst_current);
+            current_timestep++;
 		}
 
 		//std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
@@ -269,7 +276,7 @@ int main (int argc, char** argv)
             std::cout << "done"  << std::endl;
             break;
 		}
-		current_timestep++;
+
 	}
 
 	/*********************************   END OF CONTROL LOOP   *********************************/

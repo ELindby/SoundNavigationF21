@@ -64,22 +64,22 @@
 #define MATRIX_LED_TRACKING     9
 
 //Vision
-#define TARGET_SIZE_THRESHOLD	120
+#define TARGET_SIZE_THRESHOLD	250
 
 //ODAS
 #define ENERGY_COUNT 36		// ENERGY_COUNT : Number of sound energy slots to maintain. - Implicit also defines angle precision, eg. 36 has angle precision of 10 degrees
 #define MAX_VALUE 200		// MAX_VALUE : controls smoothness
-#define INCREMENT 20		// INCREMENT : controls sensitivity
+#define INCREMENT 30//20		// INCREMENT : controls sensitivity
 #define DECREMENT 1			// DECREMENT : controls delay in the dimming
 #define MIN_THRESHOLD 8//10	// MAX_BRIGHTNESS: Filters out low energy
 #define MAX_BRIGHTNESS 50	// MAX_BRIGHTNESS: 0 - 255
 
 //Sound navigation energy threshold
-#define ENERGY_THRESHOLD 30
+#define ENERGY_THRESHOLD 25
 
 //Obstacle avoidance thresholds
-#define REFLEX_THRESHOLD 250
-#define AVOIDANCE_THRESHOLD 600
+#define REFLEX_THRESHOLD 200
+#define AVOIDANCE_THRESHOLD 350
 
 //Navigation default values
 #define NO_COMMAND_FOR_TRACKING 0
