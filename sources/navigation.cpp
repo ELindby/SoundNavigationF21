@@ -6,18 +6,7 @@ Navigation::Navigation(MotorControl * motor_control_, LearnedPathHandler * learn
 Navigation::~Navigation(){}
 
 double Navigation::activation(double input) {
-	//return 50 / (1 + exp(-3*input));			//Sigmoid or Logistic						[0,1]
-	//return 30 / (1 + exp(-10 * input)) + 10;	//Sigmoid or Logistic v2					[0,1]
-	//return 20 / (1 + exp(-10 * input)) + 20;	//Sigmoid or Logistic v2					[0,1]
-	//return 30 * tanh(3*input);				//Hyperbolic tangent (tanh)					[-1,1]
-	//return 30 * atan(5 * input);				//Inverse Hyperbolic Tangent (arctanh)		[-pi/2,pi/2]
-	//return 20 * 2 * atan(tanh(5x));			//Gudermannian								[-pi/2,pi/2]
-
-	//Test of braitenberg vehicle test activation functions:
-	return 20 / (1 + exp(-10 * input)) + 20;	//Sigmoid or Logistic				//Default
-	//return 10 * tanh(5 * input) + 30;			//Hyperbolic tangent (tanh)
-	//return 8 * atan(5 * input) + 30;			//Inverse Hyperbolic Tangent (arctanh)
-	//return 6 * 2 * atan(tanh(5 * input)) + 30;		//Gudermannian
+	return 20 / (1 + exp(-10 * input)) + 20;	//Sigmoid or Logistic				
 }
 
 double Navigation::activationAvoidance(double input) {
@@ -92,24 +81,6 @@ void Navigation::reactiveSoundNavigation(double angle, std::ofstream& output_str
 	//Store last issued motor commands, for path learning
 	left_motor_command	= activation(angle_norm_l);
 	right_motor_command	= activation(angle_norm_r) + 4.0f;
-}
-
-void Navigation::navigationICO(double angle, double w_A) {
-	if (angle < 180) { //Object is on RIGHT side
-		motor_control->setMatrixVoiceLED(MATRIX_LED_R_1, 0, 255, 0);
-	}
-	else { // angle >= 180 //object is on LEFT side
-		motor_control->setMatrixVoiceLED(MATRIX_LED_L_9, 0, 255, 0);
-	}
-
-	// Update sensor signals
-	double angleL = (((360 - angle) - 180) / 180); // Normalize
-	double angleR = (angle - 180) / 180; // Normalize
-
-	motor_control->setRightMotorSpeedDirection(activation(angleR)*w_A + VELOCITY_OFFSET, 1);
-	motor_control->setLeftMotorSpeedDirection(activation(angleL)*w_A + VELOCITY_OFFSET, 1);
-	//TEST - Print motor values
-	//std::cout << "Left speed: " << (activation(angleL) + VELOCITY_OFFSET) << " - Right speed: " << (activation(angleR) + VELOCITY_OFFSET) << std::endl;
 }
 
 void Navigation::printICOValues(std::ofstream& output_stream){
