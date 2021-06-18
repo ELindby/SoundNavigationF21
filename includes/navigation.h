@@ -30,7 +30,7 @@ private:
 	double w_reflex_var = 9.26925;//9.0;		// Standard weight that needs to be multiplied with distance to current Obstacle
 	double w_reflex_novar = 9.0;		//
 
-	double reflex_learning_rate = 10;	// Learning rate for reflex µ
+	double reflex_learning_rate = 10;	// Learning rate for reflex Âµ
 	double v_learning = 0.0; 		// Velocity to add to the initial velocity
 	int reflexcounter = 0;//0;
 
@@ -44,8 +44,6 @@ public:
 
 	void reactiveSoundNavigation(double angle, std::ofstream& output_stream, double avoidance_left, double avoidance_right); //Braitenberg-like reactive navigation
 	void setBraitenbergLEDs(int direction);
-
-	void navigationICO(double angle, double w_A);
 
 	void printICOValues(std::ofstream& output_stream);
 
