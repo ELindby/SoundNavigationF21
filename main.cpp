@@ -60,13 +60,15 @@
 using namespace std;
 //using namespace cv;
 
-void logData(std::ofstream& output_stream, int current_timestep, int current_iteration, states current_state, bool proactive_nav_ready, int angle_to_sound, int sound_energy, int last_known_angle_to_sound, double angle_to_obst, double dist_to_obst_current, double narrow_angle_to_obst, double narrow_dist_to_obst_current, double left_motor_command_navigation, double right_motor_command_navigation, double avoidance_left, double avoidance_right, double reflex_left, double reflex_right) {
+void logData(std::ofstream& output_stream, int current_timestep, int current_iteration, states current_state, bool proactive_nav_ready, int angle_to_sound, int sound_energy, int last_known_angle_to_sound, double angle_to_obst, double dist_to_obst_current, double narrow_angle_to_obst, double narrow_dist_to_obst_current, double left_motor_command_navigation, double right_motor_command_navigation, double avoidance_left, double avoidance_right, double reflex_left, double reflex_right, double w_a, double v_learning) {
 	//Information about controller
 	output_stream << current_timestep << "," << current_iteration << "," << current_state << "," << proactive_nav_ready << ",";
 	//Sound sensor data
 	output_stream << angle_to_sound << "," << sound_energy << "," << last_known_angle_to_sound << ",";
 	//Obstacle sensor data
 	output_stream << angle_to_obst << "," << dist_to_obst_current << "," << narrow_angle_to_obst << "," << narrow_dist_to_obst_current << ",";
+	//ICO Values
+	output_stream << w_a << "," << v_learning << ",";
 	//Output motor commands
 	output_stream << left_motor_command_navigation << "," << right_motor_command_navigation << "," << avoidance_left << "," << avoidance_right << "," << reflex_left << std::endl;
 
@@ -127,8 +129,10 @@ int main (int argc, char** argv)
 	std::ofstream output_stream;
 	std::ofstream output_stream_ICO;
 	std::ofstream output_data;
+	int output_data_ite = 0;
+	string output_data_filename = "./testdata/datalog_test_1_iteration_" + to_string(output_data_ite++) + ".csv";
 	//output_stream.open("./testdata/ODASbugTest2_class.csv");
-	output_stream.open("./testdata/no_test_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
+	output_stream.open(output_data_filename, std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
 	output_stream_ICO.open("./testdata/ico_dummy.csv", std::ofstream::out | std::ofstream::trunc); //Truncate argument deletes previous contents of file
 
@@ -155,11 +159,13 @@ int main (int argc, char** argv)
 	//Store read motor commands from learned path
 	double left_motor_command_learned		= 0;
 	double right_motor_command_learned		= 0;
-	//Store motor commands for tracking
+	//Store motor commands/ICO values for tracking
 	double left_motor_command_navigation	= 0;
 	double right_motor_command_navigation	= 0;
 	double reflex_left						= 0;
 	double reflex_right						= 0;
+	double w_a								= 0;
+	double v_learning						= 0;
 
 	//Store avoidance motor values, calculated from Navigation::obstacleAvoidance
 	double avoidance_left = 0, avoidance_right = 0;
@@ -231,24 +237,22 @@ int main (int argc, char** argv)
 		case TARGET_FOUND:
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
 			navigation.setMotorCommandsForTrackingNone(); //Set commands for tracking for current timestep to none
-			// Start new ICO Learning iteration
-			if(vision.k == 115){ //115 = 's'
+			
+			// Start new ICO Learning iteration // Start new proactive navigation iteration
+			if (vision.k == 115 || vision.k == 116) { //115 = 's' //116 = 't'
 				learned_path_handler.startNewPath();
 				current_timestep = 0;
 				vision.resetTargetFound();
-				current_state = WAIT;//REMOVE THIS AFTER DEBUGGING
+				current_state = WAIT;
 				navigation.printICOValues(output_stream_ICO);
+				if (vision.k == 116) { //116 = 't'
+					navigation.proactive_nav_ready = true;
+				}
 				current_iteration++;
-            }
-			// Start new proactive navigation iteration
-			if (vision.k == 116) { //116 = 't'
-				learned_path_handler.startNewPath();
-				current_timestep = 0;
-				vision.resetTargetFound();
-				current_state = WAIT;//REMOVE THIS AFTER DEBUGGING
-				navigation.printICOValues(output_stream_ICO);
-				navigation.proactive_nav_ready = true;
-				current_iteration++;
+				//Close output data stream and start a new one for next iteration (If program crashes, otherwise corrupts all test data)
+				output_data.close();
+				output_data_filename = "./testdata/datalog_test_1_iteration_" + to_string(output_data_ite++) + ".csv";
+				output_stream.open(output_data_filename, std::ofstream::out | std::ofstream::trunc);
 			}
 			break;
         case PROACTIVE_NAVIGATION:
@@ -288,8 +292,15 @@ int main (int argc, char** argv)
             current_timestep++;
 		}
 
+		if () {
+			
+		}
+
+		//Update ICO Values for tracking
+		navigation.getICOValues(w_a, v_learning);
+
 		//Track data for experiment examination
-		logData(output_data, current_timestep, current_iteration, current_state, navigation.proactive_nav_ready, angle_to_sound, sound_energy, last_known_angle_to_sound, angle_to_obst, dist_to_obst_current, narrow_angle_to_obst, narrow_dist_to_obst_current, navigation.left_motor_command, navigation.right_motor_command, avoidance_left, avoidance_right, reflex_left, reflex_right);
+		logData(output_data, current_timestep, current_iteration, current_state, navigation.proactive_nav_ready, angle_to_sound, sound_energy, last_known_angle_to_sound, angle_to_obst, dist_to_obst_current, narrow_angle_to_obst, narrow_dist_to_obst_current, navigation.left_motor_command, navigation.right_motor_command, avoidance_left, avoidance_right, reflex_left, reflex_right, w_a, v_learning);
 
 		//std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
 		//std::cout << "180deg dist/angle: " << dist_to_obst_current << " | " << angle_to_obst << std::endl;
@@ -332,6 +343,7 @@ int main (int argc, char** argv)
 	//Close outputstream
 	output_stream.close();
 	output_stream_ICO.close();
+	output_data.close();
 
 	//Test flag
 	std::cout << "End of main -------" << std::endl;
