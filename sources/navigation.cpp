@@ -162,7 +162,7 @@ void Navigation::consoleControl(Vision * vision_, std::ofstream& output_stream){
     std::cout << "Manual steering disabled - control loop resumed" << std::endl;
 }
 
-void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double dist_to_obst_prev_prev)
+void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_current, double dist_to_obst_prev, double dist_to_obst_prev_prev, double& reflex_left, double& reflex_right)
 {
 	//Reflex only looks for nodes in a 90 degree cone towards the front of the robot
 	//Instead of the 180 degree half circle avoidance looks in. This is because collision almost only happens in front,
@@ -174,11 +174,15 @@ void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_curren
 		double angle_norm = (angle_to_obst - 90) / 90;
 		motor_control->setRightMotorSpeedOnly(activation(angle_norm));
 		motor_control->setLeftMotorSpeedOnly(activation(-angle_norm));
+		reflex_right	= activation( angle_norm); //For tracking
+		reflex_left		= activation(-angle_norm); //For tracking
 	}
 	else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
 		double angle_norm = (90 - (angle_to_obst - 180)) / 90;
 		motor_control->setRightMotorSpeedOnly(activation(-angle_norm));
 		motor_control->setLeftMotorSpeedOnly(activation(angle_norm));
+		reflex_right	= activation(-angle_norm); //For tracking
+		reflex_left		= activation( angle_norm); //For tracking
 	}
 	//Update weight used for v_learning
 	w_reflex_var = w_reflex_var + reflex_learning_rate * ((REFLEX_THRESHOLD - dist_to_obst_current) / REFLEX_THRESHOLD) * (dist_to_obst_prev_prev - dist_to_obst_prev) / REFLEX_THRESHOLD;
@@ -213,10 +217,10 @@ void Navigation::updateState(states & current_state, int sound_energy_level, dou
         return;
     }
     //Check for obstacle within reflex threshold
-	//if (narrow_dist_to_obst_current < REFLEX_THRESHOLD)
-	//{
-		//current_state = REFLEX;
-	//}
+	if (narrow_dist_to_obst_current < REFLEX_THRESHOLD)
+	{
+		current_state = REFLEX;
+	}
 	//Check for active sound source, reactive sound navigation towards active sound source
 	else if (sound_energy_level > ENERGY_THRESHOLD) {
 		if (dist_to_obst_current < AVOIDANCE_THRESHOLD) {
@@ -275,4 +279,9 @@ void Navigation::setMotorCommandsForTrackingNone(){
     //Store no motor commands, for path learning
 	left_motor_command	= NO_COMMAND_FOR_TRACKING;
 	right_motor_command = NO_COMMAND_FOR_TRACKING;
+}
+
+void Navigation::setMotorCommandsForTracking(double left_motor_command_navigation, double right_motor_command_navigation) {
+	left_motor_command  = left_motor_command_navigation;
+	right_motor_command = right_motor_command_navigation;
 }
