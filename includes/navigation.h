@@ -62,5 +62,5 @@ public:
 	double right_motor_command = 0;
 
 	void setMotorCommandsForTrackingNone();
-	void setMotorCommandsForTracking(double left_motor_command_navigation, double right_motor_command_navigation)
+	void setMotorCommandsForTracking(double left_motor_command_navigation, double right_motor_command_navigation);
 };

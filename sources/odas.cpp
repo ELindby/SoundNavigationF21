@@ -93,7 +93,7 @@ void ODAS::updateODAS(/*matrix_hal::MatrixIOBus* bus, matrix_hal::Everloop* ever
 			//Set LED values depending on sound input
 			//image1d->leds[i].red = 0;
 			//image1d->leds[i].green = 0;
-			if(i != MATRIX_LED_TRACKING)
+			if(i != MATRIX_LED_TRACKING && i!= MATRIX_LED_CONTROL)
                 image1d->leds[i].blue = color;
 			//image1d->leds[i].white = 0;
 		}

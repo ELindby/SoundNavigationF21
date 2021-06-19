@@ -6,7 +6,7 @@ Navigation::Navigation(MotorControl * motor_control_, LearnedPathHandler * learn
 Navigation::~Navigation(){}
 
 double Navigation::activation(double input) {
-	return 20 / (1 + exp(-10 * input)) + 20;	//Sigmoid or Logistic				
+	return 20 / (1 + exp(-10 * input)) + 20;	//Sigmoid or Logistic
 }
 
 double Navigation::activationAvoidance(double input) {
@@ -84,7 +84,7 @@ void Navigation::reactiveSoundNavigation(double angle, std::ofstream& output_str
 }
 
 void Navigation::printICOValues(std::ofstream& output_stream){
-    std::cout << "w_reflex_var: " << w_reflex_var << " -- v_learning rate: " << v_learning << " -- Reflexcounter: " << reflexcounter << std::endl;
+    std::cout << "Target found exiting: w_reflex_var: " << w_reflex_var << " -- v_learning rate: " << v_learning << " -- Reflexcounter: " << reflexcounter << std::endl;
     output_stream << w_reflex_var << "," << v_learning << "," << reflexcounter << std::endl;
 }
 
@@ -146,14 +146,14 @@ void Navigation::obstacleReflex(double angle_to_obst, double dist_to_obst_curren
 	//Otherwise reflex would trigger on otherwise successful avoidance
 
 	//LEFT OR RIGHT REFLEX DODGING
-	if (angle_to_obst <= 180) { //RIGHT SIDE OBSTACLE
+	if (angle_to_obst < 180) { //RIGHT SIDE OBSTACLE
 		double angle_norm = (angle_to_obst - 90) / 90;
 		motor_control->setRightMotorSpeedOnly(activation(angle_norm));
 		motor_control->setLeftMotorSpeedOnly(activation(-angle_norm));
 		reflex_right	= activation( angle_norm); //For tracking
 		reflex_left		= activation(-angle_norm); //For tracking
 	}
-	else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
+	else { // angle_to_obst >= 180 //LEFT SIDE OBSTACLE
 		double angle_norm = (90 - (angle_to_obst - 180)) / 90;
 		motor_control->setRightMotorSpeedOnly(activation(-angle_norm));
 		motor_control->setLeftMotorSpeedOnly(activation(angle_norm));
@@ -173,12 +173,12 @@ void Navigation::obstacleAvoidance(double angle_to_obst, double dist_to_obst_cur
 	v_learning = ((AVOIDANCE_THRESHOLD - dist_to_obst_current) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_var +
 				 ((AVOIDANCE_THRESHOLD - dist_to_obst_prev) / (AVOIDANCE_THRESHOLD - REFLEX_THRESHOLD)) * w_reflex_novar;
 
-	if (angle_to_obst <= 180) {  //RIGHT SIDE OBSTACLE
+	if (angle_to_obst < 180) {  //RIGHT SIDE OBSTACLE
 		double angle_norm = (angle_to_obst - 90) / 90;
 		avoidance_left_o	= v_learning * activationAvoidance(-angle_norm);
 		avoidance_right_o	= v_learning * activationAvoidance( angle_norm);
 	}
-	else { // angle_to_obst > 180 //LEFT SIDE OBSTACLE
+	else { // angle_to_obst >= 180 //LEFT SIDE OBSTACLE
 		double angle_norm = (90 - (angle_to_obst - 180)) / 90;
 		avoidance_left_o	= v_learning * activationAvoidance( angle_norm);
 		avoidance_right_o	= v_learning * activationAvoidance(-angle_norm);
@@ -238,6 +238,7 @@ void Navigation::displayStateLED(const states current_state)
         break;
     case TARGET_FOUND:              //WHITE
         motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, MAX_BRIGHTNESS, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
+        //motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, 0, 0); //NONE
         break;
     case PROACTIVE_NAVIGATION:      //CYAN
         motor_control->setMatrixVoiceLED(MATRIX_LED_CONTROL, 0, MAX_BRIGHTNESS, MAX_BRIGHTNESS);
