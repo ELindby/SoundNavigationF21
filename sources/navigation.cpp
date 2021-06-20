@@ -88,9 +88,10 @@ void Navigation::printICOValues(std::ofstream& output_stream){
     output_stream << w_reflex_var << "," << v_learning << "," << reflexcounter << std::endl;
 }
 
-void Navigation::getICOValues(double &w_a_out, double &v_learning_out) {
+void Navigation::getICOValues(double &w_a_out, double &v_learning_out, int &reflex_counter_out) {
 	w_a_out			= w_reflex_var;
 	v_learning_out	= v_learning;
+	reflex_counter_out = reflexcounter;
 }
 
 //This is used for debugging and test purposes

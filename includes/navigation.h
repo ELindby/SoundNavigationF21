@@ -27,7 +27,7 @@ private:
 	LearnedPathHandler * learned_path_handler; //Pointer to learned path handler (Where learned paths are stored)
 
 	//double * angle_pointer;
-	double w_reflex_var		= 9.0;		//Results last time: 9.26925; // w_a Standard weight that needs to be multiplied with distance to current Obstacle
+	double w_reflex_var		= 20;//10.9857; //30; //9.0;		//10.9857; //Results last time: 9.26925; // w_a Standard weight that needs to be multiplied with distance to current Obstacle
 	double w_reflex_novar	= 9.0;		//w_b
 
 	double reflex_learning_rate = 10;	// Learning rate for reflex µ
@@ -46,7 +46,7 @@ public:
 	void setBraitenbergLEDs(int direction);
 
 	void printICOValues(std::ofstream& output_stream);
-	void getICOValues(double &w_a_out, double &v_learning_out);
+	void getICOValues(double &w_a_out, double &v_learning_out, int &reflex_counter_out);
 
 	void consoleControl(Vision * vision_, std::ofstream& output_stream);
 

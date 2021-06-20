@@ -217,7 +217,9 @@ rplidar_response_measurement_node_hq_t LIDAR::readScanNarrow()
 	{
         //If node is closer than previous node, and within the specified cone (90 degrees), node is set as new closest node found
 		if ( compDist > tempNodes[i].dist_mm_q2 && (tempNodes[i].quality != 0) &&
-            (( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) <= 45 ) || ( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) >= 315)) ) {
+            //(( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) <= 45 ) || ( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) >= 315)) ) {
+            //Testing a more narrow reflex cone
+            (( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) <= 30 ) || ( (tempNodes[i].angle_z_q14 * 90.f / (1 << 14)) >= 330)) ) {
 			compDist = tempNodes[i].dist_mm_q2;
 			nodeIndex = i;
 		}

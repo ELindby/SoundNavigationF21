@@ -126,7 +126,7 @@ void ODAS::increase_pots() {
 void ODAS::decrease_pots() {
 	for (int i = 0; i < ENERGY_COUNT; i++) {
 		energy_array[i] -= (energy_array[i] > 0) ? DECREMENT : 0;
-		if(i == 1 || i == 35) {//Two anterior directions
+		if(i == 0 || i == 35) {//Two anterior directions
             energy_array[i] -= (energy_array[i] > 0) ? DECREMENT : 0;
 		}
 	}

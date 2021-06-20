@@ -60,7 +60,10 @@
 using namespace std;
 //using namespace cv;
 
-void logData(std::ofstream& output_stream, int current_timestep, int current_iteration, states current_state, bool proactive_nav_ready, int angle_to_sound, int sound_energy, int last_known_angle_to_sound, double angle_to_obst, double dist_to_obst_current, double narrow_angle_to_obst, double narrow_dist_to_obst_current, double left_motor_command_navigation, double right_motor_command_navigation, double avoidance_left, double avoidance_right, double reflex_left, double reflex_right, double w_a, double v_learning) {
+void logData(std::ofstream& output_stream, int current_timestep, int current_iteration, states current_state, bool proactive_nav_ready, int angle_to_sound, int sound_energy, int last_known_angle_to_sound,
+            double angle_to_obst, double dist_to_obst_current, double narrow_angle_to_obst, double narrow_dist_to_obst_current,
+            double left_motor_command_navigation, double right_motor_command_navigation, double avoidance_left, double avoidance_right,
+            double reflex_left, double reflex_right, double w_a, double v_learning, int reflex_counter) {
 	//Information about controller
 	output_stream << current_timestep << "," << current_iteration << "," << current_state << "," << proactive_nav_ready << ",";
 	//Sound sensor data
@@ -70,7 +73,9 @@ void logData(std::ofstream& output_stream, int current_timestep, int current_ite
 	//ICO Values
 	output_stream << w_a << "," << v_learning << ",";
 	//Output motor commands
-	output_stream << left_motor_command_navigation << "," << right_motor_command_navigation << "," << avoidance_left << "," << avoidance_right << "," << reflex_left << "," << reflex_right << std::endl;
+	output_stream << left_motor_command_navigation << "," << right_motor_command_navigation << "," << avoidance_left << "," << avoidance_right << "," << reflex_left << "," << reflex_right << ",";
+	//Reflex triggers
+	output_stream << reflex_counter << std::endl;
 //    output_stream << "te" << "," << "st" << std::endl;
 //    std::cout << "'" << std::endl;
 	//LogEverythingPossible
@@ -168,6 +173,7 @@ int main (int argc, char** argv)
 	double reflex_right						= 0;
 	double w_a								= 0;
 	double v_learning						= 0;
+	int reflex_counter                      = 0;
 
 	//Store avoidance motor values, calculated from Navigation::obstacleAvoidance
 	double avoidance_left = 0, avoidance_right = 0;
@@ -188,6 +194,10 @@ int main (int argc, char** argv)
     struct timespec start_time, end_time;
     long elapsed_time_us, time_to_sleep_us;
 	int current_iteration = 0;
+
+	//--------------------------------------------------------
+	//Note: Currently testing a more narrow reflex signal cone
+	//--------------------------------------------------------
 
 	while(true)
 	{
@@ -212,6 +222,7 @@ int main (int argc, char** argv)
 
         if(vision.k == 98){ //98 = 'b'
             current_state = TARGET_FOUND;
+            std::cout << "TF: w_a: " << w_a  << " -- Reflexcounter: " << reflex_counter << std::endl;
 		}
 
 		//Reset avoidance (for tracking)
@@ -235,6 +246,7 @@ int main (int argc, char** argv)
 			break;
 		case REFLEX:
 			navigation.obstacleReflex(narrow_angle_to_obst, narrow_dist_to_obst_current, narrow_dist_to_obst_prev, narrow_dist_to_obst_prev_prev, reflex_left, reflex_right);
+			navigation.setMotorCommandsForTrackingNone(); //Set commands for tracking for current timestep to none
 			break;
 		case TARGET_FOUND:
 			motor_control.setMotorDirection(STOP);		//STOP ALL MOTORS
@@ -298,12 +310,12 @@ int main (int argc, char** argv)
 
 
 		//Update ICO Values for tracking
-		navigation.getICOValues(w_a, v_learning);
+		navigation.getICOValues(w_a, v_learning, reflex_counter);
 
 		//Track data for experiment examination
 		logData(output_data, current_timestep, current_iteration, current_state, navigation.proactive_nav_ready, angle_to_sound, sound_energy, last_known_angle_to_sound,
                 angle_to_obst, dist_to_obst_current, narrow_angle_to_obst, narrow_dist_to_obst_current,
-                navigation.left_motor_command, navigation.right_motor_command, avoidance_left, avoidance_right, reflex_left, reflex_right, w_a, v_learning);
+                navigation.left_motor_command, navigation.right_motor_command, avoidance_left, avoidance_right, reflex_left, reflex_right, w_a, v_learning, reflex_counter);
 
 		//std::cout << "90deg dist/angle: " << narrow_dist_to_obst_current << " | " << narrow_angle_to_obst << std::endl;
 		//std::cout << "180deg dist/angle: " << dist_to_obst_current << " | " << angle_to_obst << std::endl;
